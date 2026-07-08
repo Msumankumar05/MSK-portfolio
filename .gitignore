@@ -1,6 +1,8 @@
 # Production build outputs
 dist
 dist-ssr
+.output
+.vercel
 .vinxi
 .tanstack/
 .nitro
