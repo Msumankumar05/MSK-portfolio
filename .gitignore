@@ -1,7 +1,6 @@
 # Production build outputs
 dist
 dist-ssr
-.output
 .vinxi
 .tanstack/
 .nitro
