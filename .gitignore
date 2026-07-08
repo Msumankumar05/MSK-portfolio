@@ -1,3 +1,16 @@
+# Production build outputs
+dist
+dist-ssr
+.output
+.vinxi
+.tanstack/
+.nitro
+
+# Dependencies
+node_modules/
+jspm_packages/
+web_modules/
+
 # Logs
 logs
 *.log
@@ -7,26 +20,32 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-.output
-.vinxi
-.tanstack/**
-.nitro
+# Local environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 *.local
 
-# Wrangler / Cloudflare
+# Cloudflare / Wrangler
 .wrangler/
 .dev.vars
 
-# Editor directories and files
+# Testing
+coverage/
+.nyc_output
+
+# Editor / IDE configuration
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
