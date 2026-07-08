@@ -1,38 +1,94 @@
-# High-Fidelity Interactive Portfolio (Makoju Suman Kumar)
+# 🌐 Makoju Suman Kumar — High-Fidelity Interactive Portfolio
 
-A premium, interactive, and highly optimized developer portfolio website built with server-side rendering (SSR), high-performance animations, and custom theme layouts.
+A premium, highly interactive developer portfolio showcasing full-stack engineering, mobile development, and applied AI. Built with server-side rendering (SSR), hardware-accelerated animations, and a customized responsive design system.
+
+💻 **Live Deployment**: [itsmsk.vercel.app](https://itsmsk.vercel.app/)
 
 ---
 
 ## 🚀 Tech Stack
 
-This project is built using a modern, performant, and type-safe front-end stack:
+This project is built using a modern, performance-first, and fully type-safe framework ecosystem:
 
 * **Framework**: [TanStack Start](https://tanstack.com/start) (Full-stack SSR React framework with file-based routing)
-* **Router & Query**: [TanStack Router](https://tanstack.com/router) & [TanStack Query v5](https://tanstack.com/query)
-* **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) (using the new `@tailwindcss/vite` configuration for lightning-fast builds)
-* **Animations**: [Framer Motion v12](https://www.framer.com/motion/) (micro-interactions, hardware-accelerated transitions)
-* **Scroll Engine**: [Lenis](https://lenis.darkroom.engineering/) (for smooth, cinematic scrolling momentum)
+* **State & Router**: [TanStack Router](https://tanstack.com/router) & [TanStack Query v5](https://tanstack.com/query)
+* **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) (using the new `@tailwindcss/vite` compiler adapter)
+* **Animations**: [Framer Motion v12](https://www.framer.com/motion/) (magnetic widgets, spring transforms, custom orchestrations)
+* **Scroll Engine**: [Lenis Scroll](https://lenis.darkroom.engineering/) (for smooth vertical scrolling and custom momentum anchors)
 * **Icons**: [Lucide React](https://lucide.dev/)
-* **Build Tool**: [Vite v8](https://vite.dev/) & [Nitro Engine](https://nitro.build/) (serving build presets for Vercel/Cloudflare)
+* **Build Engine**: [Vite v8](https://vite.dev/) & [Nitro Engine](https://nitro.build/) (routing and deployment preset builds)
 
 ---
 
 ## 🎨 Key Features & User Interface
 
-* **Cinematic Boot Loader**: Custom animated introductory sequence tracking asset initialization progress.
-* **Fluid Smooth Scroll**: Immersive vertical scroll curves paired with horizontal panel sweeps.
-* **Multi-Theme Engine**: Swappable layout visual identities stored persistently in local storage with smooth peak blur transitions.
-* **Interactive HUD Chrome**: Live compass positioning metrics, time calculations, and coordinates overlay.
-* **Visual Data & Metrics**: Live-calculated contribution matrices, interactive profile stats (LeetCode, CodeChef, Codeforces), and dynamic progress bars.
-* **Type-Safe Validation**: Fully validating contact submission form powered by React Hook Form & Zod.
+### 1. Cinematic Boot Loader
+* Traces initial asset compilation, calculating completion metrics (`000%` to `100%`) through custom ease transitions.
+* Locks the body overflow while booting, executing dual-curtain slide-outs upon termination.
+
+### 2. Multi-Theme Portal Engine
+* Swaps visual color spaces through a custom portal animation overlay utilizing custom peak blurs.
+* Persistent state stored in `localStorage` with private-browsing error protection.
+* Available Themes:
+  * 🟡 `cyber` (Cyberpunk amber contrast)
+  * ⚪ `slate` (Minimal monochrome gray)
+  * 🟢 `glass` (Translucent emerald overlays)
+  * 🔵 `nord` (Arctic blue frost)
+
+### 3. Interactive HUD Chrome
+* **Pointer Compass Widget**: Active pointer-angle matrix tracking page orientation dynamically.
+* **Terminal Diagnostics Explorer**: Dynamic file navigator (`about.txt`, `skills.json`, `stack.config`, `specs.md`) printing real-time diagnostic reports onto a mock IDE console.
+* **Neural Constellation Canvas**: Custom HTML5 interactive 2D canvas drawing floating particles that link together based on cursor distance.
+* **3D Perspective Grid**: Dynamic bottom landscape grid tilting in response to mouse movement coordinates.
 
 ---
 
-## 📂 Project Architecture
+## 📊 Live Coding Metrics & Statistics
+
+### Code Arena (Dynamic switchable stats)
+* **LeetCode (Knight Rank)**: 600+ solved (180 Easy, 320 Medium, 100 Hard).
+* **Codeforces (Specialist)**: Max Rating 1620, 450+ solved across 28 contests.
+* **CodeChef (3-Star)**: 1680 Rating, 350+ solved in Div 2.
+
+### Open Source Contributions
+* Dynamic counters counting up:
+  * Commits: `1,240+`
+  * Stars: `320+`
+  * Pull Requests: `85+`
+* Custom segmented progress charts tracking language metrics:
+  * TypeScript (32%)
+  * JavaScript (26%)
+  * Dart (14%)
+  * Kotlin (12%)
+  * Java (9%)
+  * Other (7%)
+
+---
+
+## 📂 Highlighted Projects
+
+* **🌱 Farmora** (Full-Stack · Farm-to-Home Marketplace)
+  * *Description*: MERN application connecting consumers with fresh products. Features a fully-responsive admin dashboard, secure JWT authentication, and REST endpoints.
+  * *Stack*: React, Node.js, Express, MongoDB, JWT, Tailwind CSS.
+* **🎬 CineDB** (Frontend · Movie Discovery)
+  * *Description*: React search dashboard consuming the TMDB API to display casts, descriptions, and trending movies dynamically.
+  * *Stack*: React, JavaScript, TMDB API, Tailwind CSS, Vite.
+* **🤖 SKY AI** (AI Assistant · Conversational)
+  * *Description*: Intelligent conversational panel using Web Speech API to provide voice answers fetched through OpenRouter.
+  * *Stack*: React, Node.js, Express, OpenRouter API, Web Speech API.
+* **📱 Mobile Todo** (Mobile · Task Organizer)
+  * *Description*: Cross-platform mobile app utilizing SQLite storage, local notifications, and state providers.
+  * *Stack*: Flutter, Kotlin, SQLite, Provider.
+* **🧠 InterviewAI** (AI Platform · Under Dev)
+  * *Description*: Analyzes resumes to draft custom interview assessments and prep roadmaps.
+  * *Stack*: Next.js, TypeScript, AI, Node.js.
+
+---
+
+## 🛠️ Project Structure
 
 ```
-├── .vercel/               # Vercel Deployment configuration (generated at build time)
+├── .vercel/               # Vercel Deployment output folder (Build Output API)
 ├── public/                # Static assets (favicons, fonts, images)
 ├── src/
 │   ├── lib/
@@ -41,97 +97,40 @@ This project is built using a modern, performant, and type-safe front-end stack:
 │   │   └── lovable-error-reporting.ts  # Analytics boundary callbacks
 │   ├── routes/
 │   │   ├── __root.tsx                  # Root layout, html context providers, styles
-│   │   └── index.tsx                   # Main interactive single-page app containing subcomponents
+│   │   └── index.tsx                   # Interactive portfolio SPA (Data, Hooks, Sections)
 │   ├── router.tsx         # Router configuration & context definition
-│   ├── server.ts          # Server SSR runner definition (entry point)
-│   ├── start.ts           # Client hydration runner definition (entry point)
-│   └── styles.css         # Global stylesheets, custom color themes & custom scrollbars
-├── tsconfig.json          # TypeScript compilation options & alias maps
-├── vite.config.ts         # Vite plugins, path mappings & Nitro preset config
+│   ├── server.ts          # Server SSR entry point
+│   ├── start.ts           # Client hydration entry point
+│   └── styles.css         # Global stylesheet (custom fonts, themes, custom scrollbars)
+├── tsconfig.json          # TypeScript path maps
+├── vite.config.ts         # Vite plugins, path alias mappings & Vercel preset Nitro configuration
 └── package.json           # Scripts, dependencies and engines metadata
 ```
 
 ---
 
-## 🛠️ Getting Started
+## ⚙️ Setup and Deployment
 
-### Prerequisites
-
-You need [Node.js](https://nodejs.org/) (version 22 or higher) or [Bun](https://bun.sh/) installed.
-
-### Installation
-
-Clone the repository and install the dependencies:
-
+### 1. Install Dependencies
 ```bash
-# Using npm
 npm install
-
-# Using bun
+# or
 bun install
 ```
 
-### Development Server
-
-Run the local development server:
-
+### 2. Run Local Development Server
 ```bash
-# Using npm
 npm run dev
-
-# Using bun
+# or
 bun run dev
 ```
 
-Open `http://localhost:5173/` in your browser.
-
-### Formatting & Linting
-
-Ensure code meets style guidelines:
-
+### 3. Production Build
+Nitro generates Vercel serverless functions directly on build:
 ```bash
-# Lint code quality
-npm run lint
-
-# Format code files with Prettier
-npm run format
-```
-
----
-
-## 🏗️ Production Build
-
-To compile a production-ready build:
-
-```bash
-# Using npm
 npm run build
-
-# Using bun
+# or
 bun run build
 ```
 
-This compiles client-side assets under `.vercel/output/static` and compiles the SSR functions under `.vercel/output/functions/__server.func` (utilizing the Vercel Build Output API v3).
-
----
-
-## 🌐 Deployment Configuration
-
-This project is configured out-of-the-box for **Vercel** serverless deployments.
-
-### How it works
-
-1. The project uses the custom **Nitro** engine preset in `vite.config.ts`:
-   ```typescript
-   nitro({ preset: "vercel" })
-   ```
-2. When Vercel imports and runs the build command (`npm run build`), Nitro compiles the app into the exact Vercel Serverless Function format (`.vercel/output`).
-3. Vercel automatically detects the generated output, rendering the server-side pages and API endpoints with zero manual configuration.
-
----
-
-## 🚀 Optimization & Performance Details
-
-* **Bundle Pruning**: Removed all unused boilerplate packages and libraries.
-* **Component De-bloating**: Pruned 47 unused UI components and hooks to decrease compiled stylesheet payload by **~50%** (reducing from `107 kB` down to `57 kB`).
-* **Safe Local Storage Handling**: Swallowed localStorage errors to prevent browser sandbox crashes (e.g., Private Browsing mode).
+This compiles client-side outputs into `.vercel/output/static` and SSR functions into `.vercel/output/functions/__server.func` (following the Vercel Build Output API v3 specification).
