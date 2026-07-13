@@ -156,10 +156,10 @@ const PROJECTS = [
     name: "Mobile Todo",
     tag: "Mobile",
     category: "Task Management App",
-    desc: "A Flutter-based task management application with offline storage, reminders, and an intuitive user interface.",
+    desc: "A Kotlin-based task management application with add, update, delete, local storage, reminders, and an intuitive user interface.",
     longDesc:
-      "A cross-platform mobile application built with Flutter, featuring task creation, local data persistence using SQLite, reminders, and a clean, responsive interface. Designed to deliver a simple and efficient productivity experience across Android devices.",
-    stack: ["Kotlin", "SQLite", "Provider"],
+      "A Kotlin-based task management application features task addition, updates, deletion, local data persistence using Room Database, reminders, and a clean, responsive interface. Designed to deliver a simple and efficient productivity experience across Android devices.",
+    stack: ["Kotlin", "Room Database", "Material Design", "Jetpack Compose"],
     accent: "var(--pf-c2)",
     icon: "📱",
     metric: {
@@ -672,21 +672,25 @@ function HUDChrome({ active }: { active: string }) {
 
 function Navbar({ active }: { active: string }) {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 20);
     on();
     window.addEventListener("scroll", on);
     return () => window.removeEventListener("scroll", on);
   }, []);
+  // Close menu on any nav click
+  const handleNavClick = () => setMobileOpen(false);
   return (
     <header className="fixed inset-x-0 top-6 z-50 flex justify-center px-4">
       <nav
-        className={`flex items-center gap-1 rounded-full border border-white/10 bg-black/50 px-2 py-1.5 backdrop-blur-xl transition-shadow ${scrolled ? "shadow-[0_10px_40px_-15px_rgb(from var(--pf-c1) r g b / 0.35)]" : ""}`}
+        className={`flex items-center gap-1 rounded-full border border-white/10 bg-black/70 px-2 py-1.5 backdrop-blur-xl transition-shadow ${scrolled ? "shadow-[0_10px_40px_-15px_rgb(from var(--pf-c1) r g b / 0.35)]" : ""}`}
       >
-        <a href="#home" className="flex items-center gap-2 rounded-full px-3 py-1">
+        <a href="#home" onClick={handleNavClick} className="flex items-center gap-2 rounded-full px-3 py-1">
           <span className="font-display text-lg italic text-white">MSK.</span>
         </a>
         <div className="mx-1 h-4 w-px bg-white/10" />
+        {/* Desktop nav links */}
         <ul className="hidden items-center md:flex">
           {NAV.slice(1).map((item) => (
             <li key={item.id}>
@@ -710,11 +714,62 @@ function Navbar({ active }: { active: string }) {
           href="/resume.pdf"
           target="_blank"
           rel="noreferrer"
-          className="ml-2 flex items-center gap-1.5 rounded-full bg-[var(--pf-c1)] px-4 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-black transition hover:bg-white"
+          className="hidden md:flex ml-2 items-center gap-1.5 rounded-full bg-[var(--pf-c1)] px-4 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-black transition hover:bg-white"
         >
           Resume <Download className="h-3 w-3" />
         </a>
+        {/* Mobile hamburger */}
+        <button
+          className="md:hidden ml-2 flex items-center justify-center rounded-full p-2 text-white/70 hover:text-white transition"
+          onClick={() => setMobileOpen((o) => !o)}
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18" /></svg>
+          )}
+        </button>
       </nav>
+      {/* Mobile dropdown menu */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.97 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-16 left-4 right-4 rounded-2xl border border-white/10 bg-black/90 backdrop-blur-xl p-4 md:hidden"
+          >
+            <ul className="flex flex-col gap-1">
+              {NAV.map((item) => (
+                <li key={item.id}>
+                  <a
+                    href={`#${item.id}`}
+                    onClick={handleNavClick}
+                    className={`block rounded-xl px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors ${active === item.id
+                      ? "bg-white/5 text-[var(--pf-c1)]"
+                      : "text-white/60 hover:bg-white/5 hover:text-white"
+                      }`}
+                  >
+                    <span className="text-[var(--pf-c1)]/40 mr-2">{item.num}</span>
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <a
+              href="/resume.pdf"
+              target="_blank"
+              rel="noreferrer"
+              onClick={handleNavClick}
+              className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-[var(--pf-c1)] px-4 py-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-black transition hover:bg-white"
+            >
+              Resume <Download className="h-3 w-3" />
+            </a>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
@@ -723,86 +778,359 @@ function Navbar({ active }: { active: string }) {
 
 function TerminalEmulator() {
   const [history, setHistory] = useState<string[]>([
-    "Welcome to MSK terminal v1.0.2",
-    "Type 'help' to see available commands.",
+    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    "  ✦ MSK Terminal v2.0.0 ✦",
+    "  Interactive portfolio shell • Type 'help' to begin",
+    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
     "",
   ]);
   const [input, setInput] = useState("");
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestionIndex, setSuggestionIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [cursorVisible, setCursorVisible] = useState(true);
 
-  const handleCommand = (e: React.FormEvent) => {
-    e.preventDefault();
-    const cmd = input.trim().toLowerCase();
-    if (!cmd) return;
+  // Command definitions
+  const COMMANDS = {
+    help: { desc: "Show available commands", icon: "📖" },
+    about: { desc: "About Makoju Suman Kumar", icon: "👨‍💻" },
+    skills: { desc: "Technical core stack", icon: "⚡" },
+    projects: { desc: "Highlighted applications", icon: "🚀" },
+    contact: { desc: "Connect with me", icon: "📫" },
+    clear: { desc: "Clear terminal", icon: "🧹" },
+    echo: { desc: "Print text to terminal", icon: "📢" },
+    date: { desc: "Show current date & time", icon: "📅" },
+    whoami: { desc: "Display user info", icon: "👤" },
+    pwd: { desc: "Print working directory", icon: "📂" },
+    ls: { desc: "List directory contents", icon: "📋" },
+    neofetch: { desc: "System information", icon: "🖥️" },
+    uptime: { desc: "Session uptime", icon: "⏱️" },
+    history: { desc: "Command history", icon: "🔄" },
+    version: { desc: "Terminal version", icon: "🎯" },
+    theme: { desc: "Current theme info", icon: "🎨" },
+  };
 
-    let response: string[] = [];
-    switch (cmd) {
-      case "help":
-        response = [
-          `guest@msk:~$ ${input}`,
-          "Available terminal commands:",
-          "  about    - Bio & education path",
-          "  skills   - Technical core stack",
-          "  projects - Highlighted applications",
-          "  contact  - Reach out directly",
-          "  clear    - Flush console history",
-        ];
-        break;
-      case "about":
-        response = [
-          `guest@msk:~$ ${input}`,
-          "Makoju Suman Kumar — postgraduate (MCA) student",
-          "& full-stack engineer from Odisha, India.",
-          "Building web, cross-platform mobile, and AI solutions.",
-        ];
-        break;
-      case "skills":
-        response = [
-          `guest@msk:~$ ${input}`,
-          "Languages : TS, JS, Dart, Kotlin, Java",
-          "Frameworks: React, Node, Express, Flutter",
-          "Databases : MongoDB, MySQL, Firebase, SQLite",
-          "AI Tools  : LLM prompts, Agents, Web Speech API",
-        ];
-        break;
-      case "projects":
-        response = [
-          `guest@msk:~$ ${input}`,
-          "• Farmora  - MERN commerce pipeline",
-          "• CineDB   - Editorial movie crawler",
-          "• SKY AI   - Voice conversational flow",
-          "• Todo     - Offline-first SQLite planner",
-        ];
-        break;
-      case "contact":
-        response = [
-          `guest@msk:~$ ${input}`,
-          "Email    : ms.kumar.developer05@gmail.com",
-          "GitHub   : github.com/Msumankumar05",
-          "LinkedIn : linkedin.com/in/makoju-suman-kumar",
-        ];
-        break;
-      case "clear":
-        setHistory([]);
-        setInput("");
-        return;
-      default:
-        response = [
-          `guest@msk:~$ ${input}`,
-          `bash: command not found: ${cmd}`,
-          "Type 'help' for options.",
-        ];
+  // Blinking cursor
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCursorVisible(v => !v);
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Auto-suggestions
+  useEffect(() => {
+    const inputValue = input.trim().toLowerCase();
+    if (inputValue) {
+      const matches = Object.keys(COMMANDS)
+        .filter(cmd => cmd.startsWith(inputValue))
+        .slice(0, 5);
+      setSuggestions(matches);
+      setShowSuggestions(matches.length > 0);
+      setSuggestionIndex(-1);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
     }
+  }, [input]);
 
-    setHistory((prev) => [...prev, ...response, ""]);
-    setInput("");
-
+  const scrollToBottom = () => {
     setTimeout(() => {
       if (containerRef.current) {
         containerRef.current.scrollTop = containerRef.current.scrollHeight;
       }
     }, 10);
+  };
+
+  const handleCommand = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cmd = input.trim();
+    if (!cmd) return;
+
+    setCommandHistory(prev => [...prev, cmd]);
+    setHistoryIndex(-1);
+    setShowSuggestions(false);
+
+    const lowerCmd = cmd.toLowerCase();
+    let response: string[] = [];
+
+    switch (lowerCmd) {
+      case "help":
+        response = [
+          `▸ ${cmd}`,
+          "",
+          "  Available Commands",
+          "  ───────────────────",
+          ...Object.entries(COMMANDS).map(([key, { icon, desc }]) =>
+            `  ${icon}  ${key.padEnd(12)} ${desc}`
+          ),
+          "",
+          "  ⌨️  Keyboard Shortcuts",
+          "  ────────────────────",
+          "  ↑  Previous command",
+          "  ↓  Next command",
+          "  Tab Auto-complete",
+          "  Ctrl+L Clear screen",
+        ];
+        break;
+
+      case "about":
+        response = [
+          `▸ ${cmd}`,
+          "",
+          "  Makoju Suman Kumar",
+          "  ───────────────────",
+          "  🎓  MCA Postgraduate",
+          "  💼  Full-Stack Engineer",
+          "  📍  Odisha, India",
+          "  🚀  Web • Mobile • AI",
+          "  💡  Clean code enthusiast",
+          "  🌟  Open to opportunities",
+        ];
+        break;
+
+      case "skills":
+        response = [
+          `▸ ${cmd}`,
+          "",
+          "  Technical Core Stack",
+          "  ────────────────────",
+          "  📝  TS • JS • Dart • Kotlin • Java",
+          "  🏗️  React • Node • Express • Flutter",
+          "  🗄️  MongoDB • MySQL • Firebase • SQLite",
+          "  🤖  LLM • Agents • Web Speech",
+          "  ☁️  AWS • Vercel • Netlify • Docker",
+          "  📦  Git • CI/CD • Webpack • Vite",
+        ];
+        break;
+
+      case "projects":
+        response = [
+          `▸ ${cmd}`,
+          "",
+          "  Highlighted Projects",
+          "  ────────────────────",
+          "  🌾  Farmora    – MERN commerce platform",
+          "  🎬  CineDB     – Movie database crawler",
+          "  🤖  SKY AI     – Voice conversational AI",
+          "  ✅  Todo Pro   – Offline SQLite planner",
+          "  📱  Flutter App – Cross-platform mobile",
+          "  🎨  Portfolio  – Interactive 3D site",
+          "",
+          "  🔗  github.com/Msumankumar05",
+        ];
+        break;
+
+      case "contact":
+        response = [
+          `▸ ${cmd}`,
+          "",
+          "  Let's Connect",
+          "  ──────────────",
+          "  📧  ms.kumar.developer05@gmail.com",
+          "  🐙  github.com/Msumankumar05",
+          "  🔗  linkedin.com/in/makoju-suman-kumar",
+          "  🐦  @msk_dev",
+        ];
+        break;
+
+      case "echo":
+        const text = cmd.slice(5) || "Hello, World!";
+        response = [`▸ ${cmd}`, "", `  ${text}`];
+        break;
+
+      case "date":
+        const now = new Date();
+        response = [
+          `▸ ${cmd}`,
+          "",
+          `  ${now.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })}`,
+          `  ${now.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+          })}`,
+          `  ${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
+        ];
+        break;
+
+      case "whoami":
+        response = [
+          `▸ ${cmd}`,
+          "",
+          "  👤  guest",
+          "  📝  ID: 1000",
+          "  🏠  /home/guest/portfolio",
+          "  🖥️  /bin/bash",
+        ];
+        break;
+
+      case "pwd":
+        response = [`▸ ${cmd}`, "", "  /home/guest/portfolio"];
+        break;
+
+      case "ls":
+        response = [
+          `▸ ${cmd}`,
+          "",
+          "  📁 about/          📁 projects/",
+          "  📁 skills/         📁 contact/",
+          "  📄 README.md       📄 package.json",
+          "  📄 .env.example    📄 Dockerfile",
+        ];
+        break;
+
+      case "neofetch":
+        response = [
+          `▸ ${cmd}`,
+          "",
+          "  System Information",
+          "  ───────────────────",
+          "  OS       MSK Portfolio v2.0",
+          "  Kernel   6.8.0-msk",
+          "  Shell    bash 5.2.15",
+          "  Theme    Dynamic",
+          "  Memory   8.2GB / 16GB",
+          "  Uptime   2h 34m",
+          "  Status   Open to Work 🟢",
+        ];
+        break;
+
+      case "uptime":
+        const uptime = Math.floor(Math.random() * 24 * 60 * 60);
+        const hours = Math.floor(uptime / 3600);
+        const minutes = Math.floor((uptime % 3600) / 60);
+        const seconds = uptime % 60;
+        response = [
+          `▸ ${cmd}`,
+          "",
+          `  ⏱️  ${hours}h ${minutes}m ${seconds}s`,
+          `  📊  Load: ${(Math.random() * 2 + 0.1).toFixed(2)}`,
+          `  💻  Sessions: 1`,
+        ];
+        break;
+
+      case "history":
+        if (commandHistory.length === 0) {
+          response = [`▸ ${cmd}`, "", "  No commands in history"];
+        } else {
+          response = [
+            `▸ ${cmd}`,
+            "",
+            ...commandHistory.map((c, i) =>
+              `  ${(i + 1).toString().padStart(3)}  ${c}`
+            ),
+            "",
+            `  Total: ${commandHistory.length} commands`,
+          ];
+        }
+        break;
+
+      case "version":
+        response = [
+          `▸ ${cmd}`,
+          "",
+          "  ✦ MSK Terminal v2.0.0 ✦",
+          "  ──────────────────────",
+          "  React 19 • Framer Motion",
+          "  14+ commands • Theme aware",
+          "  ↑↓ history • Tab complete",
+        ];
+        break;
+
+      case "theme":
+        const theme = document.documentElement.getAttribute("data-pf-theme") || "cyber";
+        const isGold = theme === "gold";
+        const isEmerald = theme === "emerald";
+        const isDevialet = theme === "devialet";
+        response = [
+          `▸ ${cmd}`,
+          "",
+          `  🎨  Theme: ${isGold ? "Gold" : isEmerald ? "Obsidian Emerald" : isDevialet ? "Devialet Luxury" : "Cyber"}`,
+          `  💠  Primary: ${isGold ? "#f5c14a" : isEmerald ? "#00ff88" : isDevialet ? "#111111" : "#00e5ff"}`,
+          `  🔶  Secondary: ${isGold ? "#ff7a2d" : isEmerald ? "#00f0ff" : isDevialet ? "#c3a275" : "#ff2d7d"}`,
+          `  💜  Accent: ${isGold ? "#ffd98a" : isEmerald ? "#a6ff00" : isDevialet ? "#737373" : "#c084fc"}`,
+        ];
+        break;
+
+      case "clear":
+        setHistory([]);
+        setInput("");
+        return;
+
+      default:
+        const suggestion = getSuggestion(lowerCmd);
+        response = [
+          `▸ ${cmd}`,
+          `  ✗  Command not found: ${lowerCmd}`,
+          suggestion !== "no suggestion" ? `  💡  Did you mean: ${suggestion}` : "",
+        ].filter(Boolean);
+    }
+
+    setHistory(prev => [...prev, ...response, ""]);
+    setInput("");
+    scrollToBottom();
+  };
+
+  const getSuggestion = (cmd: string): string => {
+    const commands = Object.keys(COMMANDS);
+    const exact = commands.find(c => c === cmd);
+    if (exact) return exact;
+
+    const partial = commands.filter(c => c.startsWith(cmd));
+    if (partial.length === 1) return partial[0];
+    if (partial.length > 1) return `${partial.slice(0, 3).join(", ")} (${partial.length})`;
+
+    return "no suggestion";
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Up/Down for history
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (commandHistory.length > 0) {
+        const idx = Math.min(historyIndex + 1, commandHistory.length - 1);
+        setHistoryIndex(idx);
+        setInput(commandHistory[commandHistory.length - 1 - idx]);
+      }
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (historyIndex > 0) {
+        const idx = historyIndex - 1;
+        setHistoryIndex(idx);
+        setInput(commandHistory[commandHistory.length - 1 - idx]);
+      } else if (historyIndex === 0) {
+        setHistoryIndex(-1);
+        setInput("");
+      }
+    }
+    // Tab completion
+    else if (e.key === "Tab") {
+      e.preventDefault();
+      if (suggestions.length > 0) {
+        setInput(suggestions[0]);
+        setShowSuggestions(false);
+      }
+    }
+    // Ctrl+L clear
+    else if (e.key === "l" && e.ctrlKey) {
+      e.preventDefault();
+      setHistory([]);
+    }
+    // Escape to close suggestions
+    else if (e.key === "Escape") {
+      setShowSuggestions(false);
+    }
   };
 
   const focusInput = () => {
@@ -811,44 +1139,103 @@ function TerminalEmulator() {
 
   useEffect(() => {
     focusInput();
+    scrollToBottom();
   }, []);
 
   return (
     <div
       onClick={focusInput}
-      className="h-[220px] cursor-text overflow-y-auto px-5 py-3 font-mono text-[10px] leading-relaxed text-white/75 select-text"
+      className="h-[240px] cursor-text overflow-y-auto px-4 py-3 font-mono text-[11px] leading-relaxed text-white/80 select-text"
       ref={containerRef}
-      style={{ scrollbarWidth: "none" }}
+      style={{ scrollbarWidth: "thin", scrollbarColor: "var(--pf-c1) transparent" }}
     >
+      <style>{`
+        .terminal-line {
+          animation: fadeSlide 0.12s ease-out;
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
+        @keyframes fadeSlide {
+          from { opacity: 0; transform: translateY(3px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .suggestion-item {
+          transition: all 0.15s ease;
+        }
+      `}</style>
+
+      {/* History */}
       <div className="space-y-0.5">
-        {history.map((line, i) => (
-          <div
-            key={i}
-            className={
-              line.startsWith("guest@")
-                ? "text-[var(--pf-c1)]"
-                : line.startsWith("Available") || line.startsWith("Welcome")
-                  ? "text-white/40"
-                  : ""
-            }
-          >
-            {line}
-          </div>
-        ))}
+        {history.map((line, i) => {
+          if (!line) return <div key={i} className="h-3" />;
+
+          let color = "text-white/60";
+          if (line.startsWith("▸")) color = "text-[var(--pf-c1)]";
+          else if (line.includes("✗")) color = "text-[#ff5f57]";
+          else if (line.includes("💡")) color = "text-[#febc2e]";
+          else if (line.includes("━━")) color = "text-white/20";
+          else if (line.includes("✦")) color = "text-[var(--pf-c2)]";
+          else if (line.includes("Available") || line.includes("Commands")) color = "text-white/40";
+          else if (line.match(/^  [A-Z]/)) color = "text-white/50";
+
+          return (
+            <div key={i} className={`terminal-line ${color}`}>
+              {line}
+            </div>
+          );
+        })}
       </div>
-      <form onSubmit={handleCommand} className="mt-1 flex items-center">
-        <span className="text-[var(--pf-c2)] mr-1.5 shrink-0 select-none">guest@msk:~$</span>
+
+      {/* Input area */}
+      <form onSubmit={handleCommand} className="mt-1 flex items-center relative">
+        <span className="text-[var(--pf-c2)] mr-2 shrink-0 select-none text-[11px]">❯</span>
         <input
           ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="flex-1 bg-transparent text-white outline-none border-none p-0 font-mono text-[10px] focus:ring-0 focus:outline-none"
-          maxLength={30}
+          onKeyDown={handleKeyDown}
+          className="flex-1 bg-transparent text-white outline-none border-none p-0 font-mono text-[11px] focus:ring-0 focus:outline-none min-w-0"
+          maxLength={100}
           autoCapitalize="none"
           autoComplete="off"
+          spellCheck={false}
+          placeholder="type a command..."
         />
+        <span className={`ml-1 text-[var(--pf-c1)]/50 select-none transition-opacity duration-100 ${cursorVisible ? 'opacity-100' : 'opacity-0'
+          }`}>
+          ▋
+        </span>
       </form>
+
+      {/* Auto-suggestions */}
+      {showSuggestions && suggestions.length > 0 && (
+        <div className="mt-1.5 flex gap-1.5 flex-wrap">
+          {suggestions.map((cmd, idx) => (
+            <span
+              key={cmd}
+              className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] text-white/50 cursor-pointer hover:bg-white/10 hover:text-white/80 transition-all"
+              onClick={() => {
+                setInput(cmd);
+                setShowSuggestions(false);
+                inputRef.current?.focus();
+              }}
+            >
+              {COMMANDS[cmd as keyof typeof COMMANDS]?.icon} {cmd}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Minimal status */}
+      <div className="mt-2 pt-1 flex items-center justify-between text-[8px] text-white/20 border-t border-white/5">
+        <span>v2.0.0</span>
+        <span className="flex items-center gap-2">
+          <span>{commandHistory.length} cmds</span>
+          <span className="w-1 h-1 rounded-full bg-white/10" />
+          <span>{history.length} lines</span>
+        </span>
+      </div>
     </div>
   );
 }
@@ -859,28 +1246,30 @@ function HeroCard() {
   const [selectedFile, setSelectedFile] = useState<"profile" | "skills" | "contact" | "package">(
     "profile",
   );
+  const [isHovering, setIsHovering] = useState(false);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  const springX = useSpring(x, { stiffness: 150, damping: 20 });
-  const springY = useSpring(y, { stiffness: 150, damping: 20 });
+  const springX = useSpring(x, { stiffness: 120, damping: 25 });
+  const springY = useSpring(y, { stiffness: 120, damping: 25 });
 
-  const rotateX = useTransform(springY, [-0.5, 0.5], [15, -15]);
-  const rotateY = useTransform(springX, [-0.5, 0.5], [-15, 15]);
+  const rotateX = useTransform(springY, [-0.5, 0.5], [6, -6]);
+  const rotateY = useTransform(springX, [-0.5, 0.5], [-6, 6]);
 
-  const glowX = useTransform(springX, [-0.5, 0.5], ["20%", "80%"]);
-  const glowY = useTransform(springY, [-0.5, 0.5], ["20%", "80%"]);
+  const glowX = useTransform(springX, [-0.5, 0.5], ["10%", "90%"]);
+  const glowY = useTransform(springY, [-0.5, 0.5], ["10%", "90%"]);
 
   const glareX = useTransform(springX, [-0.5, 0.5], [0, 100]);
   const glareY = useTransform(springY, [-0.5, 0.5], [0, 100]);
 
-  const glareOpacity = useSpring(0, { stiffness: 150, damping: 20 });
+  const glareOpacity = useSpring(0, { stiffness: 120, damping: 25 });
+  const cardScale = useSpring(1, { stiffness: 180, damping: 30 });
 
   const glowBackground = useTransform(
     [glowX, glowY],
     ([gx, gy]) =>
-      `radial-gradient(ellipse at ${gx} ${gy}, rgb(from var(--pf-c1) r g b / 0.18), rgb(from var(--pf-c3) r g b / 0.10) 45%, transparent 70%)`,
+      `radial-gradient(ellipse at ${gx} ${gy}, rgb(from var(--pf-c1) r g b / 0.15), rgb(from var(--pf-c3) r g b / 0.08) 50%, transparent 75%)`,
   );
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -892,13 +1281,25 @@ function HeroCard() {
     const mouseY = e.clientY - rect.top - height / 2;
     x.set(mouseX / width);
     y.set(mouseY / height);
-    glareOpacity.set(0.65);
+    glareOpacity.set(0.5);
+    cardScale.set(1.012);
+    setIsHovering(true);
   };
 
   const handleMouseLeave = () => {
     x.set(0);
     y.set(0);
     glareOpacity.set(0);
+    cardScale.set(1);
+    setIsHovering(false);
+  };
+
+  // File explorer config
+  const fileExplorer = {
+    profile: { icon: "✦", label: "profile.json", color: "text-[var(--pf-c1)]" },
+    skills: { icon: "◈", label: "skills.txt", color: "text-[var(--pf-c2)]" },
+    contact: { icon: "✧", label: "links.json", color: "text-[#a8ff78]" },
+    package: { icon: "◉", label: "package.json", color: "text-[#febc2e]" },
   };
 
   return (
@@ -906,226 +1307,286 @@ function HeroCard() {
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{ rotateX, rotateY, transformPerspective: 1000 }}
-      className="relative w-full max-w-[520px] select-none"
+      style={{
+        rotateX,
+        rotateY,
+        transformPerspective: 1200,
+        scale: cardScale,
+      }}
+      className="relative w-full max-w-[540px] select-none"
     >
-      {/* Outer glow */}
+      {/* Outer glow – squared */}
       <motion.div
-        className="pointer-events-none absolute -inset-8 rounded-3xl opacity-60"
+        className="pointer-events-none absolute -inset-8 rounded-lg"
         style={{
           background: glowBackground,
+          filter: "blur(50px) saturate(1.5)",
         }}
+        animate={{
+          opacity: isHovering ? 0.9 : 0.5,
+        }}
+        transition={{ duration: 0.4 }}
       />
 
-      {/* Card shell */}
-      <div className="relative overflow-hidden border border-white/10 bg-[var(--pf-card)] shadow-[0_40px_100px_-30px_rgb(from var(--pf-c1) r g b / 0.25)]">
-        {/* Glare sheen inside card */}
+      {/* Decorative border ring – squared */}
+      <motion.div
+        className="pointer-events-none absolute -inset-4 rounded-lg border border-white/5"
+        animate={{
+          opacity: isHovering ? 0.4 : 0.1,
+          scale: isHovering ? 1.02 : 1,
+        }}
+        transition={{ duration: 0.4 }}
+      />
+
+      {/* Main card – square with subtle rounding */}
+      <div className="relative overflow-hidden rounded-lg border border-white/8 bg-[var(--pf-card)] shadow-[0_60px_120px_-40px_rgb(from var(--pf-c1) r g b / 0.3)] backdrop-blur-xl">
+        {/* Dynamic glare */}
         <motion.div
-          className="pointer-events-none absolute inset-0 z-30"
+          className="pointer-events-none absolute inset-0 z-20"
           style={{
             opacity: glareOpacity,
             background: useTransform(
               [glareX, glareY],
               ([gx, gy]) =>
-                `radial-gradient(circle at ${gx}% ${gy}%, rgba(0, 229, 255, 0.12) 0%, rgba(255, 45, 125, 0.04) 50%, transparent 80%)`,
+                `radial-gradient(circle at ${gx}% ${gy}%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 40%, transparent 70%)`,
             ),
           }}
         />
 
-        {/* Top bar */}
-        <div className="flex items-center justify-between border-b border-white/5 px-5 py-3">
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
+
+        {/* Header – cleaner, more professional */}
+        <div className="relative flex items-center justify-between px-5 py-3 border-b border-white/5 bg-white/[0.03]">
           <div className="flex items-center gap-4">
+            {/* Window controls – minimal */}
             <div className="flex gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+              {["#ff5f57", "#febc2e", "#28c840"].map((color, i) => (
+                <span
+                  key={i}
+                  className="h-2.5 w-2.5 rounded-full transition-all duration-300 hover:scale-110 hover:brightness-125"
+                  style={{ backgroundColor: color }}
+                />
+              ))}
             </div>
 
-            {/* Interactive Tabs */}
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setTab("code")}
-                className={`font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 transition ${
-                  tab === "code"
-                    ? "bg-white/5 text-[var(--pf-c1)]"
-                    : "text-white/35 hover:text-white/60"
-                }`}
-              >
-                profile.tsx
-              </button>
-              <button
-                onClick={() => setTab("terminal")}
-                className={`font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 transition ${
-                  tab === "terminal"
-                    ? "bg-white/5 text-[var(--pf-c1)]"
-                    : "text-white/35 hover:text-white/60"
-                }`}
-              >
-                terminal.sh
-              </button>
+            {/* Tabs – squared style */}
+            <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-md p-0.5 border border-white/5">
+              {[
+                { id: "code", label: "✦ profile.tsx" },
+                { id: "terminal", label: "◈ terminal.sh" },
+              ].map(({ id, label }) => (
+                <button
+                  key={id}
+                  onClick={() => setTab(id as any)}
+                  className={`font-mono text-[9px] tracking-[0.15em] px-3 py-1 rounded transition-all duration-300 ${tab === id
+                    ? "bg-white/10 text-white shadow-sm"
+                    : "text-white/30 hover:text-white/60 hover:bg-white/5"
+                    }`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--pf-c1)]" />
-            <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[var(--pf-c1)]/70">
+          {/* Live indicator */}
+          <div className="flex items-center gap-2">
+            <div className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--pf-c1)] opacity-60" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--pf-c1)]" />
+            </div>
+            <span className="font-mono text-[8px] uppercase tracking-[0.25em] text-[var(--pf-c1)]/60">
               live
             </span>
           </div>
         </div>
 
-        {/* Tab Content Panels */}
+        {/* Content area */}
         {tab === "code" ? (
-          <div className="flex h-[220px] font-mono text-[10px] leading-relaxed">
-            {/* File explorer sidebar */}
-            <div className="w-[110px] shrink-0 border-r border-white/5 bg-[var(--pf-bg)]/40 py-2 select-none">
-              <div className="px-3 pb-1 font-mono text-[8px] uppercase tracking-wider text-white/30">
-                src/
+          <div className="flex h-[240px] font-mono text-[10px] leading-relaxed">
+            {/* Sidebar – squared */}
+            <div className="w-[110px] shrink-0 border-r border-white/5 bg-white/[0.02] py-2 select-none">
+              <div className="px-3 pb-2 font-mono text-[7px] uppercase tracking-[0.3em] text-white/20 border-b border-white/5 mb-1">
+                explorer
               </div>
-              <button
-                onClick={() => setSelectedFile("profile")}
-                className={`flex w-full items-center gap-1.5 px-3 py-1 text-left transition ${selectedFile === "profile" ? "bg-white/5 text-[var(--pf-c1)]" : "text-white/50 hover:text-white/80"}`}
-              >
-                <span>📄</span> profile.json
-              </button>
-              <button
-                onClick={() => setSelectedFile("skills")}
-                className={`flex w-full items-center gap-1.5 px-3 py-1 text-left transition ${selectedFile === "skills" ? "bg-white/5 text-[var(--pf-c1)]" : "text-white/50 hover:text-white/80"}`}
-              >
-                <span>📄</span> skills.txt
-              </button>
-              <button
-                onClick={() => setSelectedFile("contact")}
-                className={`flex w-full items-center gap-1.5 px-3 py-1 text-left transition ${selectedFile === "contact" ? "bg-white/5 text-[var(--pf-c1)]" : "text-white/50 hover:text-white/80"}`}
-              >
-                <span>📄</span> links.json
-              </button>
-              <div className="h-px bg-white/5 my-1" />
-              <button
-                onClick={() => setSelectedFile("package")}
-                className={`flex w-full items-center gap-1.5 px-3 py-1 text-left transition ${selectedFile === "package" ? "bg-white/5 text-[var(--pf-c1)]" : "text-white/50 hover:text-white/80"}`}
-              >
-                <span>📄</span> package.json
-              </button>
+              {Object.entries(fileExplorer).map(([key, { icon, label, color }]) => (
+                <button
+                  key={key}
+                  onClick={() => setSelectedFile(key as any)}
+                  className={`group flex w-full items-center gap-2 px-3 py-1.5 text-left transition-all duration-200 ${selectedFile === key
+                    ? "bg-white/8 text-white border-r-2 border-[var(--pf-c1)]"
+                    : "text-white/40 hover:text-white/70 hover:bg-white/5"
+                    }`}
+                >
+                  <span className={`text-[10px] ${selectedFile === key ? color : "text-white/30"}`}>
+                    {icon}
+                  </span>
+                  <span className={`text-[9px] ${selectedFile === key ? color : ""}`}>
+                    {label}
+                  </span>
+                </button>
+              ))}
             </div>
 
-            {/* Editor pane */}
+            {/* Editor – clean, minimal scrollbar */}
             <div
-              className="flex-1 overflow-y-auto p-3.5 select-text"
-              style={{ scrollbarWidth: "none" }}
+              className="flex-1 overflow-y-auto p-4 select-text"
+              style={{ scrollbarWidth: "thin" }}
             >
-              {selectedFile === "profile" && (
-                <div className="text-[10.5px]">
-                  <div>
-                    <span className="text-white/40">{"{"}</span>
-                  </div>
-                  <div className="pl-3.5">
-                    <span className="text-[var(--pf-c1)]">"name"</span>:{" "}
-                    <span className="text-[#a8ff78]">"Makoju Suman Kumar"</span>,
-                  </div>
-                  <div className="pl-3.5">
-                    <span className="text-[var(--pf-c1)]">"role"</span>:{" "}
-                    <span className="text-[#a8ff78]">"Fullstack Engineer"</span>,
-                  </div>
-                  <div className="pl-3.5">
-                    <span className="text-[var(--pf-c1)]">"location"</span>:{" "}
-                    <span className="text-[#a8ff78]">"Odisha, IN"</span>,
-                  </div>
-                  <div className="pl-3.5">
-                    <span className="text-[var(--pf-c1)]">"status"</span>:{" "}
-                    <span className="text-[#a8ff78]">"open_to_work"</span>
-                  </div>
-                  <div>
-                    <span className="text-white/40">{"}"}</span>
-                  </div>
+              <style>{`
+                .editor-scroll::-webkit-scrollbar {
+                  width: 2px;
+                }
+                .editor-scroll::-webkit-scrollbar-thumb {
+                  background: var(--pf-c1);
+                  border-radius: 0;
+                }
+              `}</style>
+
+              <div className="relative">
+                {/* Line numbers */}
+                <div className="absolute left-0 top-0 text-white/10 text-right pr-3 select-none text-[9px] leading-relaxed">
+                  {Array.from({ length: 8 }, (_, i) => (
+                    <div key={i}>{i + 1}</div>
+                  ))}
                 </div>
-              )}
-              {selectedFile === "skills" && (
-                <div className="text-[9.5px] leading-relaxed text-white/70">
-                  <div className="text-[var(--pf-c2)]">// Core Technologies</div>
-                  <div>
-                    <span className="text-[var(--pf-c1)]">Frontend :</span> React, Javascript, TS
-                  </div>
-                  <div>
-                    <span className="text-[var(--pf-c1)]">Backend :</span> Node.js, Express.js
-                  </div>
-                  <div>
-                    <span className="text-[var(--pf-c1)]">Mobile :</span> Flutter, Kotlin, RN
-                  </div>
-                  <div>
-                    <span className="text-[var(--pf-c1)]">Database :</span> MongoDB, MySQL, SQLite
-                  </div>
+
+                <div className="pl-7">
+                  {selectedFile === "profile" && (
+                    <div className="space-y-0.5 text-[10px]">
+                      <div><span className="text-white/30">{'{'}</span></div>
+                      <div className="pl-3">
+                        <span className="text-[var(--pf-c1)]">"name"</span>
+                        <span className="text-white/30">: </span>
+                        <span className="text-[#a8ff78]">"Makoju Suman Kumar"</span>
+                        <span className="text-white/30">,</span>
+                      </div>
+                      <div className="pl-3">
+                        <span className="text-[var(--pf-c1)]">"role"</span>
+                        <span className="text-white/30">: </span>
+                        <span className="text-[#a8ff78]">"Fullstack Engineer"</span>
+                        <span className="text-white/30">,</span>
+                      </div>
+                      <div className="pl-3">
+                        <span className="text-[var(--pf-c1)]">"location"</span>
+                        <span className="text-white/30">: </span>
+                        <span className="text-[#a8ff78]">"Odisha, IN"</span>
+                        <span className="text-white/30">,</span>
+                      </div>
+                      <div className="pl-3">
+                        <span className="text-[var(--pf-c1)]">"status"</span>
+                        <span className="text-white/30">: </span>
+                        <span className="text-[#a8ff78]">"open_to_work"</span>
+                      </div>
+                      <div><span className="text-white/30">{'}'}</span></div>
+                    </div>
+                  )}
+
+                  {selectedFile === "skills" && (
+                    <div className="space-y-1 text-[9.5px] text-white/70">
+                      <div className="text-[var(--pf-c2)] text-[9px]">// Core Technologies</div>
+                      <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
+                        {[
+                          ["Frontend", "React, JS, TS"],
+                          ["Backend", "Node, Express"],
+                          ["Mobile", "Flutter, RN"],
+                          ["Database", "MongoDB, SQL"],
+                          ["DevOps", "Docker, AWS"],
+                          ["AI/ML", "LLM, Agents"],
+                        ].map(([label, value]) => (
+                          <div key={label}>
+                            <span className="text-[var(--pf-c1)]">{label}:</span> {value}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedFile === "contact" && (
+                    <div className="space-y-0.5 text-[10px]">
+                      <div><span className="text-white/30">{'{'}</span></div>
+                      <div className="pl-3">
+                        <span className="text-[var(--pf-c1)]">"email"</span>
+                        <span className="text-white/30">: </span>
+                        <span className="text-[#a8ff78]">"ms.kumar.developer05@gmail.com"</span>
+                        <span className="text-white/30">,</span>
+                      </div>
+                      <div className="pl-3">
+                        <span className="text-[var(--pf-c1)]">"github"</span>
+                        <span className="text-white/30">: </span>
+                        <span className="text-[#a8ff78]">"github.com/Msumankumar05"</span>
+                        <span className="text-white/30">,</span>
+                      </div>
+                      <div className="pl-3">
+                        <span className="text-[var(--pf-c1)]">"linkedin"</span>
+                        <span className="text-white/30">: </span>
+                        <span className="text-[#a8ff78]">"linkedin.com/in/makoju-suman-kumar"</span>
+                      </div>
+                      <div><span className="text-white/30">{'}'}</span></div>
+                    </div>
+                  )}
+
+                  {selectedFile === "package" && (
+                    <div className="space-y-0.5 text-[9px] text-white/50">
+                      <div><span className="text-white/20">{'{'}</span></div>
+                      <div className="pl-3">
+                        <span className="text-[var(--pf-c1)]">"name"</span>
+                        <span className="text-white/20">: </span>
+                        <span className="text-[#a8ff78]">"msk-portfolio"</span>
+                        <span className="text-white/20">,</span>
+                      </div>
+                      <div className="pl-3">
+                        <span className="text-[var(--pf-c1)]">"version"</span>
+                        <span className="text-white/20">: </span>
+                        <span className="text-[#a8ff78]">"2.0.0"</span>
+                        <span className="text-white/20">,</span>
+                      </div>
+                      <div className="pl-3">
+                        <span className="text-[var(--pf-c1)]">"dependencies"</span>
+                        <span className="text-white/20">: {`{`}</span>
+                      </div>
+                      <div className="pl-6">
+                        <span className="text-[var(--pf-c2)]">"react"</span>
+                        <span className="text-white/20">: </span>
+                        <span className="text-[#a8ff78]">"^19.0.0"</span>
+                        <span className="text-white/20">,</span>
+                      </div>
+                      <div className="pl-6">
+                        <span className="text-[var(--pf-c2)]">"framer-motion"</span>
+                        <span className="text-white/20">: </span>
+                        <span className="text-[#a8ff78]">"^11.0.0"</span>
+                      </div>
+                      <div className="pl-3"><span className="text-white/20">{'}'}</span></div>
+                      <div><span className="text-white/20">{'}'}</span></div>
+                    </div>
+                  )}
                 </div>
-              )}
-              {selectedFile === "contact" && (
-                <div className="text-[10px]">
-                  <div>
-                    <span className="text-white/40">{"{"}</span>
-                  </div>
-                  <div className="pl-3.5">
-                    <span className="text-[var(--pf-c1)]">"email"</span>:{" "}
-                    <span className="text-[#a8ff78]">"ms.kumar.developer05@gmail.com"</span>,
-                  </div>
-                  <div className="pl-3.5">
-                    <span className="text-[var(--pf-c1)]">"github"</span>:{" "}
-                    <span className="text-[#a8ff78]">"github.com/Msumankumar05"</span>
-                  </div>
-                  <div>
-                    <span className="text-white/40">{"}"}</span>
-                  </div>
-                </div>
-              )}
-              {selectedFile === "package" && (
-                <div className="text-[9px] leading-relaxed text-white/50">
-                  <div>
-                    <span className="text-white/30">{"{"}</span>
-                  </div>
-                  <div className="pl-3">
-                    <span className="text-[var(--pf-c1)]">"dependencies"</span>:{" "}
-                    <span className="text-white/30">{"{"}</span>
-                  </div>
-                  <div className="pl-6">
-                    <span className="text-[var(--pf-c2)]">"react"</span>:{" "}
-                    <span className="text-[#a8ff78]">"^19.0.0"</span>,
-                  </div>
-                  <div className="pl-6">
-                    <span className="text-[var(--pf-c2)]">"framer-motion"</span>:{" "}
-                    <span className="text-[#a8ff78]">"^11.0.0"</span>,
-                  </div>
-                  <div className="pl-6">
-                    <span className="text-[var(--pf-c2)]">"lenis"</span>:{" "}
-                    <span className="text-[#a8ff78]">"^1.0.0"</span>
-                  </div>
-                  <div className="pl-3">
-                    <span className="text-white/30">{"}"}</span>
-                  </div>
-                  <div>
-                    <span className="text-white/30">{"}"}</span>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           </div>
         ) : (
           <TerminalEmulator />
         )}
 
-        {/* Divider */}
-        <div className="mx-5 h-px bg-gradient-to-r from-[var(--pf-c1)]/20 via-[var(--pf-c2)]/20 to-transparent" />
+        {/* Divider – clean line */}
+        <div className="relative px-5">
+          <div className="h-px bg-gradient-to-r from-[var(--pf-c1)]/20 via-[var(--pf-c2)]/20 to-transparent" />
+        </div>
 
-        {/* Bottom tags */}
-        <div className="flex flex-wrap gap-2 px-5 py-3">
-          {["MERN", "Flutter", "React Native", "AI / LLMs"].map((t) => (
+        {/* Tags – squared pills */}
+        <div className="flex flex-wrap gap-2 px-5 py-3 bg-white/[0.02]">
+          {["MERN", "Flutter", "React Native", "AI / LLMs", "TypeScript"].map((tag) => (
             <span
-              key={t}
-              className="border border-[var(--pf-c1)]/20 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--pf-c1)]/60"
+              key={tag}
+              className="group relative px-2.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.2em] text-[var(--pf-c1)]/50 border border-[var(--pf-c1)]/10 rounded transition-all duration-300 hover:border-[var(--pf-c1)]/40 hover:text-[var(--pf-c1)]/80 hover:bg-[var(--pf-c1)]/5"
             >
-              {t}
+              {tag}
             </span>
           ))}
         </div>
 
-        {/* Theme toggle button */}
+        {/* Theme toggle – pro styling */}
         <button
           type="button"
           onClick={(e) => {
@@ -1134,16 +1595,19 @@ function HeroCard() {
             const cx = rect.left + rect.width / 2;
             const cy = rect.top + rect.height / 2;
             const el = document.documentElement;
-            const current = el.getAttribute("data-pf-theme") === "gold" ? "gold" : "cyber";
-            const next = current === "gold" ? "cyber" : "gold";
+            const current = el.getAttribute("data-pf-theme") || "gold";
+            let next = "gold";
+            if (current === "gold") next = "cyber";
+            else if (current === "cyber") next = "emerald";
+            else if (current === "emerald") next = "devialet";
+            else if (current === "devialet") next = "gold";
 
             if (document.getElementById("pf-portal-overlay")) return;
 
-            const nextC1 = next === "gold" ? "#f5c14a" : "#00e5ff";
-            const nextC2 = next === "gold" ? "#ff7a2d" : "#ff2d7d";
-            const nextC3 = next === "gold" ? "#ffd98a" : "#c084fc";
+            const nextC1 = next === "gold" ? "#f5c14a" : next === "emerald" ? "#00ff88" : next === "devialet" ? "#111111" : "#00e5ff";
+            const nextC2 = next === "gold" ? "#ff7a2d" : next === "emerald" ? "#00f0ff" : next === "devialet" ? "#c3a275" : "#ff2d7d";
+            const nextC3 = next === "gold" ? "#ffd98a" : next === "emerald" ? "#a6ff00" : next === "devialet" ? "#737373" : "#c084fc";
 
-            // Cinematic page filter on the app root
             document.body.classList.add("pf-portal-active");
 
             const overlay = document.createElement("div");
@@ -1155,80 +1619,101 @@ function HeroCard() {
             `;
             overlay.innerHTML = `
               <div class="pf-veil"></div>
-              <div class="pf-bloom" style="
-                background: radial-gradient(circle at var(--px) var(--py),
-                  rgb(from var(--c3) r g b / 0.55) 0%,
-                  rgb(from var(--c2) r g b / 0.28) 22%,
-                  rgb(from var(--c1) r g b / 0.14) 45%,
-                  transparent 70%);
-              "></div>
-              <div class="pf-ripple pf-ripple-1" style="left: var(--px); top: var(--py); border-color: rgb(from var(--c1) r g b / 0.7);"></div>
-              <div class="pf-ripple pf-ripple-2" style="left: var(--px); top: var(--py); border-color: rgb(from var(--c2) r g b / 0.5);"></div>
-              <div class="pf-ripple pf-ripple-3" style="left: var(--px); top: var(--py); border-color: rgb(from var(--c3) r g b / 0.35);"></div>
+              <div class="pf-grid"></div>
+              <div class="pf-bloom"></div>
+              <div class="pf-hud">
+                <div class="pf-ring-hud" style="--i: 0;"></div>
+                <div class="pf-ring-hud" style="--i: 1;"></div>
+                <div class="pf-ring-hud" style="--i: 2;"></div>
+                <div class="pf-ring-hud" style="--i: 3;"></div>
+              </div>
+              <div class="pf-vortex-tunnel"></div>
+              <div class="pf-sparks">
+                <div class="pf-spark pf-spark-1"></div>
+                <div class="pf-spark pf-spark-2"></div>
+                <div class="pf-spark pf-spark-3"></div>
+                <div class="pf-spark pf-spark-4"></div>
+              </div>
+              <div class="pf-scanline"></div>
               <div class="pf-grain"></div>
             `;
             document.body.appendChild(overlay);
 
-            // Swap theme quietly during the blur peak — no jarring flash
             window.setTimeout(() => {
               el.setAttribute("data-pf-theme", next);
               try {
                 localStorage.setItem("pf-theme", next);
-                // eslint-disable-next-line no-empty
-              } catch (_) {}
-            }, 520);
+              } catch (_) { }
+            }, 500);
 
             window.setTimeout(() => {
               document.body.classList.remove("pf-portal-active");
               overlay.remove();
-            }, 1600);
+            }, 1800);
           }}
-
-          className="group relative flex w-full items-center justify-center gap-2 border-t border-white/5 px-5 py-3 font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-white/70 transition hover:text-white"
+          className="group relative flex w-full items-center justify-center gap-3 border-t border-white/5 px-5 py-3.5 font-mono text-[9px] font-medium uppercase tracking-[0.25em] text-white/50 transition-all duration-300 hover:text-white hover:bg-white/[0.03]"
           style={{
             background:
-              "linear-gradient(90deg, rgb(from var(--pf-c1) r g b / 0.08), rgb(from var(--pf-c2) r g b / 0.08), rgb(from var(--pf-c3) r g b / 0.08))",
+              "linear-gradient(90deg, rgb(from var(--pf-c1) r g b / 0.04), rgb(from var(--pf-c2) r g b / 0.04), rgb(from var(--pf-c3) r g b / 0.04))",
           }}
         >
-          <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--pf-c1)" }} />
-          <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--pf-c2)" }} />
-          <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--pf-c3)" }} />
-          <span className="ml-1">Swap Theme</span>
-          <span className="ml-1 opacity-50 transition group-hover:opacity-100">↻</span>
+          <div className="flex items-center gap-3">
+            <div className="flex gap-1.5">
+              <span
+                className="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-110"
+                style={{ background: "var(--pf-c1)" }}
+              />
+              <span
+                className="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-110 delay-75"
+                style={{ background: "var(--pf-c2)" }}
+              />
+              <span
+                className="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-110 delay-150"
+                style={{ background: "var(--pf-c3)" }}
+              />
+            </div>
+            <span className="tracking-[0.3em]">Swap Theme</span>
+            <span className="transition-transform duration-500 group-hover:rotate-180 text-[11px]">⟳</span>
+          </div>
         </button>
 
-        {/* Reflective shine layer */}
+        {/* Shine overlay */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 50%, rgb(from var(--pf-c1) r g b / 0.03) 100%)",
+              "linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 40%, rgb(from var(--pf-c1) r g b / 0.02) 100%)",
           }}
         />
 
-        {/* Bottom accent bar */}
-        <div className="h-0.5 w-full bg-gradient-to-r from-[var(--pf-c1)] via-[var(--pf-c3)] to-[var(--pf-c2)]" />
+        {/* Accent bar – squared, with shimmer */}
+        <div className="h-[2px] w-full bg-gradient-to-r from-[var(--pf-c1)] via-[var(--pf-c3)] to-[var(--pf-c2)] relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+        </div>
       </div>
 
-      {/* Floating badge top-right */}
+      {/* Floating badges – squared */}
       <motion.div
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -right-4 -top-4 border border-[var(--pf-c1)]/30 bg-[var(--pf-bg)] px-3 py-1.5 shadow-[0_0_20px_rgb(from var(--pf-c1) r g b / 0.2)]"
+        animate={{ y: [0, -12, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -right-2 -top-2 border border-[var(--pf-c1)]/20 bg-[var(--pf-bg)]/80 backdrop-blur-md px-3 py-1.5 shadow-xl"
       >
-        <span className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-[var(--pf-c1)]">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--pf-c1)]" />
-          Available Now
+        <span className="flex items-center gap-2 font-mono text-[8px] uppercase tracking-[0.2em] text-[var(--pf-c1)]">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--pf-c1)] opacity-60" />
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--pf-c1)]" />
+          </span>
+          Open to Work
         </span>
       </motion.div>
 
-      {/* Floating badge bottom-left */}
       <motion.div
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute -bottom-4 -left-4 border border-[var(--pf-c2)]/30 bg-[var(--pf-bg)] px-3 py-1.5 shadow-[0_0_20px_rgb(from var(--pf-c2) r g b / 0.15)]"
+        animate={{ y: [0, 12, 0] }}
+        transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        className="absolute -bottom-3 -left-2 border border-[var(--pf-c2)]/20 bg-[var(--pf-bg)]/80 backdrop-blur-md px-3 py-1.5 shadow-xl"
       >
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[var(--pf-c2)]/80">
+        <span className="font-mono text-[8px] uppercase tracking-[0.25em] text-[var(--pf-c2)]/70 flex items-center gap-2">
+          <span className="text-[10px]">✦</span>
           MSK
         </span>
       </motion.div>
@@ -1468,11 +1953,9 @@ function Hero() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 0.7 }}
-            className="mt-5 max-w-[42ch] text-[14px] font-light leading-relaxed text-white/50"
+            className="mt-5 max-w-[80ch] text-[12px] font-light leading-relaxed text-white/50"
           >
-            Building the full spectrum — from pixel-perfect UIs to robust backends, cross-platform
-            mobile apps, and <span className="text-[var(--pf-c2)] font-mono">AI-powered</span>{" "}
-            experiences that ship.
+            Building the full spectrum — from pixel-perfect user interfaces and scalable backend architectures to cross-platform mobile applications and <span className="text-[var(--pf-c2)] font-mono">AI-powered</span> experiences. I focus on creating fast, accessible, and production-ready digital products that combine elegant design, clean architecture, and exceptional user experiences.
           </motion.p>
 
           {/* Telemetry HUD Dashboard Matrix */}
@@ -1503,12 +1986,12 @@ function Hero() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.48, duration: 0.7 }}
-            className="mt-8 flex flex-wrap items-center gap-3"
+            className="mt-8 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3"
           >
             <Magnetic>
               <a
                 href="#work"
-                className="group relative flex items-center gap-2.5 overflow-hidden bg-[var(--pf-c1)] px-7 py-3.5 font-mono text-[11px] font-bold uppercase tracking-[0.25em] text-black transition-all hover:bg-white"
+                className="group relative flex items-center justify-center gap-2.5 overflow-hidden bg-[var(--pf-c1)] px-7 py-3.5 font-mono text-[11px] font-bold uppercase tracking-[0.25em] text-black transition-all hover:bg-white"
               >
                 {/* shimmer */}
                 <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
@@ -1521,7 +2004,7 @@ function Hero() {
             <Magnetic strength={0.2}>
               <a
                 href="#contact"
-                className="flex items-center gap-2 border border-white/20 px-7 py-3.5 font-mono text-[11px] font-bold uppercase tracking-[0.25em] text-white transition hover:border-white hover:bg-white hover:text-black"
+                className="flex items-center justify-center gap-2 border border-white/20 px-7 py-3.5 font-mono text-[11px] font-bold uppercase tracking-[0.25em] text-white transition hover:border-white hover:bg-white hover:text-black"
               >
                 Get In Touch
               </a>
@@ -1530,7 +2013,7 @@ function Hero() {
               href="/resume.pdf"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 px-4 py-3.5 font-mono text-[11px] uppercase tracking-[0.25em] text-white/40 transition hover:text-[var(--pf-c1)]"
+              className="flex items-center justify-center gap-2 px-4 py-3.5 font-mono text-[11px] uppercase tracking-[0.25em] text-white/40 transition hover:text-[var(--pf-c1)]"
             >
               <Download className="h-3 w-3" /> Resume
             </a>
@@ -1541,7 +2024,7 @@ function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.65, duration: 0.7 }}
-            className="mt-7 flex flex-wrap gap-x-6 gap-y-2"
+            className="mt-7 flex flex-wrap gap-x-5 gap-y-3"
           >
             {SOCIAL_LINKS.map(({ label, icon: Icon, href }) => (
               <a
@@ -1799,6 +2282,80 @@ function Stack() {
 
 /* ---------- Work (pinned horizontal frames) ---------- */
 
+function WorkCard({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; total: number }) {
+  return (
+    <div
+      className="relative flex flex-col gap-8 border border-white/10 bg-white/[0.02] p-6 md:p-8"
+      style={{
+        background: `radial-gradient(ellipse at 50% 0%, ${p.accent}10, transparent 65%)`,
+      }}
+    >
+      {/* top accent bar */}
+      <div className="h-px w-full" style={{ background: `linear-gradient(to right, ${p.accent}, transparent)` }} />
+      <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.3em]" style={{ color: p.accent }}>
+        <span className="flex items-center gap-2">
+          <span className="h-px w-4" style={{ backgroundColor: p.accent }} />
+          Frame {String(i + 1).padStart(2, "0")}
+        </span>
+        <span className="text-white/30">{String(i + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}</span>
+      </div>
+      <div>
+        <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.3em] text-white/50">{p.category}</div>
+        <h3 className="font-display text-4xl leading-[0.95] text-white sm:text-5xl">
+          {p.name.split(" ").map((w, wi) => (
+            <span key={wi} className={wi === 1 ? "italic" : ""}>
+              {w}{wi < p.name.split(" ").length - 1 ? " " : ""}
+            </span>
+          ))}
+        </h3>
+        <p className="mt-4 text-sm leading-relaxed text-white/70">{p.longDesc}</p>
+      </div>
+      {/* metric */}
+      <div className="flex items-start gap-4">
+        <div className="font-display leading-none text-5xl" style={{ color: p.accent }}>
+          {p.metric.value}<span className="text-[0.5em] align-top" style={{ color: p.accent }}>{p.metric.unit}</span>
+        </div>
+        <div className="mt-2 max-w-[16rem] font-mono text-[9px] uppercase leading-relaxed tracking-[0.22em] text-white/55">
+          {p.metric.label}
+        </div>
+      </div>
+      {/* stack */}
+      <div className="flex flex-wrap gap-1.5">
+        {p.stack.map((s) => (
+          <span key={s} className="border border-white/15 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-white/70">{s}</span>
+        ))}
+      </div>
+      {/* CTAs */}
+      <div className="flex flex-wrap items-center gap-3">
+        <a
+          href="#"
+          className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${p.placeholder ? "pointer-events-none opacity-40" : ""
+            }`}
+          style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
+        >
+          Read case study <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+        </a>
+        {p.liveUrl && (
+          <a href={p.liveUrl} target="_blank" rel="noreferrer"
+            className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
+              }`}
+          >
+            <ExternalLink className="h-3 w-3" /> Live
+          </a>
+        )}
+        {p.githubUrl && (
+          <a href={p.githubUrl} target="_blank" rel="noreferrer"
+            className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
+              }`}
+          >
+            <Github className="h-3 w-3" /> GitHub
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function WorkFrame({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; total: number }) {
   return (
     <div
@@ -1874,9 +2431,8 @@ function WorkFrame({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; t
             <a
               href="#"
               // target="_blank"
-              className={`group inline-flex items-center gap-2 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
-                p.placeholder ? "pointer-events-none opacity-40" : ""
-              }`}
+              className={`group inline-flex items-center gap-2 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] transition ${p.placeholder ? "pointer-events-none opacity-40" : ""
+                }`}
               style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
             >
               Read case study
@@ -1887,9 +2443,8 @@ function WorkFrame({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; t
                 href={p.liveUrl}
                 target="_blank"
                 rel="noreferrer"
-                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
-                  p.placeholder ? "pointer-events-none opacity-40" : ""
-                }`}
+                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
+                  }`}
               >
                 <ExternalLink className="h-3 w-3" />
                 Live
@@ -1900,9 +2455,8 @@ function WorkFrame({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; t
                 href={p.githubUrl}
                 target="_blank"
                 rel="noreferrer"
-                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
-                  p.placeholder ? "pointer-events-none opacity-40" : ""
-                }`}
+                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
+                  }`}
               >
                 <Github className="h-3 w-3" />
                 GitHub
@@ -2088,11 +2642,8 @@ function Work() {
   const wrap = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: wrap, offset: ["start start", "end end"] });
   const total = PROJECTS.length;
-  // translate track: 0 → -(total-1) * 100vw
   const x = useTransform(scrollYProgress, [0, 1], ["0vw", `-${(total - 1) * 100}vw`]);
   const smoothX = useSpring(x, { stiffness: 90, damping: 22, mass: 0.5 });
-
-  // active frame index (0..total-1) derived from progress
   const [active, setActive] = useState(0);
   useEffect(() => {
     return scrollYProgress.on("change", (v) => {
@@ -2102,58 +2653,67 @@ function Work() {
   }, [scrollYProgress, total]);
 
   return (
-    <section id="work" ref={wrap} className="relative" style={{ height: `${total * 100}vh` }}>
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
-        {/* HUD top */}
-        <div className="pointer-events-none absolute inset-x-0 top-6 z-20 flex items-center justify-between px-6 font-mono text-[10px] uppercase tracking-[0.3em] text-white/50 md:px-24">
-          <div className="flex items-center gap-3">
-            <span className="text-[var(--pf-c1)]">03</span>
-            <span className="h-px w-6 bg-white/20" />
-            <span>Selected Work — Horizontal Track</span>
-          </div>
-          <div className="hidden md:block">
-            <span className="text-white">{String(active + 1).padStart(2, "0")}</span>
-            <span className="text-white/40"> / {String(total).padStart(2, "0")}</span>
-          </div>
+    <section id="work">
+      {/* ── Mobile: vertical card list ── */}
+      <div className="md:hidden px-5 py-20">
+        <div className="flex items-center gap-3 mb-10 font-mono text-[10px] uppercase tracking-[0.3em]">
+          <span className="text-[var(--pf-c1)]">03</span>
+          <span className="h-px w-6 bg-white/20" />
+          <span className="text-white/50">Selected Work</span>
         </div>
-
-        {/* section eyebrow bottom-left before first frame */}
-        <div className="pointer-events-none absolute bottom-6 left-6 z-20 font-mono text-[10px] uppercase tracking-[0.3em] text-white/50 md:left-24">
-          03 / Selected Work
-        </div>
-
-        {/* scroll cue */}
-        <div className="pointer-events-none absolute bottom-6 right-6 z-20 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/50 md:right-24">
-          <motion.span
-            animate={{ y: [0, 4, 0] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-            className="text-[var(--pf-c1)]"
-          >
-            ↓
-          </motion.span>
-          Scroll to pan
-        </div>
-
-        {/* the horizontal track */}
-        <motion.div style={{ x: smoothX }} className="flex h-full will-change-transform">
+        <div className="space-y-6">
           {PROJECTS.map((p, i) => (
-            <WorkFrame key={p.name + i} p={p} i={i} total={total} />
+            <WorkCard key={p.name + i} p={p} i={i} total={total} />
           ))}
-        </motion.div>
+        </div>
+      </div>
 
-        {/* progress rail */}
-        <div className="absolute inset-x-6 bottom-14 z-20 flex items-center gap-3 md:inset-x-24">
-          <div className="flex flex-1 items-center gap-1.5">
-            {PROJECTS.map((_, i) => (
-              <div key={i} className="relative h-px flex-1 bg-white/10">
-                <motion.div
-                  className="absolute inset-y-0 left-0 bg-[var(--pf-c1)]"
-                  animate={{ scaleX: i < active ? 1 : i === active ? 0.5 : 0 }}
-                  style={{ transformOrigin: "left", width: "100%" }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                />
-              </div>
+      {/* ── Desktop: pinned horizontal track ── */}
+      <div ref={wrap} className="relative hidden md:block" style={{ height: `${total * 100}vh` }}>
+        <div className="sticky top-0 h-screen w-full overflow-hidden">
+          {/* HUD top */}
+          <div className="pointer-events-none absolute inset-x-0 top-6 z-20 flex items-center justify-between px-6 font-mono text-[10px] uppercase tracking-[0.3em] text-white/50 md:px-24">
+            <div className="flex items-center gap-3">
+              <span className="text-[var(--pf-c1)]">03</span>
+              <span className="h-px w-6 bg-white/20" />
+              <span>Selected Work — Horizontal Track</span>
+            </div>
+            <div>
+              <span className="text-white">{String(active + 1).padStart(2, "00")}</span>
+              <span className="text-white/40"> / {String(total).padStart(2, "00")}</span>
+            </div>
+          </div>
+          <div className="pointer-events-none absolute bottom-6 left-6 z-20 font-mono text-[10px] uppercase tracking-[0.3em] text-white/50 md:left-24">
+            {/* 03 / Selected Work */}
+          </div>
+          <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/50">
+            <motion.span
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              className="text-[var(--pf-c1)]"
+            >
+              ↓
+            </motion.span>
+            Scroll
+          </div>
+          <motion.div style={{ x: smoothX }} className="flex h-full will-change-transform">
+            {PROJECTS.map((p, i) => (
+              <WorkFrame key={p.name + i} p={p} i={i} total={total} />
             ))}
+          </motion.div>
+          <div className="absolute inset-x-6 bottom-14 z-20 flex items-center gap-3 md:inset-x-24">
+            <div className="flex flex-1 items-center gap-1.5">
+              {PROJECTS.map((_, i) => (
+                <div key={i} className="relative h-px flex-1 bg-white/10">
+                  <motion.div
+                    className="absolute inset-y-0 left-0 bg-[var(--pf-c1)]"
+                    animate={{ scaleX: i < active ? 1 : i === active ? 0.5 : 0 }}
+                    style={{ transformOrigin: "left", width: "100%" }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -2328,14 +2888,13 @@ function Arena() {
         </div>
 
         {/* ── Tab Switcher ── */}
-        <div className="mt-10 flex items-center gap-0 border-b border-white/10">
+        <div className="mt-10 flex flex-wrap items-center gap-2 border-b border-white/10 pb-0">
           {TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`relative px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] transition-colors ${
-                activeTab === tab.key ? "text-[var(--pf-c1)]" : "text-white/40 hover:text-white/80"
-              }`}
+              className={`relative px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] transition-colors ${activeTab === tab.key ? "text-[var(--pf-c1)]" : "text-white/40 hover:text-white/80"
+                }`}
             >
               {activeTab === tab.key && (
                 <motion.span
@@ -2403,15 +2962,14 @@ function Arena() {
               </div>
 
               {/* Right: 2x2 stat grid */}
-              <div className="grid grid-cols-2 border-l border-white/10 lg:col-span-5">
+              <div className="grid grid-cols-2 border-t border-white/10 lg:border-t-0 lg:border-l lg:col-span-5">
                 {profile.stats.map((s, i) => (
                   <div
                     key={s.label}
-                    className={`flex flex-col justify-center px-7 py-7 ${
-                      i % 2 === 0 ? "border-r border-white/10" : ""
-                    } ${i < 2 ? "border-b border-white/10" : ""}`}
+                    className={`flex flex-col justify-center px-5 py-5 md:px-7 md:py-7 ${i % 2 === 0 ? "border-r border-white/10" : ""
+                      } ${i < 2 ? "border-b border-white/10" : ""}`}
                   >
-                    <div className="font-display text-3xl italic text-white md:text-4xl">
+                    <div className="font-display text-2xl italic text-white md:text-4xl">
                       {s.value}
                     </div>
                     <div className="mt-1.5 font-mono text-[8px] uppercase tracking-[0.3em] text-white/35">
@@ -2446,9 +3004,8 @@ function Arena() {
                     initial={{ width: 0 }}
                     animate={{ width: `${b.pct}%` }}
                     transition={{ duration: 0.8, delay: i * 0.12, ease: [0.2, 0.7, 0.2, 1] }}
-                    className={`${b.color} flex items-center justify-start overflow-hidden px-3 ${
-                      i > 0 ? "border-l border-[var(--pf-bg)]/60" : ""
-                    }`}
+                    className={`${b.color} flex items-center justify-start overflow-hidden px-3 ${i > 0 ? "border-l border-[var(--pf-bg)]/60" : ""
+                      }`}
                   >
                     <span className="whitespace-nowrap font-mono text-[8px] font-bold uppercase tracking-[0.2em] text-[var(--pf-bg)]">
                       {b.count} {b.label}
@@ -2463,11 +3020,10 @@ function Arena() {
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`font-mono text-[9px] uppercase tracking-[0.3em] transition ${
-                      activeTab === tab.key
-                        ? "text-[var(--pf-c1)]"
-                        : "text-white/30 hover:text-white/60"
-                    }`}
+                    className={`font-mono text-[9px] uppercase tracking-[0.3em] transition ${activeTab === tab.key
+                      ? "text-[var(--pf-c1)]"
+                      : "text-white/30 hover:text-white/60"
+                      }`}
                   >
                     {tab.label} {activeTab === tab.key ? "↗" : "/"}
                   </button>
@@ -2614,8 +3170,8 @@ function Contact() {
           Freelance, internships, or a full-time full-stack seat — my inbox is open.
         </p>
 
-        <div className="mt-16 grid gap-12 lg:grid-cols-2">
-          <div className="space-y-5 border border-white/10 bg-white/[0.02] p-8">
+        <div className="mt-16 grid gap-8 grid-cols-1 lg:grid-cols-2">
+          <div className="space-y-5 border border-white/10 bg-white/[0.02] p-6 md:p-8">
             {[
               { k: "Email", v: "ms.kumar.developer05@gmail.com", i: Mail },
               { k: "Location", v: "Odisha, India", i: MapPin },
@@ -2624,13 +3180,13 @@ function Contact() {
             ].map(({ k, v, i: Icon }) => (
               <div
                 key={k}
-                className="flex items-center justify-between border-b border-white/5 pb-4 last:border-0"
+                className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4 last:border-0"
               >
                 <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-white/40">
                   <Icon className="h-3.5 w-3.5 text-[var(--pf-c1)]" />
                   {k}
                 </div>
-                <span className="text-sm text-white/85">{v}</span>
+                <span className="text-sm text-white/85 break-all">{v}</span>
               </div>
             ))}
           </div>
@@ -2741,7 +3297,7 @@ function Footer() {
       />
 
       <div className="relative z-10 mx-auto max-w-6xl">
-        <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+        <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           {/* Column 1: Brand & Bio */}
           <div className="lg:col-span-5">
             <div className="flex items-center gap-2">
@@ -2958,18 +3514,27 @@ function CinematicLoader() {
 /* ---------- Root ---------- */
 
 function Portfolio() {
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
     try {
       const saved = localStorage.getItem("pf-theme");
       if (saved) document.documentElement.setAttribute("data-pf-theme", saved);
-      else document.documentElement.setAttribute("data-pf-theme", "cyber");
+      else document.documentElement.setAttribute("data-pf-theme", "gold");
       // eslint-disable-next-line no-empty
-    } catch (_) {}
+    } catch (_) { }
+    setMounted(true);
   }, []);
+
   useLenis();
   const active = useActiveSection();
+
+  // Return null on the server so SSR produces no HTML, avoiding a
+  // Suspense-boundary hydration mismatch with the TanStack Start client router.
+  if (!mounted) return null;
+
   return (
-    <div className="relative min-h-screen bg-[var(--pf-bg)] text-white">
+    <div className="relative min-h-screen bg-[var(--pf-bg)] text-white overflow-x-clip">
       <CinematicLoader />
       <Starfield />
       <ScrollProgress />
@@ -2991,6 +3556,7 @@ function Portfolio() {
 }
 
 export const Route = createFileRoute("/")({
+  ssr: false,
   component: Portfolio,
   head: () => ({
     meta: [

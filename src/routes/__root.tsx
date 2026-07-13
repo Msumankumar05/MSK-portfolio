@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { Suspense, useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -104,13 +104,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <>
       <HeadContent />
       <QueryClientProvider client={queryClient}>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+        {/*
+         * Render Outlet client-side only (after mount) to guarantee that
+         * SSR and the client's initial hydration render match exactly.
+         * This completely prevents hydration mismatches.
+         */}
+        {mounted ? (
+          <Suspense fallback={null}>
+            <Outlet />
+          </Suspense>
+        ) : null}
       </QueryClientProvider>
       <Scripts />
     </>

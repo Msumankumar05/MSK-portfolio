@@ -1,23 +1,15 @@
+/* ============================================================
+   🚀  Imports & Configuration
+   ============================================================ */
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Design system definition.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
- */
-
+/* ============================================================
+   🎨  Design System  (oklch)
+   ============================================================ */
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -26,6 +18,7 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -136,48 +129,269 @@
   * {
     border-color: var(--color-border);
   }
-
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
 }
 
-/* ---------- Portfolio theme system ---------- */
-/* Default: cyber (cyan / pink / purple) */
+/* ============================================================
+   🌈  Portfolio Theme System — 6 Aesthetic Palettes
+   ============================================================ */
+
+/* ── Default Cyber (cyan / pink / purple) ── */
 :root {
   --pf-c1: #00e5ff;
   --pf-c2: #ff2d7d;
   --pf-c3: #c084fc;
   --pf-bg: #05070a;
   --pf-card: #080c14;
+  --pf-glow: 0 0 40px rgba(0, 229, 255, 0.15);
 }
 
-/* Gold theme — warm white + gold + orange for a premium editorial feel */
+/* ── Gold Theme (luxury editorial) ── */
 :root[data-pf-theme="gold"] {
-  --pf-c1: #f5c14a; /* signature gold */
-  --pf-c2: #ff7a2d; /* vivid orange */
-  --pf-c3: #ffd98a; /* soft champagne */
-  --pf-bg: #0e0a05; /* deep warm charcoal */
-  --pf-card: #17120a; /* warm card */
+  --pf-c1: #f5c14a;
+  --pf-c2: #ff7a2d;
+  --pf-c3: #ffd98a;
+  --pf-bg: #0e0a05;
+  --pf-card: #17120a;
+  --pf-glow: 0 0 40px rgba(245, 193, 74, 0.2);
 }
 
-/* Portfolio typography */
+/* ── Emerald Theme (neon nature) ── */
+:root[data-pf-theme="emerald"] {
+  --pf-c1: #00ff88;
+  --pf-c2: #00f0ff;
+  --pf-c3: #a6ff00;
+  --pf-bg: #030805;
+  --pf-card: #06120b;
+  --pf-glow: 0 0 40px rgba(0, 255, 136, 0.15);
+}
+
+/* ── Ocean Theme (deep blue / teal / aqua) ── */
+:root[data-pf-theme="ocean"] {
+  --pf-c1: #00d4ff;
+  --pf-c2: #0066ff;
+  --pf-c3: #7dd3fc;
+  --pf-bg: #020a1a;
+  --pf-card: #061020;
+  --pf-glow: 0 0 40px rgba(0, 212, 255, 0.2);
+}
+
+/* ── Sunset Theme (warm coral / peach / amber) ── */
+:root[data-pf-theme="sunset"] {
+  --pf-c1: #ff6b6b;
+  --pf-c2: #ffa94d;
+  --pf-c3: #ffd93d;
+  --pf-bg: #1a0c0a;
+  --pf-card: #2a1410;
+  --pf-glow: 0 0 40px rgba(255, 107, 107, 0.2);
+}
+
+/* ── Midnight Theme (deep indigo / violet / silver) ── */
+:root[data-pf-theme="midnight"] {
+  --pf-c1: #a78bfa;
+  --pf-c2: #8b5cf6;
+  --pf-c3: #c4b5fd;
+  --pf-bg: #04060f;
+  --pf-card: #0a0e1a;
+  --pf-glow: 0 0 40px rgba(167, 139, 250, 0.2);
+}
+
+/* ── Devialet (light luxury) ── */
+:root[data-pf-theme="devialet"] {
+  --pf-c1: #0d0d0d;
+  --pf-c2: #b8955a;
+  --pf-c3: #6b6b6b;
+  --pf-luxury-rose:       #c9a0a0;
+  --pf-luxury-ivory:      #f9f7f4;
+  --pf-luxury-sage:       #7d8c7c;
+  --pf-luxury-terracotta: #b07060;
+  --pf-luxury-champagne:  #e8d5b0;
+  --pf-luxury-blush:      #e8d3d3;
+  --pf-bg:   #f4f2ef;
+  --pf-card: #ffffff;
+  --pf-glow: 0 0 40px rgba(184, 149, 90, 0.1);
+}
+
+/* ── Devialet light-mode overrides ── */
+:root[data-pf-theme="devialet"] .bg-gradient-to-r {
+  background-image: linear-gradient(90deg,
+    var(--pf-luxury-terracotta), var(--pf-c2), var(--pf-luxury-rose)) !important;
+}
+:root[data-pf-theme="devialet"] .bg-\[var\(--pf-bg\)\] {
+  background-color: var(--pf-bg) !important;
+}
+
+/* ── All text-white* become dark ── */
+:root[data-pf-theme="devialet"] [class*="text-white"] {
+  color: rgba(13, 13, 13, 0.85) !important;
+}
+:root[data-pf-theme="devialet"] .text-white          { color: #0d0d0d !important; }
+:root[data-pf-theme="devialet"] .text-white\/90      { color: rgba(13, 13, 13, 0.90) !important; }
+:root[data-pf-theme="devialet"] .text-white\/80      { color: rgba(13, 13, 13, 0.80) !important; }
+:root[data-pf-theme="devialet"] .text-white\/75      { color: rgba(13, 13, 13, 0.72) !important; }
+:root[data-pf-theme="devialet"] .text-white\/70      { color: rgba(13, 13, 13, 0.65) !important; }
+:root[data-pf-theme="devialet"] .text-white\/65      { color: rgba(13, 13, 13, 0.58) !important; }
+:root[data-pf-theme="devialet"] .text-white\/60      { color: rgba(13, 13, 13, 0.52) !important; }
+:root[data-pf-theme="devialet"] .text-white\/55      { color: rgba(13, 13, 13, 0.46) !important; }
+:root[data-pf-theme="devialet"] .text-white\/50      { color: rgba(13, 13, 13, 0.42) !important; }
+:root[data-pf-theme="devialet"] .text-white\/45      { color: rgba(13, 13, 13, 0.38) !important; }
+:root[data-pf-theme="devialet"] .text-white\/40      { color: rgba(13, 13, 13, 0.34) !important; }
+:root[data-pf-theme="devialet"] .text-white\/35      { color: rgba(13, 13, 13, 0.30) !important; }
+:root[data-pf-theme="devialet"] .text-white\/30      { color: rgba(13, 13, 13, 0.26) !important; }
+:root[data-pf-theme="devialet"] .text-white\/25      { color: rgba(13, 13, 13, 0.22) !important; }
+:root[data-pf-theme="devialet"] .text-white\/20      { color: rgba(13, 13, 13, 0.18) !important; }
+:root[data-pf-theme="devialet"] .text-white\/15      { color: rgba(13, 13, 13, 0.13) !important; }
+:root[data-pf-theme="devialet"] .text-white\/10      { color: rgba(13, 13, 13, 0.09) !important; }
+:root[data-pf-theme="devialet"] .text-white\/5       { color: rgba(13, 13, 13, 0.05) !important; }
+
+:root[data-pf-theme="devialet"] .hover\:text-white:hover          { color: #0d0d0d !important; }
+:root[data-pf-theme="devialet"] .hover\:text-white\/80:hover     { color: rgba(13, 13, 13, 0.80) !important; }
+:root[data-pf-theme="devialet"] .hover\:text-white\/60:hover     { color: rgba(13, 13, 13, 0.60) !important; }
+
+/* ── Background & border overrides for devialet ── */
+:root[data-pf-theme="devialet"] .bg-white\/5        { background-color: rgba(13, 13, 13, 0.04) !important; }
+:root[data-pf-theme="devialet"] .bg-white\/8        { background-color: rgba(13, 13, 13, 0.06) !important; }
+:root[data-pf-theme="devialet"] .bg-white\/10       { background-color: rgba(13, 13, 13, 0.07) !important; }
+:root[data-pf-theme="devialet"] .bg-white\/15       { background-color: rgba(13, 13, 13, 0.10) !important; }
+:root[data-pf-theme="devialet"] .bg-white\/20       { background-color: rgba(13, 13, 13, 0.14) !important; }
+:root[data-pf-theme="devialet"] .bg-white\/\[0\.02\] { background-color: rgba(184, 149,  90, 0.04) !important; }
+:root[data-pf-theme="devialet"] .bg-white\/\[0\.03\] { background-color: rgba(184, 149,  90, 0.05) !important; }
+:root[data-pf-theme="devialet"] .bg-white\/\[0\.04\] { background-color: rgba(184, 149,  90, 0.06) !important; }
+:root[data-pf-theme="devialet"] .bg-white\/\[0\.05\] { background-color: rgba(184, 149,  90, 0.07) !important; }
+:root[data-pf-theme="devialet"] .bg-white\/\[0\.08\] { background-color: rgba(184, 149,  90, 0.09) !important; }
+
+:root[data-pf-theme="devialet"] .border-white\/5  { border-color: rgba(184, 149,  90, 0.10) !important; }
+:root[data-pf-theme="devialet"] .border-white\/10 { border-color: rgba(184, 149,  90, 0.16) !important; }
+:root[data-pf-theme="devialet"] .border-white\/15 { border-color: rgba(184, 149,  90, 0.22) !important; }
+:root[data-pf-theme="devialet"] .border-white\/20 { border-color: rgba(184, 149,  90, 0.28) !important; }
+:root[data-pf-theme="devialet"] .border-white\/30 { border-color: rgba(184, 149,  90, 0.35) !important; }
+
+/* ── Card / frosted glass ── */
+:root[data-pf-theme="devialet"] [class*="bg-\[var\(--pf-card\)\]"],
+:root[data-pf-theme="devialet"] [class*="bg-\[var\(--pf-bg\)\]\/60"] {
+  background-color: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(18px) saturate(1.4) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.4) !important;
+  border-color: rgba(184, 149, 90, 0.14) !important;
+  box-shadow:
+    0 20px 50px -15px rgba(184, 149, 90, 0.08),
+    0 4px 10px rgba(13, 13, 13, 0.02),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80) !important;
+}
+
+/* ── Hide starfield dots in devialet ── */
+:root[data-pf-theme="devialet"] .pointer-events-none.fixed.inset-0.-z-10 > div:nth-child(2) {
+  background-image: none !important;
+}
+
+/* ── Ambient bleed background ── */
+:root[data-pf-theme="devialet"] .pointer-events-none.fixed.inset-0.-z-10 > div:nth-child(1) {
+  background-image:
+    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(201, 160, 160, 0.18), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 90% 85%, rgba(184, 149,  90, 0.14), transparent 50%),
+    radial-gradient(ellipse 60% 45% at 50%  0%, rgba(125, 140, 124, 0.10), transparent 50%),
+    radial-gradient(ellipse 90% 70% at 50% 50%, rgba(249, 247, 244, 0.55), transparent 80%) !important;
+  opacity: 1 !important;
+}
+
+/* ── Syntax colours ── */
+:root[data-pf-theme="devialet"] .text-\[\#a8ff78\] { color: #5c7a5c !important; }
+:root[data-pf-theme="devialet"] .text-\[\#febc2e\] { color: #a07530 !important; }
+:root[data-pf-theme="devialet"] .text-\[\#ff5f57\] { color: #a03520 !important; }
+:root[data-pf-theme="devialet"] .text-yellow-400   { color: #b8955a !important; }
+:root[data-pf-theme="devialet"] .text-red-400      { color: #b07060 !important; }
+:root[data-pf-theme="devialet"] .text-green-400    { color: #5c7a5c !important; }
+:root[data-pf-theme="devialet"] .text-blue-400     { color: #4a6fa5 !important; }
+:root[data-pf-theme="devialet"] .text-purple-400   { color: #8b6a9e !important; }
+:root[data-pf-theme="devialet"] .text-pink-400     { color: #b07080 !important; }
+:root[data-pf-theme="devialet"] .text-cyan-400     { color: #4a8a94 !important; }
+:root[data-pf-theme="devialet"] .text-sky-400      { color: #4878a0 !important; }
+
+/* ── Terminal dark backgrounds ── */
+:root[data-pf-theme="devialet"] .bg-\[\#0a0a0a\],
+:root[data-pf-theme="devialet"] .bg-\[\#050505\],
+:root[data-pf-theme="devialet"] .bg-\[\#000\],
+:root[data-pf-theme="devialet"] .bg-black {
+  background-color: #111111 !important;
+}
+:root[data-pf-theme="devialet"] .bg-\[\#0a0a0a\] [class*="text-white"],
+:root[data-pf-theme="devialet"] .bg-\[\#050505\] [class*="text-white"],
+:root[data-pf-theme="devialet"] .bg-black [class*="text-white"] {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* ── Accent bar & shimmer ── */
+:root[data-pf-theme="devialet"] .h-\[2px\].w-full {
+  background: linear-gradient(90deg,
+    var(--pf-c1) 0%,
+    var(--pf-c2) 35%,
+    var(--pf-luxury-rose) 65%,
+    var(--pf-luxury-sage) 100%) !important;
+}
+:root[data-pf-theme="devialet"] .animate-ping {
+  background-color: var(--pf-c2) !important;
+}
+:root[data-pf-theme="devialet"] .relative.inline-flex.rounded-full {
+  background-color: var(--pf-c2) !important;
+}
+
+/* ── Scrollbar (webkit) ── */
+:root[data-pf-theme="devialet"] ::-webkit-scrollbar-track {
+  background: #f4f2ef !important;
+}
+:root[data-pf-theme="devialet"] ::-webkit-scrollbar-thumb {
+  background: rgba(184, 149, 90, 0.35) !important;
+  border-radius: 99px;
+}
+:root[data-pf-theme="devialet"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(184, 149, 90, 0.6) !important;
+}
+
+/* ============================================================
+   ✨  Pro Utility Classes
+   ============================================================ */
+
+/* ── Typography ── */
 :root {
   --font-display: "Instrument Serif", "Playfair Display", ui-serif, Georgia, serif;
 }
-
 .font-display { font-family: var(--font-display); }
 .font-mono { font-family: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, monospace; }
 
-/* Marquee for tech badge strip */
+/* ── Glassmorphism ── */
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── Gradient text ── */
+.gradient-text {
+  background: linear-gradient(135deg, var(--pf-c1), var(--pf-c2), var(--pf-c3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Glow effects ── */
+.glow-primary {
+  box-shadow: 0 0 40px var(--pf-c1), 0 0 80px var(--pf-c1);
+}
+.glow-secondary {
+  box-shadow: 0 0 40px var(--pf-c2), 0 0 80px var(--pf-c2);
+}
+
+/* ── Animations ── */
 @keyframes pf-marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
 .animate-marquee { animation: pf-marquee 32s linear infinite; }
 
-/* Aurora / float animations used by the loader */
 @keyframes pf-aurora {
   0%, 100% { transform: translate3d(-50%, 0, 0) scale(1); opacity: 0.85; }
   50%      { transform: translate3d(-50%, 20px, 0) scale(1.08); opacity: 1; }
@@ -190,97 +404,280 @@
 }
 .animate-float-slow { animation: pf-float-slow 8s ease-in-out infinite; }
 
-/* Hero card scale for smaller screens */
+@keyframes pf-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.05); opacity: 0.8; }
+}
+.animate-pulse-soft { animation: pf-pulse 2s ease-in-out infinite; }
+
+@keyframes pf-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.1) 50%,
+    rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: pf-shimmer 3s linear infinite;
+}
+
+/* ── Responsive scaling ── */
 .hero-card-scale { transform: scale(0.95); }
 @media (min-width: 1280px) { .hero-card-scale { transform: scale(1); } }
 
-/* Smooth transition when theme swaps */
-html { transition: background-color 0.5s ease; }
+/* ── Smooth theme transition ── */
+html { transition: background-color 0.5s ease, color 0.5s ease; }
 
-/* ---------- Theme swap · cinematic portal ---------- */
+/* ============================================================
+   🌀  Cinematic Portal  (Theme Swap)
+   ============================================================ */
 
-/* The underlying page dips into a soft blur + slight desaturation, then returns.
-   No white flash — the mood is a slow-motion focus pull. */
+/* ── Page warp ── */
 body.pf-portal-active > *:not(#pf-portal-overlay) {
-  animation: pf-page-dip 1500ms cubic-bezier(0.4, 0, 0.2, 1) both;
-  transform-origin: center center;
+  filter: blur(6px) brightness(0.25) saturate(1.5) contrast(1.2);
+  transform: perspective(1200px) translateZ(-180px) rotate3d(1, -1, 0, 6deg);
+  pointer-events: none;
+}
+body > *:not(#pf-portal-overlay) {
+  transition: filter 1.8s cubic-bezier(0.15, 0.85, 0.2, 1),
+              transform 1.8s cubic-bezier(0.15, 0.85, 0.2, 1);
+  transform-origin: var(--px) var(--py);
   will-change: filter, transform;
 }
-@keyframes pf-page-dip {
-  0%   { filter: blur(0px) saturate(1) brightness(1); transform: scale(1); }
-  45%  { filter: blur(14px) saturate(0.7) brightness(0.82); transform: scale(0.985); }
-  100% { filter: blur(0px) saturate(1) brightness(1); transform: scale(1); }
-}
 
-/* Warm, low-opacity veil in the incoming theme — ties everything together */
+/* ── Veil ── */
 .pf-veil {
-  position: absolute; inset: 0;
-  background: radial-gradient(120% 120% at var(--px) var(--py),
-    rgb(from var(--c1) r g b / 0.10),
-    rgb(from var(--c2) r g b / 0.06) 40%,
-    transparent 75%);
-  opacity: 0;
-  animation: pf-veil 1500ms cubic-bezier(0.4, 0, 0.2, 1) both;
-}
-@keyframes pf-veil {
-  0%   { opacity: 0; }
-  40%  { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-/* Soft color bloom that rises from the click and dissolves */
-.pf-bloom {
-  position: absolute; inset: 0;
-  opacity: 0;
-  transform: scale(0.4);
-  transform-origin: var(--px) var(--py);
-  filter: blur(30px);
-  mix-blend-mode: screen;
-  animation: pf-bloom 1500ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-@keyframes pf-bloom {
-  0%   { opacity: 0; transform: scale(0.2); filter: blur(40px); }
-  35%  { opacity: 1; transform: scale(1.1); filter: blur(24px); }
-  70%  { opacity: 0.55; transform: scale(1.6); filter: blur(40px); }
-  100% { opacity: 0; transform: scale(2.2); filter: blur(60px); }
-}
-
-/* Three quiet, hair-thin ripples — like a stone dropped into water */
-.pf-ripple {
   position: absolute;
-  width: 0; height: 0;
-  border-radius: 9999px;
-  border: 1px solid transparent;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  background: radial-gradient(circle 80vw at var(--px) var(--py),
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(5, 7, 10, 0.85) 60%,
+    rgba(3, 4, 6, 0.98) 100%);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
   opacity: 0;
-  will-change: width, height, opacity;
+  animation: pf-veil-anim 1.8s cubic-bezier(0.15, 0.85, 0.2, 1) forwards;
 }
-.pf-ripple-1 { animation: pf-ripple 1500ms cubic-bezier(0.22, 1, 0.36, 1) 40ms both; }
-.pf-ripple-2 { animation: pf-ripple 1500ms cubic-bezier(0.22, 1, 0.36, 1) 180ms both; }
-.pf-ripple-3 { animation: pf-ripple 1500ms cubic-bezier(0.22, 1, 0.36, 1) 320ms both; }
-@keyframes pf-ripple {
-  0%   { width: 0; height: 0; opacity: 0; }
-  15%  { opacity: 1; }
-  100% { width: 220vmax; height: 220vmax; opacity: 0; }
-}
-
-/* Faint grain to keep it feeling filmic, not plastic */
-.pf-grain {
-  position: absolute; inset: 0;
-  opacity: 0;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  mix-blend-mode: overlay;
-  animation: pf-grain 1500ms ease-in-out both;
-}
-@keyframes pf-grain {
+@keyframes pf-veil-anim {
   0%   { opacity: 0; }
-  40%  { opacity: 0.18; }
+  25%  { opacity: 1; }
+  70%  { opacity: 1; }
   100% { opacity: 0; }
 }
 
+/* ── Cyber Grid ── */
+.pf-grid {
+  position: absolute;
+  inset: -200px;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 60px 60px;
+  transform: perspective(400px) rotateX(65deg) translateZ(-150px);
+  transform-origin: center center;
+  opacity: 0;
+  pointer-events: none;
+  animation: pf-grid-warp 1.8s cubic-bezier(0.15, 0.85, 0.2, 1) forwards;
+}
+@keyframes pf-grid-warp {
+  0%   { opacity: 0; transform: perspective(400px) rotateX(72deg) translateZ(-250px) translateY(-50px); }
+  25%  { opacity: 0.5; }
+  70%  { opacity: 0.5; }
+  100% { opacity: 0; transform: perspective(400px) rotateX(58deg) translateZ(150px) translateY(200px); }
+}
+
+/* ── Bloom ── */
+.pf-bloom {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--px) var(--py),
+    rgba(255, 255, 255, 0.6) 0%,
+    var(--c3) 25%,
+    var(--c2) 50%,
+    var(--c1) 70%,
+    transparent 85%);
+  opacity: 0;
+  transform-origin: var(--px) var(--py);
+  mix-blend-mode: screen;
+  animation: pf-bloom-anim 1.8s cubic-bezier(0.15, 0.85, 0.2, 1) forwards;
+}
+@keyframes pf-bloom-anim {
+  0%   { opacity: 0; transform: scale(0.2); filter: blur(20px); }
+  25%  { opacity: 1; transform: scale(1); filter: blur(35px); }
+  50%  { opacity: 1; transform: scale(1.3); filter: blur(25px); }
+  100% { opacity: 0; transform: scale(1.8); filter: blur(50px); }
+}
+
+/* ── HUD Rings ── */
+.pf-hud {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.pf-ring-hud {
+  position: absolute;
+  left: var(--px);
+  top: var(--py);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(0deg);
+  will-change: transform, opacity;
+  animation: pf-ring-hud-anim 1.4s cubic-bezier(0.15, 0.85, 0.2, 1) forwards;
+  animation-delay: calc(0.04s * var(--i));
+  opacity: 0;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.15), inset 0 0 15px rgba(255, 255, 255, 0.15);
+}
+.pf-ring-hud:nth-child(1) {
+  width: 110px; height: 110px;
+  border: 2px solid var(--c1);
+  border-right-color: transparent;
+  border-left-color: transparent;
+}
+.pf-ring-hud:nth-child(2) {
+  width: 220px; height: 220px;
+  border: 1.5px dashed var(--c2);
+  animation-name: pf-ring-hud-reverse-anim;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.1);
+}
+.pf-ring-hud:nth-child(3) {
+  width: 340px; height: 340px;
+  border: 1px solid var(--c3);
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.2), inset 0 0 30px rgba(255, 255, 255, 0.2);
+}
+.pf-ring-hud:nth-child(4) {
+  width: 460px; height: 460px;
+  border: 3px double var(--c1);
+  border-right-color: transparent;
+  animation-name: pf-ring-hud-reverse-anim;
+}
+@keyframes pf-ring-hud-anim {
+  0%   { transform: translate(-50%, -50%) scale(0.1) rotate(0deg); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(3.2) rotate(220deg); opacity: 0; }
+}
+@keyframes pf-ring-hud-reverse-anim {
+  0%   { transform: translate(-50%, -50%) scale(0.1) rotate(0deg); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(3.2) rotate(-220deg); opacity: 0; }
+}
+
+/* ── Vortex Tunnel ── */
+.pf-vortex-tunnel {
+  position: absolute;
+  left: var(--px);
+  top: var(--py);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  background: radial-gradient(circle, #ffffff 0%, var(--c1) 25%, var(--c2) 55%, var(--c3) 80%, transparent 100%);
+  filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  animation: pf-tunnel-anim 1.5s cubic-bezier(0.15, 0.85, 0.2, 1) forwards;
+}
+@keyframes pf-tunnel-anim {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(1); filter: blur(2px); }
+  25%  { opacity: 1; filter: blur(6px); }
+  50%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(90); filter: blur(35px); }
+}
+
+/* ── Sparks ── */
+.pf-sparks {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.pf-spark {
+  position: absolute;
+  left: var(--px);
+  top: var(--py);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  will-change: transform, opacity;
+  opacity: 0;
+}
+.pf-spark-1 { background: var(--c1); animation: pf-spark-1-anim 1.4s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; animation-delay: 0.05s; }
+.pf-spark-2 { background: var(--c2); animation: pf-spark-2-anim 1.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; animation-delay: 0.1s; }
+.pf-spark-3 { background: var(--c3); animation: pf-spark-3-anim 1.6s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; animation-delay: 0.15s; }
+.pf-spark-4 { background: var(--c1); animation: pf-spark-4-anim 1.7s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; animation-delay: 0.2s; }
+
+@keyframes pf-spark-1-anim {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.5); box-shadow: 10px -10px 4px var(--c2), -15px 5px 4px var(--c3), 12px 20px 4px var(--c1), -8px -18px 4px var(--c2); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2) rotate(90deg); box-shadow: 200px -200px 8px var(--c2), -250px 100px 8px var(--c3), 180px 300px 8px var(--c1), -120px -320px 8px var(--c2); }
+}
+@keyframes pf-spark-2-anim {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.5); box-shadow: -12px -12px 4px var(--c1), 18px 8px 4px var(--c2), -8px 18px 4px var(--c3), 10px -18px 4px var(--c1); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2.2) rotate(-90deg); box-shadow: -220px -220px 8px var(--c1), 320px 120px 8px var(--c2), -120px 280px 8px var(--c3), 180px -320px 8px var(--c1); }
+}
+@keyframes pf-spark-3-anim {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.5); box-shadow: 15px 15px 4px var(--c3), -10px -15px 4px var(--c1), 25px -8px 4px var(--c2), -18px 12px 4px var(--c3); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2.5) rotate(120deg); box-shadow: 280px 280px 8px var(--c3), -180px -280px 8px var(--c1), 350px -120px 8px var(--c2), -280px 180px 8px var(--c3); }
+}
+@keyframes pf-spark-4-anim {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.5); box-shadow: -5px 15px 4px var(--c1), 15px -8px 4px var(--c2), -20px -15px 4px var(--c3), 8px 22px 4px var(--c1); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2.3) rotate(-120deg); box-shadow: -90px 300px 8px var(--c1), 280px -150px 8px var(--c2), -320px -250px 8px var(--c3), 120px 350px 8px var(--c1); }
+}
+
+/* ── Scanline ── */
+.pf-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(90deg, transparent 0%, var(--c1) 30%, #ffffff 50%, var(--c3) 70%, transparent 100%);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  animation: pf-scanline-anim 1.4s cubic-bezier(0.15, 0.85, 0.2, 1) forwards;
+}
+@keyframes pf-scanline-anim {
+  0%   { top: 0%; opacity: 0; }
+  15%  { opacity: 0.9; }
+  80%  { opacity: 0.9; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* ── Grain ── */
+.pf-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0 0.4 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  mix-blend-mode: overlay;
+  animation: pf-grain-anim 1.8s ease-out forwards;
+}
+@keyframes pf-grain-anim {
+  0%, 60% { opacity: 0; }
+  75%     { opacity: 0.18; }
+  100%    { opacity: 0; }
+}
+
+/* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
   body.pf-portal-active > *:not(#pf-portal-overlay),
-  .pf-veil, .pf-bloom, .pf-ripple, .pf-grain {
+  .pf-veil, .pf-grid, .pf-bloom, .pf-ring-hud,
+  .pf-vortex-tunnel, .pf-spark, .pf-scanline, .pf-grain {
     animation-duration: 1ms !important;
+    animation-delay: 0s !important;
+    transition-duration: 1ms !important;
   }
 }
