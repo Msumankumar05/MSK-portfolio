@@ -686,7 +686,11 @@ function Navbar({ active }: { active: string }) {
       <nav
         className={`flex items-center gap-1 rounded-full border border-white/10 bg-black/70 px-2 py-1.5 backdrop-blur-xl transition-shadow ${scrolled ? "shadow-[0_10px_40px_-15px_rgb(from var(--pf-c1) r g b / 0.35)]" : ""}`}
       >
-        <a href="#home" onClick={handleNavClick} className="flex items-center gap-2 rounded-full px-3 py-1">
+        <a
+          href="#home"
+          onClick={handleNavClick}
+          className="flex items-center gap-2 rounded-full px-3 py-1"
+        >
           <span className="font-display text-lg italic text-white">MSK.</span>
         </a>
         <div className="mx-1 h-4 w-px bg-white/10" />
@@ -725,9 +729,27 @@ function Navbar({ active }: { active: string }) {
           aria-label="Toggle menu"
         >
           {mobileOpen ? (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
           ) : (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18" /></svg>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
           )}
         </button>
       </nav>
@@ -747,10 +769,11 @@ function Navbar({ active }: { active: string }) {
                   <a
                     href={`#${item.id}`}
                     onClick={handleNavClick}
-                    className={`block rounded-xl px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors ${active === item.id
-                      ? "bg-white/5 text-[var(--pf-c1)]"
-                      : "text-white/60 hover:bg-white/5 hover:text-white"
-                      }`}
+                    className={`block rounded-xl px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors ${
+                      active === item.id
+                        ? "bg-white/5 text-[var(--pf-c1)]"
+                        : "text-white/60 hover:bg-white/5 hover:text-white"
+                    }`}
                   >
                     <span className="text-[var(--pf-c1)]/40 mr-2">{item.num}</span>
                     {item.label}
@@ -774,7 +797,24 @@ function Navbar({ active }: { active: string }) {
   );
 }
 
-/* ---------- 3D Card visual ---------- */
+const COMMANDS = {
+  help: { desc: "Show available commands", icon: "📖" },
+  about: { desc: "About Makoju Suman Kumar", icon: "👨‍💻" },
+  skills: { desc: "Technical core stack", icon: "⚡" },
+  projects: { desc: "Highlighted applications", icon: "🚀" },
+  contact: { desc: "Connect with me", icon: "📫" },
+  clear: { desc: "Clear terminal", icon: "🧹" },
+  echo: { desc: "Print text to terminal", icon: "📢" },
+  date: { desc: "Show current date & time", icon: "📅" },
+  whoami: { desc: "Display user info", icon: "👤" },
+  pwd: { desc: "Print working directory", icon: "📂" },
+  ls: { desc: "List directory contents", icon: "📋" },
+  neofetch: { desc: "System information", icon: "🖥️" },
+  uptime: { desc: "Session uptime", icon: "⏱️" },
+  history: { desc: "Command history", icon: "🔄" },
+  version: { desc: "Terminal version", icon: "🎯" },
+  theme: { desc: "Current theme info", icon: "🎨" },
+};
 
 function TerminalEmulator() {
   const [history, setHistory] = useState<string[]>([
@@ -794,30 +834,10 @@ function TerminalEmulator() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [cursorVisible, setCursorVisible] = useState(true);
 
-  // Command definitions
-  const COMMANDS = {
-    help: { desc: "Show available commands", icon: "📖" },
-    about: { desc: "About Makoju Suman Kumar", icon: "👨‍💻" },
-    skills: { desc: "Technical core stack", icon: "⚡" },
-    projects: { desc: "Highlighted applications", icon: "🚀" },
-    contact: { desc: "Connect with me", icon: "📫" },
-    clear: { desc: "Clear terminal", icon: "🧹" },
-    echo: { desc: "Print text to terminal", icon: "📢" },
-    date: { desc: "Show current date & time", icon: "📅" },
-    whoami: { desc: "Display user info", icon: "👤" },
-    pwd: { desc: "Print working directory", icon: "📂" },
-    ls: { desc: "List directory contents", icon: "📋" },
-    neofetch: { desc: "System information", icon: "🖥️" },
-    uptime: { desc: "Session uptime", icon: "⏱️" },
-    history: { desc: "Command history", icon: "🔄" },
-    version: { desc: "Terminal version", icon: "🎯" },
-    theme: { desc: "Current theme info", icon: "🎨" },
-  };
-
   // Blinking cursor
   useEffect(() => {
     const interval = setInterval(() => {
-      setCursorVisible(v => !v);
+      setCursorVisible((v) => !v);
     }, 500);
     return () => clearInterval(interval);
   }, []);
@@ -827,7 +847,7 @@ function TerminalEmulator() {
     const inputValue = input.trim().toLowerCase();
     if (inputValue) {
       const matches = Object.keys(COMMANDS)
-        .filter(cmd => cmd.startsWith(inputValue))
+        .filter((cmd) => cmd.startsWith(inputValue))
         .slice(0, 5);
       setSuggestions(matches);
       setShowSuggestions(matches.length > 0);
@@ -851,7 +871,7 @@ function TerminalEmulator() {
     const cmd = input.trim();
     if (!cmd) return;
 
-    setCommandHistory(prev => [...prev, cmd]);
+    setCommandHistory((prev) => [...prev, cmd]);
     setHistoryIndex(-1);
     setShowSuggestions(false);
 
@@ -865,8 +885,8 @@ function TerminalEmulator() {
           "",
           "  Available Commands",
           "  ───────────────────",
-          ...Object.entries(COMMANDS).map(([key, { icon, desc }]) =>
-            `  ${icon}  ${key.padEnd(12)} ${desc}`
+          ...Object.entries(COMMANDS).map(
+            ([key, { icon, desc }]) => `  ${icon}  ${key.padEnd(12)} ${desc}`,
           ),
           "",
           "  ⌨️  Keyboard Shortcuts",
@@ -938,31 +958,33 @@ function TerminalEmulator() {
         ];
         break;
 
-      case "echo":
+      case "echo": {
         const text = cmd.slice(5) || "Hello, World!";
         response = [`▸ ${cmd}`, "", `  ${text}`];
         break;
+      }
 
-      case "date":
+      case "date": {
         const now = new Date();
         response = [
           `▸ ${cmd}`,
           "",
-          `  ${now.toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
+          `  ${now.toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
           })}`,
-          `  ${now.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true
+          `  ${now.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: true,
           })}`,
           `  ${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
         ];
         break;
+      }
 
       case "whoami":
         response = [
@@ -1006,7 +1028,7 @@ function TerminalEmulator() {
         ];
         break;
 
-      case "uptime":
+      case "uptime": {
         const uptime = Math.floor(Math.random() * 24 * 60 * 60);
         const hours = Math.floor(uptime / 3600);
         const minutes = Math.floor((uptime % 3600) / 60);
@@ -1019,6 +1041,7 @@ function TerminalEmulator() {
           `  💻  Sessions: 1`,
         ];
         break;
+      }
 
       case "history":
         if (commandHistory.length === 0) {
@@ -1027,9 +1050,7 @@ function TerminalEmulator() {
           response = [
             `▸ ${cmd}`,
             "",
-            ...commandHistory.map((c, i) =>
-              `  ${(i + 1).toString().padStart(3)}  ${c}`
-            ),
+            ...commandHistory.map((c, i) => `  ${(i + 1).toString().padStart(3)}  ${c}`),
             "",
             `  Total: ${commandHistory.length} commands`,
           ];
@@ -1048,7 +1069,7 @@ function TerminalEmulator() {
         ];
         break;
 
-      case "theme":
+      case "theme": {
         const theme = document.documentElement.getAttribute("data-pf-theme") || "cyber";
         const isGold = theme === "gold";
         const isEmerald = theme === "emerald";
@@ -1062,32 +1083,34 @@ function TerminalEmulator() {
           `  💜  Accent: ${isGold ? "#ffd98a" : isEmerald ? "#a6ff00" : isDevialet ? "#737373" : "#c084fc"}`,
         ];
         break;
+      }
 
       case "clear":
         setHistory([]);
         setInput("");
         return;
 
-      default:
+      default: {
         const suggestion = getSuggestion(lowerCmd);
         response = [
           `▸ ${cmd}`,
           `  ✗  Command not found: ${lowerCmd}`,
           suggestion !== "no suggestion" ? `  💡  Did you mean: ${suggestion}` : "",
         ].filter(Boolean);
+      }
     }
 
-    setHistory(prev => [...prev, ...response, ""]);
+    setHistory((prev) => [...prev, ...response, ""]);
     setInput("");
     scrollToBottom();
   };
 
   const getSuggestion = (cmd: string): string => {
     const commands = Object.keys(COMMANDS);
-    const exact = commands.find(c => c === cmd);
+    const exact = commands.find((c) => c === cmd);
     if (exact) return exact;
 
-    const partial = commands.filter(c => c.startsWith(cmd));
+    const partial = commands.filter((c) => c.startsWith(cmd));
     if (partial.length === 1) return partial[0];
     if (partial.length > 1) return `${partial.slice(0, 3).join(", ")} (${partial.length})`;
 
@@ -1176,7 +1199,7 @@ function TerminalEmulator() {
           else if (line.includes("━━")) color = "text-white/20";
           else if (line.includes("✦")) color = "text-[var(--pf-c2)]";
           else if (line.includes("Available") || line.includes("Commands")) color = "text-white/40";
-          else if (line.match(/^  [A-Z]/)) color = "text-white/50";
+          else if (line.match(/^ {2}[A-Z]/)) color = "text-white/50";
 
           return (
             <div key={i} className={`terminal-line ${color}`}>
@@ -1202,8 +1225,11 @@ function TerminalEmulator() {
           spellCheck={false}
           placeholder="type a command..."
         />
-        <span className={`ml-1 text-[var(--pf-c1)]/50 select-none transition-opacity duration-100 ${cursorVisible ? 'opacity-100' : 'opacity-0'
-          }`}>
+        <span
+          className={`ml-1 text-[var(--pf-c1)]/50 select-none transition-opacity duration-100 ${
+            cursorVisible ? "opacity-100" : "opacity-0"
+          }`}
+        >
           ▋
         </span>
       </form>
@@ -1373,16 +1399,17 @@ function HeroCard() {
             {/* Tabs – squared style */}
             <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-md p-0.5 border border-white/5">
               {[
-                { id: "code", label: "✦ profile.tsx" },
-                { id: "terminal", label: "◈ terminal.sh" },
+                { id: "code" as const, label: "✦ profile.tsx" },
+                { id: "terminal" as const, label: "◈ terminal.sh" },
               ].map(({ id, label }) => (
                 <button
                   key={id}
-                  onClick={() => setTab(id as any)}
-                  className={`font-mono text-[9px] tracking-[0.15em] px-3 py-1 rounded transition-all duration-300 ${tab === id
-                    ? "bg-white/10 text-white shadow-sm"
-                    : "text-white/30 hover:text-white/60 hover:bg-white/5"
-                    }`}
+                  onClick={() => setTab(id)}
+                  className={`font-mono text-[9px] tracking-[0.15em] px-3 py-1 rounded transition-all duration-300 ${
+                    tab === id
+                      ? "bg-white/10 text-white shadow-sm"
+                      : "text-white/30 hover:text-white/60 hover:bg-white/5"
+                  }`}
                 >
                   {label}
                 </button>
@@ -1413,18 +1440,19 @@ function HeroCard() {
               {Object.entries(fileExplorer).map(([key, { icon, label, color }]) => (
                 <button
                   key={key}
-                  onClick={() => setSelectedFile(key as any)}
-                  className={`group flex w-full items-center gap-2 px-3 py-1.5 text-left transition-all duration-200 ${selectedFile === key
-                    ? "bg-white/8 text-white border-r-2 border-[var(--pf-c1)]"
-                    : "text-white/40 hover:text-white/70 hover:bg-white/5"
-                    }`}
+                  onClick={() =>
+                    setSelectedFile(key as "profile" | "skills" | "contact" | "package")
+                  }
+                  className={`group flex w-full items-center gap-2 px-3 py-1.5 text-left transition-all duration-200 ${
+                    selectedFile === key
+                      ? "bg-white/8 text-white border-r-2 border-[var(--pf-c1)]"
+                      : "text-white/40 hover:text-white/70 hover:bg-white/5"
+                  }`}
                 >
                   <span className={`text-[10px] ${selectedFile === key ? color : "text-white/30"}`}>
                     {icon}
                   </span>
-                  <span className={`text-[9px] ${selectedFile === key ? color : ""}`}>
-                    {label}
-                  </span>
+                  <span className={`text-[9px] ${selectedFile === key ? color : ""}`}>{label}</span>
                 </button>
               ))}
             </div>
@@ -1455,7 +1483,9 @@ function HeroCard() {
                 <div className="pl-7">
                   {selectedFile === "profile" && (
                     <div className="space-y-0.5 text-[10px]">
-                      <div><span className="text-white/30">{'{'}</span></div>
+                      <div>
+                        <span className="text-white/30">{"{"}</span>
+                      </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"name"</span>
                         <span className="text-white/30">: </span>
@@ -1479,7 +1509,9 @@ function HeroCard() {
                         <span className="text-white/30">: </span>
                         <span className="text-[#a8ff78]">"open_to_work"</span>
                       </div>
-                      <div><span className="text-white/30">{'}'}</span></div>
+                      <div>
+                        <span className="text-white/30">{"}"}</span>
+                      </div>
                     </div>
                   )}
 
@@ -1505,7 +1537,9 @@ function HeroCard() {
 
                   {selectedFile === "contact" && (
                     <div className="space-y-0.5 text-[10px]">
-                      <div><span className="text-white/30">{'{'}</span></div>
+                      <div>
+                        <span className="text-white/30">{"{"}</span>
+                      </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"email"</span>
                         <span className="text-white/30">: </span>
@@ -1523,13 +1557,17 @@ function HeroCard() {
                         <span className="text-white/30">: </span>
                         <span className="text-[#a8ff78]">"linkedin.com/in/makoju-suman-kumar"</span>
                       </div>
-                      <div><span className="text-white/30">{'}'}</span></div>
+                      <div>
+                        <span className="text-white/30">{"}"}</span>
+                      </div>
                     </div>
                   )}
 
                   {selectedFile === "package" && (
                     <div className="space-y-0.5 text-[9px] text-white/50">
-                      <div><span className="text-white/20">{'{'}</span></div>
+                      <div>
+                        <span className="text-white/20">{"{"}</span>
+                      </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"name"</span>
                         <span className="text-white/20">: </span>
@@ -1557,8 +1595,12 @@ function HeroCard() {
                         <span className="text-white/20">: </span>
                         <span className="text-[#a8ff78]">"^11.0.0"</span>
                       </div>
-                      <div className="pl-3"><span className="text-white/20">{'}'}</span></div>
-                      <div><span className="text-white/20">{'}'}</span></div>
+                      <div className="pl-3">
+                        <span className="text-white/20">{"}"}</span>
+                      </div>
+                      <div>
+                        <span className="text-white/20">{"}"}</span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1604,9 +1646,30 @@ function HeroCard() {
 
             if (document.getElementById("pf-portal-overlay")) return;
 
-            const nextC1 = next === "gold" ? "#f5c14a" : next === "emerald" ? "#00ff88" : next === "devialet" ? "#111111" : "#00e5ff";
-            const nextC2 = next === "gold" ? "#ff7a2d" : next === "emerald" ? "#00f0ff" : next === "devialet" ? "#c3a275" : "#ff2d7d";
-            const nextC3 = next === "gold" ? "#ffd98a" : next === "emerald" ? "#a6ff00" : next === "devialet" ? "#737373" : "#c084fc";
+            const nextC1 =
+              next === "gold"
+                ? "#f5c14a"
+                : next === "emerald"
+                  ? "#00ff88"
+                  : next === "devialet"
+                    ? "#111111"
+                    : "#00e5ff";
+            const nextC2 =
+              next === "gold"
+                ? "#ff7a2d"
+                : next === "emerald"
+                  ? "#00f0ff"
+                  : next === "devialet"
+                    ? "#c3a275"
+                    : "#ff2d7d";
+            const nextC3 =
+              next === "gold"
+                ? "#ffd98a"
+                : next === "emerald"
+                  ? "#a6ff00"
+                  : next === "devialet"
+                    ? "#737373"
+                    : "#c084fc";
 
             document.body.classList.add("pf-portal-active");
 
@@ -1643,7 +1706,9 @@ function HeroCard() {
               el.setAttribute("data-pf-theme", next);
               try {
                 localStorage.setItem("pf-theme", next);
-              } catch (_) { }
+              } catch (_) {
+                // Ignore localStorage failure in environments where it is blocked
+              }
             }, 500);
 
             window.setTimeout(() => {
@@ -1673,7 +1738,9 @@ function HeroCard() {
               />
             </div>
             <span className="tracking-[0.3em]">Swap Theme</span>
-            <span className="transition-transform duration-500 group-hover:rotate-180 text-[11px]">⟳</span>
+            <span className="transition-transform duration-500 group-hover:rotate-180 text-[11px]">
+              ⟳
+            </span>
           </div>
         </button>
 
@@ -1955,7 +2022,11 @@ function Hero() {
             transition={{ delay: 0.35, duration: 0.7 }}
             className="mt-5 max-w-[80ch] text-[12px] font-light leading-relaxed text-white/50"
           >
-            Building the full spectrum — from pixel-perfect user interfaces and scalable backend architectures to cross-platform mobile applications and <span className="text-[var(--pf-c2)] font-mono">AI-powered</span> experiences. I focus on creating fast, accessible, and production-ready digital products that combine elegant design, clean architecture, and exceptional user experiences.
+            Building the full spectrum — from pixel-perfect user interfaces and scalable backend
+            architectures to cross-platform mobile applications and{" "}
+            <span className="text-[var(--pf-c2)] font-mono">AI-powered</span> experiences. I focus
+            on creating fast, accessible, and production-ready digital products that combine elegant
+            design, clean architecture, and exceptional user experiences.
           </motion.p>
 
           {/* Telemetry HUD Dashboard Matrix */}
@@ -2099,11 +2170,17 @@ function Hero() {
 
 function SectionEyebrow({ num, title }: { num: string; title: string }) {
   return (
-    <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.3em]">
+    <motion.div
+      initial={{ opacity: 0, x: -16 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.3em]"
+    >
       <span className="text-white/25">{num} /</span>
       <span className="text-[var(--pf-c1)]">{title}</span>
       <div className="ml-2 h-px w-8 bg-[var(--pf-c1)]/40" />
-    </div>
+    </motion.div>
   );
 }
 
@@ -2291,20 +2368,31 @@ function WorkCard({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; to
       }}
     >
       {/* top accent bar */}
-      <div className="h-px w-full" style={{ background: `linear-gradient(to right, ${p.accent}, transparent)` }} />
-      <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.3em]" style={{ color: p.accent }}>
+      <div
+        className="h-px w-full"
+        style={{ background: `linear-gradient(to right, ${p.accent}, transparent)` }}
+      />
+      <div
+        className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.3em]"
+        style={{ color: p.accent }}
+      >
         <span className="flex items-center gap-2">
           <span className="h-px w-4" style={{ backgroundColor: p.accent }} />
           Frame {String(i + 1).padStart(2, "0")}
         </span>
-        <span className="text-white/30">{String(i + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}</span>
+        <span className="text-white/30">
+          {String(i + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+        </span>
       </div>
       <div>
-        <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.3em] text-white/50">{p.category}</div>
+        <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.3em] text-white/50">
+          {p.category}
+        </div>
         <h3 className="font-display text-4xl leading-[0.95] text-white sm:text-5xl">
           {p.name.split(" ").map((w, wi) => (
             <span key={wi} className={wi === 1 ? "italic" : ""}>
-              {w}{wi < p.name.split(" ").length - 1 ? " " : ""}
+              {w}
+              {wi < p.name.split(" ").length - 1 ? " " : ""}
             </span>
           ))}
         </h3>
@@ -2313,7 +2401,10 @@ function WorkCard({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; to
       {/* metric */}
       <div className="flex items-start gap-4">
         <div className="font-display leading-none text-5xl" style={{ color: p.accent }}>
-          {p.metric.value}<span className="text-[0.5em] align-top" style={{ color: p.accent }}>{p.metric.unit}</span>
+          {p.metric.value}
+          <span className="text-[0.5em] align-top" style={{ color: p.accent }}>
+            {p.metric.unit}
+          </span>
         </div>
         <div className="mt-2 max-w-[16rem] font-mono text-[9px] uppercase leading-relaxed tracking-[0.22em] text-white/55">
           {p.metric.label}
@@ -2322,31 +2413,46 @@ function WorkCard({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; to
       {/* stack */}
       <div className="flex flex-wrap gap-1.5">
         {p.stack.map((s) => (
-          <span key={s} className="border border-white/15 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-white/70">{s}</span>
+          <span
+            key={s}
+            className="border border-white/15 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-white/70"
+          >
+            {s}
+          </span>
         ))}
       </div>
       {/* CTAs */}
       <div className="flex flex-wrap items-center gap-3">
         <a
           href="#"
-          className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${p.placeholder ? "pointer-events-none opacity-40" : ""
-            }`}
+          className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
+            p.placeholder ? "pointer-events-none opacity-40" : ""
+          }`}
           style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
         >
-          Read case study <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          Read case study{" "}
+          <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
         </a>
         {p.liveUrl && (
-          <a href={p.liveUrl} target="_blank" rel="noreferrer"
-            className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
-              }`}
+          <a
+            href={p.liveUrl}
+            target="_blank"
+            rel="noreferrer"
+            className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
+              p.placeholder ? "pointer-events-none opacity-40" : ""
+            }`}
           >
             <ExternalLink className="h-3 w-3" /> Live
           </a>
         )}
         {p.githubUrl && (
-          <a href={p.githubUrl} target="_blank" rel="noreferrer"
-            className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
-              }`}
+          <a
+            href={p.githubUrl}
+            target="_blank"
+            rel="noreferrer"
+            className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
+              p.placeholder ? "pointer-events-none opacity-40" : ""
+            }`}
           >
             <Github className="h-3 w-3" /> GitHub
           </a>
@@ -2431,8 +2537,9 @@ function WorkFrame({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; t
             <a
               href="#"
               // target="_blank"
-              className={`group inline-flex items-center gap-2 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] transition ${p.placeholder ? "pointer-events-none opacity-40" : ""
-                }`}
+              className={`group inline-flex items-center gap-2 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
+                p.placeholder ? "pointer-events-none opacity-40" : ""
+              }`}
               style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
             >
               Read case study
@@ -2443,8 +2550,9 @@ function WorkFrame({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; t
                 href={p.liveUrl}
                 target="_blank"
                 rel="noreferrer"
-                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
-                  }`}
+                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
+                  p.placeholder ? "pointer-events-none opacity-40" : ""
+                }`}
               >
                 <ExternalLink className="h-3 w-3" />
                 Live
@@ -2455,8 +2563,9 @@ function WorkFrame({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; t
                 href={p.githubUrl}
                 target="_blank"
                 rel="noreferrer"
-                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
-                  }`}
+                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
+                  p.placeholder ? "pointer-events-none opacity-40" : ""
+                }`}
               >
                 <Github className="h-3 w-3" />
                 GitHub
@@ -2663,7 +2772,15 @@ function Work() {
         </div>
         <div className="space-y-6">
           {PROJECTS.map((p, i) => (
-            <WorkCard key={p.name + i} p={p} i={i} total={total} />
+            <motion.div
+              key={p.name + i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6, delay: i * 0.05 }}
+            >
+              <WorkCard p={p} i={i} total={total} />
+            </motion.div>
           ))}
         </div>
       </div>
@@ -2888,13 +3005,20 @@ function Arena() {
         </div>
 
         {/* ── Tab Switcher ── */}
-        <div className="mt-10 flex flex-wrap items-center gap-2 border-b border-white/10 pb-0">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mt-10 flex flex-wrap items-center gap-2 border-b border-white/10 pb-0"
+        >
           {TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`relative px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] transition-colors ${activeTab === tab.key ? "text-[var(--pf-c1)]" : "text-white/40 hover:text-white/80"
-                }`}
+              className={`relative px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] transition-colors ${
+                activeTab === tab.key ? "text-[var(--pf-c1)]" : "text-white/40 hover:text-white/80"
+              }`}
             >
               {activeTab === tab.key && (
                 <motion.span
@@ -2906,7 +3030,7 @@ function Arena() {
               {tab.label}
             </button>
           ))}
-        </div>
+        </motion.div>
 
         {/* ── Profile Panel ── */}
         <AnimatePresence mode="wait">
@@ -2966,8 +3090,9 @@ function Arena() {
                 {profile.stats.map((s, i) => (
                   <div
                     key={s.label}
-                    className={`flex flex-col justify-center px-5 py-5 md:px-7 md:py-7 ${i % 2 === 0 ? "border-r border-white/10" : ""
-                      } ${i < 2 ? "border-b border-white/10" : ""}`}
+                    className={`flex flex-col justify-center px-5 py-5 md:px-7 md:py-7 ${
+                      i % 2 === 0 ? "border-r border-white/10" : ""
+                    } ${i < 2 ? "border-b border-white/10" : ""}`}
                   >
                     <div className="font-display text-2xl italic text-white md:text-4xl">
                       {s.value}
@@ -3004,8 +3129,9 @@ function Arena() {
                     initial={{ width: 0 }}
                     animate={{ width: `${b.pct}%` }}
                     transition={{ duration: 0.8, delay: i * 0.12, ease: [0.2, 0.7, 0.2, 1] }}
-                    className={`${b.color} flex items-center justify-start overflow-hidden px-3 ${i > 0 ? "border-l border-[var(--pf-bg)]/60" : ""
-                      }`}
+                    className={`${b.color} flex items-center justify-start overflow-hidden px-3 ${
+                      i > 0 ? "border-l border-[var(--pf-bg)]/60" : ""
+                    }`}
                   >
                     <span className="whitespace-nowrap font-mono text-[8px] font-bold uppercase tracking-[0.2em] text-[var(--pf-bg)]">
                       {b.count} {b.label}
@@ -3020,10 +3146,11 @@ function Arena() {
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`font-mono text-[9px] uppercase tracking-[0.3em] transition ${activeTab === tab.key
-                      ? "text-[var(--pf-c1)]"
-                      : "text-white/30 hover:text-white/60"
-                      }`}
+                    className={`font-mono text-[9px] uppercase tracking-[0.3em] transition ${
+                      activeTab === tab.key
+                        ? "text-[var(--pf-c1)]"
+                        : "text-white/30 hover:text-white/60"
+                    }`}
                   >
                     {tab.label} {activeTab === tab.key ? "↗" : "/"}
                   </button>
@@ -3038,12 +3165,24 @@ function Arena() {
 
         {/* ── GitHub Section ── */}
         <SectionEyebrow num="05b" title="Open Source" />
-        <h2 className="mt-8 font-display text-5xl leading-[1.05] text-white md:text-6xl">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.8 }}
+          className="mt-8 font-display text-5xl leading-[1.05] text-white md:text-6xl"
+        >
           Building in <span className="italic text-[var(--pf-c2)]">public</span>.
-        </h2>
+        </motion.h2>
 
         <div className="mt-16 grid gap-6 lg:grid-cols-5">
-          <div className="border border-white/10 bg-white/[0.02] p-8 lg:col-span-3">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7 }}
+            className="border border-white/10 bg-white/[0.02] p-8 lg:col-span-3"
+          >
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.25em] text-white/70">
                 <Github className="h-4 w-4" />
@@ -3072,9 +3211,15 @@ function Arena() {
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          <div className="border border-white/10 bg-white/[0.02] p-8 lg:col-span-2">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="border border-white/10 bg-white/[0.02] p-8 lg:col-span-2"
+          >
             <div className="mb-6 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50">
               Top Languages
             </div>
@@ -3105,7 +3250,7 @@ function Arena() {
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
@@ -3163,15 +3308,33 @@ function Contact() {
     <section id="contact" className="relative px-6 py-32 md:px-24">
       <div className="mx-auto max-w-5xl">
         <SectionEyebrow num="06" title="Cross the Border" />
-        <h2 className="mt-8 font-display text-5xl leading-[1.05] text-white md:text-7xl">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.8 }}
+          className="mt-8 font-display text-5xl leading-[1.05] text-white md:text-7xl"
+        >
           Let's build something <span className="italic text-[var(--pf-c1)]">together</span>.
-        </h2>
-        <p className="mt-6 max-w-xl text-sm leading-relaxed text-white/55">
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.7, delay: 0.1 }}
+          className="mt-6 max-w-xl text-sm leading-relaxed text-white/55"
+        >
           Freelance, internships, or a full-time full-stack seat — my inbox is open.
-        </p>
+        </motion.p>
 
         <div className="mt-16 grid gap-8 grid-cols-1 lg:grid-cols-2">
-          <div className="space-y-5 border border-white/10 bg-white/[0.02] p-6 md:p-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7 }}
+            className="space-y-5 border border-white/10 bg-white/[0.02] p-6 md:p-8"
+          >
             {[
               { k: "Email", v: "ms.kumar.developer05@gmail.com", i: Mail },
               { k: "Location", v: "Odisha, India", i: MapPin },
@@ -3189,9 +3352,13 @@ function Contact() {
                 <span className="text-sm text-white/85 break-all">{v}</span>
               </div>
             ))}
-          </div>
+          </motion.div>
 
-          <form
+          <motion.form
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7, delay: 0.1 }}
             onSubmit={handleSubmit}
             className="space-y-4 border border-white/10 bg-white/[0.02] p-8"
           >
@@ -3276,7 +3443,7 @@ function Contact() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </form>
+          </motion.form>
         </div>
       </div>
     </section>
@@ -3296,7 +3463,13 @@ function Footer() {
         aria-hidden="true"
       />
 
-      <div className="relative z-10 mx-auto max-w-6xl">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="relative z-10 mx-auto max-w-6xl"
+      >
         <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           {/* Column 1: Brand & Bio */}
           <div className="lg:col-span-5">
@@ -3384,7 +3557,7 @@ function Footer() {
             Tailwind
           </span>
         </div>
-      </div>
+      </motion.div>
     </footer>
   );
 }
@@ -3522,7 +3695,7 @@ function Portfolio() {
       if (saved) document.documentElement.setAttribute("data-pf-theme", saved);
       else document.documentElement.setAttribute("data-pf-theme", "gold");
       // eslint-disable-next-line no-empty
-    } catch (_) { }
+    } catch (_) {}
     setMounted(true);
   }, []);
 
