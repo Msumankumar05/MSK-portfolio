@@ -357,31 +357,198 @@ function Magnetic({
   );
 }
 
-function Grid3D({ mx, my }: { mx: MotionValue<number>; my: MotionValue<number> }) {
-  const rx = useTransform(my, [-1, 1], [63, 67]);
-  const ry = useTransform(mx, [-1, 1], [-4, 4]);
-  const x = useTransform(mx, [-1, 1], [-20, 20]);
-  const y = useTransform(my, [-1, 1], [-10, 10]);
+function HeroAurora({ mx, my }: { mx: MotionValue<number>; my: MotionValue<number> }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ x: 0.5, y: 0.5 });
+
+  // Track mouse motion values
+  useEffect(() => {
+    const unsubX = mx.on("change", (v) => (mouseRef.current.x = (v + 1) / 2));
+    const unsubY = my.on("change", (v) => (mouseRef.current.y = (v + 1) / 2));
+    return () => { unsubX(); unsubY(); };
+  }, [mx, my]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+    let w = 0, h = 0;
+
+    // Read CSS variables for theme colors
+    const getColors = () => {
+      const style = getComputedStyle(document.documentElement);
+      return {
+        c1: style.getPropertyValue("--pf-c1").trim() || "#f5c14a",
+        c2: style.getPropertyValue("--pf-c2").trim() || "#ff7a2d",
+        c3: style.getPropertyValue("--pf-c3").trim() || "#ffd98a",
+      };
+    };
+
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio, 2);
+      w = canvas.clientWidth;
+      h = canvas.clientHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
+
+    // Robust CSS color parser to handle hex, rgb, and rgba formats
+    const parseCssColor = (colorStr: string) => {
+      const str = colorStr.trim();
+      if (str.startsWith("rgb")) {
+        const match = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        if (match) {
+          return {
+            r: parseInt(match[1], 10),
+            g: parseInt(match[2], 10),
+            b: parseInt(match[3], 10)
+          };
+        }
+      }
+      if (str.startsWith("#")) {
+        const hex = str.slice(1);
+        if (hex.length === 3) {
+          return {
+            r: parseInt(hex[0] + hex[0], 16),
+            g: parseInt(hex[1] + hex[1], 16),
+            b: parseInt(hex[2] + hex[2], 16)
+          };
+        }
+        return {
+          r: parseInt(hex.slice(0, 2), 16) || 0,
+          g: parseInt(hex.slice(2, 4), 16) || 0,
+          b: parseInt(hex.slice(4, 6), 16) || 0
+        };
+      }
+      return { r: 255, g: 255, b: 255 };
+    };
+
+    // Aurora wave config
+    const waves = [
+      { speed: 0.0004, amp: 0.18, freq: 1.2, phase: 0, yBase: 0.65, colorIdx: 0, width: 0.22 },
+      { speed: 0.0003, amp: 0.15, freq: 0.9, phase: 2.1, yBase: 0.55, colorIdx: 1, width: 0.18 },
+      { speed: 0.00035, amp: 0.12, freq: 1.5, phase: 4.2, yBase: 0.72, colorIdx: 2, width: 0.15 },
+      { speed: 0.00025, amp: 0.2, freq: 0.7, phase: 1.0, yBase: 0.48, colorIdx: 0, width: 0.25 },
+      { speed: 0.00045, amp: 0.1, freq: 1.8, phase: 3.5, yBase: 0.78, colorIdx: 1, width: 0.12 },
+    ];
+
+    let t = 0;
+
+    const draw = (timestamp: number) => {
+      t = timestamp;
+      const { c1, c2, c3 } = getColors();
+      const colors = [parseCssColor(c1), parseCssColor(c2), parseCssColor(c3)];
+      const mouse = mouseRef.current;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Draw aurora waves
+      for (const wave of waves) {
+        const col = colors[wave.colorIdx];
+        const time = t * wave.speed + wave.phase;
+        const mouseInfluence = (mouse.x - 0.5) * 0.08;
+
+        ctx.beginPath();
+
+        // Build wave path
+        const points: Array<{ x: number; y: number }> = [];
+        const steps = 80;
+        for (let i = 0; i <= steps; i++) {
+          const px = (i / steps) * w;
+          const norm = i / steps;
+          const waveY =
+            Math.sin(norm * Math.PI * wave.freq * 2 + time) * wave.amp * h +
+            Math.sin(norm * Math.PI * wave.freq * 3.7 + time * 1.3) * wave.amp * h * 0.3 +
+            Math.cos(norm * Math.PI * 1.1 + time * 0.7) * wave.amp * h * 0.15;
+          const mouseWarp = Math.sin((norm - mouse.x) * Math.PI * 2) * mouse.y * h * 0.04;
+          const py = wave.yBase * h + waveY + mouseWarp + mouseInfluence * h;
+          points.push({ x: px, y: py });
+        }
+
+        // Smooth curve through points
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length - 1; i++) {
+          const cpx = (points[i].x + points[i + 1].x) / 2;
+          const cpy = (points[i].y + points[i + 1].y) / 2;
+          ctx.quadraticCurveTo(points[i].x, points[i].y, cpx, cpy);
+        }
+
+        // Create gradient fill for the wave band
+        const bandH = wave.width * h;
+        const gradient = ctx.createLinearGradient(0, wave.yBase * h - bandH, 0, wave.yBase * h + bandH);
+        gradient.addColorStop(0, `rgba(${col.r},${col.g},${col.b},0)`);
+        gradient.addColorStop(0.3, `rgba(${col.r},${col.g},${col.b},0.04)`);
+        gradient.addColorStop(0.5, `rgba(${col.r},${col.g},${col.b},0.07)`);
+        gradient.addColorStop(0.7, `rgba(${col.r},${col.g},${col.b},0.04)`);
+        gradient.addColorStop(1, `rgba(${col.r},${col.g},${col.b},0)`);
+
+        // Draw the filled wave band
+        ctx.lineTo(w, h);
+        ctx.lineTo(0, h);
+        ctx.closePath();
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        // Draw glowing stroke on top
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length - 1; i++) {
+          const cpx = (points[i].x + points[i + 1].x) / 2;
+          const cpy = (points[i].y + points[i + 1].y) / 2;
+          ctx.quadraticCurveTo(points[i].x, points[i].y, cpx, cpy);
+        }
+        ctx.strokeStyle = `rgba(${col.r},${col.g},${col.b},0.12)`;
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = `rgba(${col.r},${col.g},${col.b},0.3)`;
+        ctx.shadowBlur = 20;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+
+      // Floating luminous particles
+      const particleCount = 35;
+      for (let i = 0; i < particleCount; i++) {
+        const seed = i * 137.508;
+        const px = ((seed * 0.618) % 1) * w;
+        const baseY = ((seed * 0.381) % 1) * h;
+        const py = baseY + Math.sin(t * 0.0008 + seed) * 30 + Math.cos(t * 0.0005 + seed * 0.7) * 20;
+        const col = colors[i % 3];
+        const alpha = 0.15 + Math.sin(t * 0.001 + seed) * 0.1;
+        const radius = 1 + Math.sin(t * 0.002 + seed * 0.5) * 0.8;
+
+        ctx.beginPath();
+        ctx.arc(px, py, radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${col.r},${col.g},${col.b},${Math.max(0.05, alpha)})`;
+        ctx.shadowColor = `rgba(${col.r},${col.g},${col.b},0.4)`;
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    animId = requestAnimationFrame(draw);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
 
   return (
-    <div
-      className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
-      style={{ perspective: "1200px" }}
-    >
-      <motion.div
-        className="absolute bottom-[-30%] left-[-30%] right-[-30%] h-[75%] opacity-[0.05] [mask-image:linear-gradient(to_top,black_20%,transparent_90%)]"
-        style={{
-          rotateX: rx,
-          rotateY: ry,
-          x,
-          y,
-          backgroundImage:
-            "linear-gradient(to right, var(--pf-c1) 1.5px, transparent 1.5px), linear-gradient(to bottom, var(--pf-c1) 1.5px, transparent 1.5px)",
-          backgroundSize: "50px 50px",
-          transformOrigin: "center bottom",
-        }}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="pointer-events-none absolute inset-0 -z-10 h-full w-full"
+      style={{ opacity: 0.85 }}
+    />
   );
 }
 
@@ -395,77 +562,124 @@ function NeuralConstellation() {
     if (!ctx) return;
 
     let animationFrameId: number;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    let width: number, height: number;
+
+    // Robust CSS color parser to handle hex, rgb, and rgba formats
+    const parseCssColor = (colorStr: string) => {
+      const str = colorStr.trim();
+      if (str.startsWith("rgb")) {
+        const match = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        if (match) {
+          return [
+            parseInt(match[1], 10),
+            parseInt(match[2], 10),
+            parseInt(match[3], 10)
+          ] as const;
+        }
+      }
+      if (str.startsWith("#")) {
+        const hex = str.slice(1);
+        if (hex.length === 3) {
+          return [
+            parseInt(hex[0] + hex[0], 16),
+            parseInt(hex[1] + hex[1], 16),
+            parseInt(hex[2] + hex[2], 16)
+          ] as const;
+        }
+        return [
+          parseInt(hex.slice(0, 2), 16) || 0,
+          parseInt(hex.slice(2, 4), 16) || 0,
+          parseInt(hex.slice(4, 6), 16) || 0
+        ] as const;
+      }
+      return [255, 255, 255] as const;
+    };
+
+    const getThemeColors = () => {
+      const s = getComputedStyle(document.documentElement);
+      return {
+        c1: s.getPropertyValue("--pf-c1").trim() || "#f5c14a",
+        c2: s.getPropertyValue("--pf-c2").trim() || "#ff7a2d",
+        c3: s.getPropertyValue("--pf-c3").trim() || "#ffd98a",
+      };
+    };
+
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio, 2);
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
 
     const particles: Array<{
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      r: number;
+      x: number; y: number; vx: number; vy: number;
+      r: number; colorIdx: number; pulseOffset: number;
     }> = [];
 
-    const particleCount = 65;
+    const particleCount = 50;
     for (let i = 0; i < particleCount; i++) {
       particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.45,
-        vy: (Math.random() - 0.5) * 0.45,
-        r: Math.random() * 1.5 + 0.5,
+        x: Math.random() * (canvas.clientWidth || 1920),
+        y: Math.random() * (canvas.clientHeight || 1080),
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: (Math.random() - 0.5) * 0.35,
+        r: Math.random() * 1.8 + 0.4,
+        colorIdx: i % 3,
+        pulseOffset: Math.random() * Math.PI * 2,
       });
     }
 
     let mouseX = -1000;
     let mouseY = -1000;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-    };
-
-    const handleMouseLeave = () => {
-      mouseX = -1000;
-      mouseY = -1000;
-    };
+    const handleMouseMove = (e: MouseEvent) => { mouseX = e.clientX; mouseY = e.clientY; };
+    const handleMouseLeave = () => { mouseX = -1000; mouseY = -1000; };
 
     window.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseleave", handleMouseLeave);
 
-    const handleResize = () => {
-      if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    };
-    window.addEventListener("resize", handleResize);
+    let t = 0;
 
-    const draw = () => {
+    const draw = (ts: number) => {
+      t = ts;
+      const { c1, c2, c3 } = getThemeColors();
+      const rgbs = [parseCssColor(c1), parseCssColor(c2), parseCssColor(c3)];
+
       ctx.clearRect(0, 0, width, height);
 
-      // Move and draw particles
       for (let i = 0; i < particleCount; i++) {
         const p1 = particles[i];
 
         p1.x += p1.vx;
         p1.y += p1.vy;
-
         if (p1.x < 0 || p1.x > width) p1.vx *= -1;
         if (p1.y < 0 || p1.y > height) p1.vy *= -1;
 
-        ctx.fillStyle = "rgba(0, 229, 255, 0.25)";
+        const [r, g, b] = rgbs[p1.colorIdx];
+        const pulse = 0.2 + Math.sin(t * 0.001 + p1.pulseOffset) * 0.1;
+
+        ctx.fillStyle = `rgba(${r},${g},${b},${pulse})`;
+        ctx.shadowColor = `rgba(${r},${g},${b},0.3)`;
+        ctx.shadowBlur = 6;
         ctx.beginPath();
         ctx.arc(p1.x, p1.y, p1.r, 0, Math.PI * 2);
         ctx.fill();
+        ctx.shadowBlur = 0;
 
-        // Connect adjacent particles
+        // Connect nearby particles
         for (let j = i + 1; j < particleCount; j++) {
           const p2 = particles[j];
           const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-          if (dist < 105) {
-            const alpha = (1 - dist / 105) * 0.12;
-            ctx.strokeStyle = `rgba(0, 229, 255, ${alpha})`;
-            ctx.lineWidth = 0.65;
+          if (dist < 120) {
+            const alpha = (1 - dist / 120) * 0.08;
+            const [r2, g2, b2] = rgbs[p2.colorIdx];
+            ctx.strokeStyle = `rgba(${(r + r2) >> 1},${(g + g2) >> 1},${(b + b2) >> 1},${alpha})`;
+            ctx.lineWidth = 0.5;
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
@@ -473,13 +687,13 @@ function NeuralConstellation() {
           }
         }
 
-        // Connect to mouse cursor
+        // Mouse interaction
         if (mouseX > -500) {
           const distToMouse = Math.hypot(p1.x - mouseX, p1.y - mouseY);
-          if (distToMouse < 140) {
-            const alpha = (1 - distToMouse / 140) * 0.28;
-            ctx.strokeStyle = `rgba(192, 132, 252, ${alpha})`;
-            ctx.lineWidth = 0.8;
+          if (distToMouse < 160) {
+            const alpha = (1 - distToMouse / 160) * 0.2;
+            ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
+            ctx.lineWidth = 0.7;
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(mouseX, mouseY);
@@ -491,13 +705,13 @@ function NeuralConstellation() {
       animationFrameId = requestAnimationFrame(draw);
     };
 
-    draw();
+    animationFrameId = requestAnimationFrame(draw);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseleave", handleMouseLeave);
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", resize);
     };
   }, []);
 
@@ -605,21 +819,52 @@ function ScrollProgress() {
   );
 }
 
-function useActiveSection() {
+function useActiveSection(ready: boolean) {
   const [active, setActive] = useState("home");
   useEffect(() => {
+    // Don't set up the observer until sections are in the DOM
+    if (!ready) return;
+
     const els = NAV.map((n) => document.getElementById(n.id)).filter(Boolean) as HTMLElement[];
+    if (els.length === 0) return;
+
+    // Track which sections are currently intersecting
+    const visibleSet = new Map<string, IntersectionObserverEntry>();
+
+    const pickActive = () => {
+      if (visibleSet.size === 0) return;
+      // Among all intersecting sections, pick the one whose top is closest
+      // to (but above or at) the viewport centre — i.e. the "current" section.
+      const midY = window.innerHeight * 0.4;
+      let best: string | null = null;
+      let bestDist = Infinity;
+      visibleSet.forEach((entry, id) => {
+        const rect = entry.target.getBoundingClientRect();
+        const dist = Math.abs(rect.top - midY);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = id;
+        }
+      });
+      if (best) setActive(best);
+    };
+
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
-          if (e.isIntersecting) setActive(e.target.id);
+          if (e.isIntersecting) {
+            visibleSet.set(e.target.id, e);
+          } else {
+            visibleSet.delete(e.target.id);
+          }
         });
+        pickActive();
       },
-      { rootMargin: "-45% 0px -50% 0px" },
+      { threshold: [0, 0.1, 0.2, 0.3, 0.5], rootMargin: "-10% 0px -10% 0px" },
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, []);
+  }, [ready]);
   return active;
 }
 
@@ -769,11 +1014,10 @@ function Navbar({ active }: { active: string }) {
                   <a
                     href={`#${item.id}`}
                     onClick={handleNavClick}
-                    className={`block rounded-xl px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors ${
-                      active === item.id
-                        ? "bg-white/5 text-[var(--pf-c1)]"
-                        : "text-white/60 hover:bg-white/5 hover:text-white"
-                    }`}
+                    className={`block rounded-xl px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors ${active === item.id
+                      ? "bg-white/5 text-[var(--pf-c1)]"
+                      : "text-white/60 hover:bg-white/5 hover:text-white"
+                      }`}
                   >
                     <span className="text-[var(--pf-c1)]/40 mr-2">{item.num}</span>
                     {item.label}
@@ -1226,9 +1470,8 @@ function TerminalEmulator() {
           placeholder="type a command..."
         />
         <span
-          className={`ml-1 text-[var(--pf-c1)]/50 select-none transition-opacity duration-100 ${
-            cursorVisible ? "opacity-100" : "opacity-0"
-          }`}
+          className={`ml-1 text-[var(--pf-c1)]/50 select-none transition-opacity duration-100 ${cursorVisible ? "opacity-100" : "opacity-0"
+            }`}
         >
           ▋
         </span>
@@ -1328,6 +1571,14 @@ function HeroCard() {
     package: { icon: "◉", label: "package.json", color: "text-[#febc2e]" },
   };
 
+  // ─── THEME COLOUR MAP (UPDATED FOR OBSIDIAN) ──────────────
+  const themeColors: Record<string, { c1: string; c2: string; c3: string }> = {
+    cyber:    { c1: "#00e5ff", c2: "#ff2d7d", c3: "#c084fc" },
+    gold:     { c1: "#f5c14a", c2: "#ff7a2d", c3: "#ffd98a" },
+    emerald:  { c1: "#00ff88", c2: "#00f0ff", c3: "#a6ff00" },
+    devialet: { c1: "#e8352a", c2: "#ff8b6a", c3: "#c9a87c" }, // Obsidian Crimson
+  };
+
   return (
     <motion.div
       ref={cardRef}
@@ -1339,22 +1590,20 @@ function HeroCard() {
         transformPerspective: 1200,
         scale: cardScale,
       }}
-      className="relative w-full max-w-[540px] select-none"
+      className="relative w-full max-w-[540px] select-none pf-hero-card-wrap"
     >
-      {/* Outer glow – squared */}
+      {/* Outer glow */}
       <motion.div
         className="pointer-events-none absolute -inset-8 rounded-lg"
         style={{
           background: glowBackground,
           filter: "blur(50px) saturate(1.5)",
         }}
-        animate={{
-          opacity: isHovering ? 0.9 : 0.5,
-        }}
+        animate={{ opacity: isHovering ? 0.9 : 0.5 }}
         transition={{ duration: 0.4 }}
       />
 
-      {/* Decorative border ring – squared */}
+      {/* Decorative ring */}
       <motion.div
         className="pointer-events-none absolute -inset-4 rounded-lg border border-white/5"
         animate={{
@@ -1364,8 +1613,8 @@ function HeroCard() {
         transition={{ duration: 0.4 }}
       />
 
-      {/* Main card – square with subtle rounding */}
-      <div className="relative overflow-hidden rounded-lg border border-white/8 bg-[var(--pf-card)] shadow-[0_60px_120px_-40px_rgb(from var(--pf-c1) r g b / 0.3)] backdrop-blur-xl">
+      {/* Main card */}
+      <div className="relative overflow-hidden rounded-lg border border-white/8 bg-[var(--pf-card)] shadow-[0_60px_120px_-40px_rgb(from var(--pf-c1) r g b / 0.3)] backdrop-blur-xl pf-hero-card-inner">
         {/* Dynamic glare */}
         <motion.div
           className="pointer-events-none absolute inset-0 z-20"
@@ -1382,10 +1631,9 @@ function HeroCard() {
         {/* Subtle gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
 
-        {/* Header – cleaner, more professional */}
+        {/* Header */}
         <div className="relative flex items-center justify-between px-5 py-3 border-b border-white/5 bg-white/[0.03]">
           <div className="flex items-center gap-4">
-            {/* Window controls – minimal */}
             <div className="flex gap-1.5">
               {["#ff5f57", "#febc2e", "#28c840"].map((color, i) => (
                 <span
@@ -1395,8 +1643,6 @@ function HeroCard() {
                 />
               ))}
             </div>
-
-            {/* Tabs – squared style */}
             <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-md p-0.5 border border-white/5">
               {[
                 { id: "code" as const, label: "✦ profile.tsx" },
@@ -1416,8 +1662,6 @@ function HeroCard() {
               ))}
             </div>
           </div>
-
-          {/* Live indicator */}
           <div className="flex items-center gap-2">
             <div className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--pf-c1)] opacity-60" />
@@ -1429,10 +1673,9 @@ function HeroCard() {
           </div>
         </div>
 
-        {/* Content area */}
+        {/* Content panels */}
         {tab === "code" ? (
           <div className="flex h-[240px] font-mono text-[10px] leading-relaxed">
-            {/* Sidebar – squared */}
             <div className="w-[110px] shrink-0 border-r border-white/5 bg-white/[0.02] py-2 select-none">
               <div className="px-3 pb-2 font-mono text-[7px] uppercase tracking-[0.3em] text-white/20 border-b border-white/5 mb-1">
                 explorer
@@ -1440,9 +1683,7 @@ function HeroCard() {
               {Object.entries(fileExplorer).map(([key, { icon, label, color }]) => (
                 <button
                   key={key}
-                  onClick={() =>
-                    setSelectedFile(key as "profile" | "skills" | "contact" | "package")
-                  }
+                  onClick={() => setSelectedFile(key as any)}
                   className={`group flex w-full items-center gap-2 px-3 py-1.5 text-left transition-all duration-200 ${
                     selectedFile === key
                       ? "bg-white/8 text-white border-r-2 border-[var(--pf-c1)]"
@@ -1456,65 +1697,42 @@ function HeroCard() {
                 </button>
               ))}
             </div>
-
-            {/* Editor – clean, minimal scrollbar */}
-            <div
-              className="flex-1 overflow-y-auto p-4 select-text"
-              style={{ scrollbarWidth: "thin" }}
-            >
+            <div className="flex-1 overflow-y-auto p-4 select-text" style={{ scrollbarWidth: "thin" }}>
               <style>{`
-                .editor-scroll::-webkit-scrollbar {
-                  width: 2px;
-                }
-                .editor-scroll::-webkit-scrollbar-thumb {
-                  background: var(--pf-c1);
-                  border-radius: 0;
-                }
+                .editor-scroll::-webkit-scrollbar { width: 2px; }
+                .editor-scroll::-webkit-scrollbar-thumb { background: var(--pf-c1); border-radius: 0; }
               `}</style>
-
               <div className="relative">
-                {/* Line numbers */}
                 <div className="absolute left-0 top-0 text-white/10 text-right pr-3 select-none text-[9px] leading-relaxed">
-                  {Array.from({ length: 8 }, (_, i) => (
-                    <div key={i}>{i + 1}</div>
-                  ))}
+                  {Array.from({ length: 8 }, (_, i) => <div key={i}>{i + 1}</div>)}
                 </div>
-
                 <div className="pl-7">
                   {selectedFile === "profile" && (
                     <div className="space-y-0.5 text-[10px]">
-                      <div>
-                        <span className="text-white/30">{"{"}</span>
-                      </div>
+                      <div><span className="text-white/30">{"{"}</span></div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"name"</span>
                         <span className="text-white/30">: </span>
-                        <span className="text-[#a8ff78]">"Makoju Suman Kumar"</span>
-                        <span className="text-white/30">,</span>
+                        <span className="text-[#a8ff78]">"Makoju Suman Kumar"</span><span className="text-white/30">,</span>
                       </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"role"</span>
                         <span className="text-white/30">: </span>
-                        <span className="text-[#a8ff78]">"Fullstack Engineer"</span>
-                        <span className="text-white/30">,</span>
+                        <span className="text-[#a8ff78]">"Fullstack Engineer"</span><span className="text-white/30">,</span>
                       </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"location"</span>
                         <span className="text-white/30">: </span>
-                        <span className="text-[#a8ff78]">"Odisha, IN"</span>
-                        <span className="text-white/30">,</span>
+                        <span className="text-[#a8ff78]">"Odisha, IN"</span><span className="text-white/30">,</span>
                       </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"status"</span>
                         <span className="text-white/30">: </span>
                         <span className="text-[#a8ff78]">"open_to_work"</span>
                       </div>
-                      <div>
-                        <span className="text-white/30">{"}"}</span>
-                      </div>
+                      <div><span className="text-white/30">{"}"}</span></div>
                     </div>
                   )}
-
                   {selectedFile === "skills" && (
                     <div className="space-y-1 text-[9.5px] text-white/70">
                       <div className="text-[var(--pf-c2)] text-[9px]">// Core Technologies</div>
@@ -1534,51 +1752,39 @@ function HeroCard() {
                       </div>
                     </div>
                   )}
-
                   {selectedFile === "contact" && (
                     <div className="space-y-0.5 text-[10px]">
-                      <div>
-                        <span className="text-white/30">{"{"}</span>
-                      </div>
+                      <div><span className="text-white/30">{"{"}</span></div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"email"</span>
                         <span className="text-white/30">: </span>
-                        <span className="text-[#a8ff78]">"ms.kumar.developer05@gmail.com"</span>
-                        <span className="text-white/30">,</span>
+                        <span className="text-[#a8ff78]">"ms.kumar.developer05@gmail.com"</span><span className="text-white/30">,</span>
                       </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"github"</span>
                         <span className="text-white/30">: </span>
-                        <span className="text-[#a8ff78]">"github.com/Msumankumar05"</span>
-                        <span className="text-white/30">,</span>
+                        <span className="text-[#a8ff78]">"github.com/Msumankumar05"</span><span className="text-white/30">,</span>
                       </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"linkedin"</span>
                         <span className="text-white/30">: </span>
                         <span className="text-[#a8ff78]">"linkedin.com/in/makoju-suman-kumar"</span>
                       </div>
-                      <div>
-                        <span className="text-white/30">{"}"}</span>
-                      </div>
+                      <div><span className="text-white/30">{"}"}</span></div>
                     </div>
                   )}
-
                   {selectedFile === "package" && (
                     <div className="space-y-0.5 text-[9px] text-white/50">
-                      <div>
-                        <span className="text-white/20">{"{"}</span>
-                      </div>
+                      <div><span className="text-white/20">{"{"}</span></div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"name"</span>
                         <span className="text-white/20">: </span>
-                        <span className="text-[#a8ff78]">"msk-portfolio"</span>
-                        <span className="text-white/20">,</span>
+                        <span className="text-[#a8ff78]">"msk-portfolio"</span><span className="text-white/20">,</span>
                       </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"version"</span>
                         <span className="text-white/20">: </span>
-                        <span className="text-[#a8ff78]">"2.0.0"</span>
-                        <span className="text-white/20">,</span>
+                        <span className="text-[#a8ff78]">"2.0.0"</span><span className="text-white/20">,</span>
                       </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"dependencies"</span>
@@ -1587,20 +1793,15 @@ function HeroCard() {
                       <div className="pl-6">
                         <span className="text-[var(--pf-c2)]">"react"</span>
                         <span className="text-white/20">: </span>
-                        <span className="text-[#a8ff78]">"^19.0.0"</span>
-                        <span className="text-white/20">,</span>
+                        <span className="text-[#a8ff78]">"^19.0.0"</span><span className="text-white/20">,</span>
                       </div>
                       <div className="pl-6">
                         <span className="text-[var(--pf-c2)]">"framer-motion"</span>
                         <span className="text-white/20">: </span>
                         <span className="text-[#a8ff78]">"^11.0.0"</span>
                       </div>
-                      <div className="pl-3">
-                        <span className="text-white/20">{"}"}</span>
-                      </div>
-                      <div>
-                        <span className="text-white/20">{"}"}</span>
-                      </div>
+                      <div className="pl-3"><span className="text-white/20">{"}"}</span></div>
+                      <div><span className="text-white/20">{"}"}</span></div>
                     </div>
                   )}
                 </div>
@@ -1611,12 +1812,12 @@ function HeroCard() {
           <TerminalEmulator />
         )}
 
-        {/* Divider – clean line */}
+        {/* Divider */}
         <div className="relative px-5">
           <div className="h-px bg-gradient-to-r from-[var(--pf-c1)]/20 via-[var(--pf-c2)]/20 to-transparent" />
         </div>
 
-        {/* Tags – squared pills */}
+        {/* Tags */}
         <div className="flex flex-wrap gap-2 px-5 py-3 bg-white/[0.02]">
           {["MERN", "Flutter", "React Native", "AI / LLMs", "TypeScript"].map((tag) => (
             <span
@@ -1628,16 +1829,14 @@ function HeroCard() {
           ))}
         </div>
 
-        {/* Theme toggle – pro styling */}
+        {/* ─── PRO THEME SWAP BUTTON ──────────────────────────── */}
         <button
           type="button"
           onClick={(e) => {
-            const btn = e.currentTarget;
-            const rect = btn.getBoundingClientRect();
-            const cx = rect.left + rect.width / 2;
-            const cy = rect.top + rect.height / 2;
             const el = document.documentElement;
             const current = el.getAttribute("data-pf-theme") || "gold";
+
+            // Cycle: gold → cyber → emerald → devialet → gold
             let next = "gold";
             if (current === "gold") next = "cyber";
             else if (current === "cyber") next = "emerald";
@@ -1646,77 +1845,64 @@ function HeroCard() {
 
             if (document.getElementById("pf-portal-overlay")) return;
 
-            const nextC1 =
-              next === "gold"
-                ? "#f5c14a"
-                : next === "emerald"
-                  ? "#00ff88"
-                  : next === "devialet"
-                    ? "#111111"
-                    : "#00e5ff";
-            const nextC2 =
-              next === "gold"
-                ? "#ff7a2d"
-                : next === "emerald"
-                  ? "#00f0ff"
-                  : next === "devialet"
-                    ? "#c3a275"
-                    : "#ff2d7d";
-            const nextC3 =
-              next === "gold"
-                ? "#ffd98a"
-                : next === "emerald"
-                  ? "#a6ff00"
-                  : next === "devialet"
-                    ? "#737373"
-                    : "#c084fc";
+            const { c1, c2, c3 } = themeColors[next] || themeColors.cyber;
 
-            document.body.classList.add("pf-portal-active");
+            // Get click origin coordinates (fallback to button center)
+            const rect = e.currentTarget.getBoundingClientRect();
+            const clickX = e.clientX ?? (rect.left + rect.width / 2);
+            const clickY = e.clientY ?? (rect.top + rect.height / 2);
 
+            // ─── Enable transitions & theme morphing state ──────────────────
+            document.body.classList.add("pf-theme-morph");
+
+            // ─── Cinematic liquid portal overlay ──────────────────────
             const overlay = document.createElement("div");
             overlay.id = "pf-portal-overlay";
             overlay.style.cssText = `
               position: fixed; inset: 0; z-index: 99999; pointer-events: none;
-              --px: ${cx}px; --py: ${cy}px;
-              --c1: ${nextC1}; --c2: ${nextC2}; --c3: ${nextC3};
+              --px: ${clickX}px; --py: ${clickY}px;
+              --c1: ${c1}; --c2: ${c2}; --c3: ${c3};
             `;
             overlay.innerHTML = `
-              <div class="pf-veil"></div>
-              <div class="pf-grid"></div>
-              <div class="pf-bloom"></div>
-              <div class="pf-hud">
-                <div class="pf-ring-hud" style="--i: 0;"></div>
-                <div class="pf-ring-hud" style="--i: 1;"></div>
-                <div class="pf-ring-hud" style="--i: 2;"></div>
-                <div class="pf-ring-hud" style="--i: 3;"></div>
-              </div>
-              <div class="pf-vortex-tunnel"></div>
-              <div class="pf-sparks">
-                <div class="pf-spark pf-spark-1"></div>
-                <div class="pf-spark pf-spark-2"></div>
-                <div class="pf-spark pf-spark-3"></div>
-                <div class="pf-spark pf-spark-4"></div>
-              </div>
-              <div class="pf-scanline"></div>
-              <div class="pf-grain"></div>
+              <div class="pf-liquid-ripple"></div>
+              <div class="pf-refraction-ring"></div>
             `;
             document.body.appendChild(overlay);
 
-            window.setTimeout(() => {
-              el.setAttribute("data-pf-theme", next);
-              try {
-                localStorage.setItem("pf-theme", next);
-              } catch (_) {
-                // Ignore localStorage failure in environments where it is blocked
-              }
-            }, 500);
+            // ─── Card depth lift & shimmer sweep ──────────────────────────
+            const heroCard = document.querySelector(".pf-hero-card-inner") as HTMLElement | null;
+            if (heroCard) {
+              heroCard.classList.add("pf-card-lift");
 
-            window.setTimeout(() => {
-              document.body.classList.remove("pf-portal-active");
+              // Glass refraction shimmer sweep
+              const shimmer = document.createElement("div");
+              shimmer.className = "pf-shimmer-sweep";
+              heroCard.appendChild(shimmer);
+
+              // Swap theme mid-shimmer (320ms)
+              setTimeout(() => {
+                el.setAttribute("data-pf-theme", next);
+                try { localStorage.setItem("pf-theme", next); } catch (_) {}
+              }, 320);
+
+              // Clean up card effects
+              setTimeout(() => {
+                heroCard.classList.remove("pf-card-lift");
+                shimmer.remove();
+              }, 1200);
+            } else {
+              // Fallback: swap theme immediately
+              el.setAttribute("data-pf-theme", next);
+              try { localStorage.setItem("pf-theme", next); } catch (_) {}
+            }
+
+            // ─── Clean up portal overlay and morph classes ───────────────
+            setTimeout(() => {
               overlay.remove();
-            }, 1800);
+              document.body.classList.remove("pf-theme-morph");
+            }, 1200);
           }}
-          className="group relative flex w-full items-center justify-center gap-3 border-t border-white/5 px-5 py-3.5 font-mono text-[9px] font-medium uppercase tracking-[0.25em] text-white/50 transition-all duration-300 hover:text-white hover:bg-white/[0.03]"
+          className="group relative flex w-full items-center justify-center gap-3 border-t border-white/5 px-5 py-3.5 font-mono text-[9px] font-medium uppercase tracking-[0.25em] text-white/50 transition-all duration-300 hover:text-white hover:bg-white/[0.03] pf-theme-swap-btn"
           style={{
             background:
               "linear-gradient(90deg, rgb(from var(--pf-c1) r g b / 0.04), rgb(from var(--pf-c2) r g b / 0.04), rgb(from var(--pf-c3) r g b / 0.04))",
@@ -1724,23 +1910,12 @@ function HeroCard() {
         >
           <div className="flex items-center gap-3">
             <div className="flex gap-1.5">
-              <span
-                className="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-110"
-                style={{ background: "var(--pf-c1)" }}
-              />
-              <span
-                className="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-110 delay-75"
-                style={{ background: "var(--pf-c2)" }}
-              />
-              <span
-                className="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-110 delay-150"
-                style={{ background: "var(--pf-c3)" }}
-              />
+              <span className="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-110 pf-theme-dot" style={{ background: "var(--pf-c1)" }} />
+              <span className="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-110 delay-75 pf-theme-dot" style={{ background: "var(--pf-c2)" }} />
+              <span className="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-110 delay-150 pf-theme-dot" style={{ background: "var(--pf-c3)" }} />
             </div>
             <span className="tracking-[0.3em]">Swap Theme</span>
-            <span className="transition-transform duration-500 group-hover:rotate-180 text-[11px]">
-              ⟳
-            </span>
+            <span className="transition-transform duration-500 text-[11px] pf-spin-icon">⟳</span>
           </div>
         </button>
 
@@ -1753,13 +1928,13 @@ function HeroCard() {
           }}
         />
 
-        {/* Accent bar – squared, with shimmer */}
+        {/* Accent bar with shimmer */}
         <div className="h-[2px] w-full bg-gradient-to-r from-[var(--pf-c1)] via-[var(--pf-c3)] to-[var(--pf-c2)] relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
         </div>
       </div>
 
-      {/* Floating badges – squared */}
+      {/* Floating badges */}
       <motion.div
         animate={{ y: [0, -12, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -1867,30 +2042,57 @@ function Hero() {
         className="pointer-events-none absolute inset-0 z-0"
         style={{
           background:
-            "radial-gradient(700px circle at var(--x,40%) var(--y,50%), rgb(from var(--pf-c1) r g b / 0.07), transparent 55%)",
+            "radial-gradient(700px circle at var(--x,40%) var(--y,50%), rgb(from var(--pf-c1) r g b / 0.09), transparent 55%)",
         }}
       />
-      {/* ambient right blob */}
-      <div
-        className="pointer-events-none absolute right-0 top-0 h-full w-[55%] z-0"
+      {/* animated ambient orb — top right */}
+      <motion.div
+        animate={{
+          scale: [1, 1.15, 1],
+          opacity: [0.08, 0.14, 0.08],
+          x: [0, 30, 0],
+          y: [0, -20, 0],
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="pointer-events-none absolute right-[-5%] top-[-10%] h-[70%] w-[55%] z-0 rounded-full blur-[100px]"
         style={{
           background:
-            "radial-gradient(ellipse at 78% 42%, rgb(from var(--pf-c3) r g b / 0.09) 0%, rgb(from var(--pf-c1) r g b / 0.05) 38%, transparent 68%)",
+            "radial-gradient(ellipse at 60% 40%, var(--pf-c3), var(--pf-c1), transparent 70%)",
         }}
       />
-      {/* bottom-left accent pool */}
-      <div
-        className="pointer-events-none absolute bottom-0 left-0 h-[40%] w-[35%] z-0"
+      {/* animated ambient orb — bottom left */}
+      <motion.div
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.06, 0.12, 0.06],
+          x: [0, -15, 0],
+          y: [0, 25, 0],
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        className="pointer-events-none absolute bottom-[-15%] left-[-10%] h-[50%] w-[40%] z-0 rounded-full blur-[80px]"
         style={{
           background:
-            "radial-gradient(ellipse at 0% 100%, rgb(from var(--pf-c2) r g b / 0.06), transparent 65%)",
+            "radial-gradient(ellipse at 30% 70%, var(--pf-c2), transparent 65%)",
+        }}
+      />
+      {/* center accent glow */}
+      <motion.div
+        animate={{
+          scale: [1, 1.08, 1],
+          opacity: [0.04, 0.08, 0.04],
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 4 }}
+        className="pointer-events-none absolute left-[20%] top-[30%] h-[40%] w-[40%] z-0 rounded-full blur-[120px]"
+        style={{
+          background:
+            "radial-gradient(circle, var(--pf-c1), transparent 60%)",
         }}
       />
 
-      {/* 3D perspective grid */}
-      <Grid3D mx={mx} my={my} />
+      {/* Aurora waveform canvas */}
+      <HeroAurora mx={mx} my={my} />
 
-      {/* Neural Network Constellation Background */}
+      {/* Neural Network Constellation */}
       <NeuralConstellation />
 
       {/* Floating 3D shapes */}
@@ -1907,9 +2109,14 @@ function Hero() {
             rotate: { duration: 15, repeat: Infinity, ease: "linear" },
             y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
           }}
-          className="h-7 w-7 rotate-45 border border-[var(--pf-c1)]/30 bg-[var(--pf-bg)]/40 backdrop-blur-sm flex items-center justify-center shadow-[0_0_15px_rgb(from var(--pf-c1) r g b / 0.12)]"
+          className="relative h-7 w-7 rotate-45 border border-[var(--pf-c1)]/30 bg-[var(--pf-bg)]/40 backdrop-blur-sm flex items-center justify-center shadow-[0_0_15px_rgb(from var(--pf-c1) r g b / 0.12)]"
         >
           <span className="text-[10px] text-[var(--pf-c1)]/60 font-mono -rotate-45">✦</span>
+          <motion.div
+            animate={{ opacity: [0.15, 0.4, 0.15], scale: [1, 1.6, 1] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute inset-0 rounded-sm bg-[var(--pf-c1)]/10 blur-md"
+          />
         </motion.div>
       </FloatingShape>
       <FloatingShape
@@ -1925,7 +2132,7 @@ function Hero() {
             rotate: { duration: 20, repeat: Infinity, ease: "linear" },
             y: { duration: 5, repeat: Infinity, ease: "easeInOut" },
           }}
-          className="h-8 w-8 border border-[var(--pf-c2)]/30 bg-[var(--pf-bg)]/40 backdrop-blur-sm flex items-center justify-center shadow-[0_0_15px_rgb(from var(--pf-c2) r g b / 0.12)]"
+          className="relative h-8 w-8 border border-[var(--pf-c2)]/30 bg-[var(--pf-bg)]/40 backdrop-blur-sm flex items-center justify-center shadow-[0_0_15px_rgb(from var(--pf-c2) r g b / 0.12)]"
           style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}
         />
       </FloatingShape>
@@ -1942,9 +2149,16 @@ function Hero() {
             rotate: { duration: 25, repeat: Infinity, ease: "linear" },
             y: { duration: 6, repeat: Infinity, ease: "easeInOut" },
           }}
-          className="h-10 w-10 border border-[var(--pf-c3)]/30 bg-[var(--pf-bg)]/40 backdrop-blur-sm flex items-center justify-center shadow-[0_0_15px_rgb(from var(--pf-c3) r g b / 0.12)]"
+          className="relative h-10 w-10 border border-[var(--pf-c3)]/30 bg-[var(--pf-bg)]/40 backdrop-blur-sm flex items-center justify-center shadow-[0_0_15px_rgb(from var(--pf-c3) r g b / 0.12)]"
           style={{ clipPath: "polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)" }}
-        />
+        >
+          <motion.div
+            animate={{ opacity: [0.1, 0.3, 0.1], scale: [1, 1.5, 1] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute inset-0 bg-[var(--pf-c3)]/10 blur-lg"
+            style={{ clipPath: "polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)" }}
+          />
+        </motion.div>
       </FloatingShape>
 
       {/* ── Main grid ── */}
@@ -2425,9 +2639,8 @@ function WorkCard({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; to
       <div className="flex flex-wrap items-center gap-3">
         <a
           href="#"
-          className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
-            p.placeholder ? "pointer-events-none opacity-40" : ""
-          }`}
+          className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${p.placeholder ? "pointer-events-none opacity-40" : ""
+            }`}
           style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
         >
           Read case study{" "}
@@ -2438,9 +2651,8 @@ function WorkCard({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; to
             href={p.liveUrl}
             target="_blank"
             rel="noreferrer"
-            className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
-              p.placeholder ? "pointer-events-none opacity-40" : ""
-            }`}
+            className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
+              }`}
           >
             <ExternalLink className="h-3 w-3" /> Live
           </a>
@@ -2450,9 +2662,8 @@ function WorkCard({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; to
             href={p.githubUrl}
             target="_blank"
             rel="noreferrer"
-            className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
-              p.placeholder ? "pointer-events-none opacity-40" : ""
-            }`}
+            className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
+              }`}
           >
             <Github className="h-3 w-3" /> GitHub
           </a>
@@ -2537,9 +2748,8 @@ function WorkFrame({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; t
             <a
               href="#"
               // target="_blank"
-              className={`group inline-flex items-center gap-2 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
-                p.placeholder ? "pointer-events-none opacity-40" : ""
-              }`}
+              className={`group inline-flex items-center gap-2 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] transition ${p.placeholder ? "pointer-events-none opacity-40" : ""
+                }`}
               style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
             >
               Read case study
@@ -2550,9 +2760,8 @@ function WorkFrame({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; t
                 href={p.liveUrl}
                 target="_blank"
                 rel="noreferrer"
-                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
-                  p.placeholder ? "pointer-events-none opacity-40" : ""
-                }`}
+                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
+                  }`}
               >
                 <ExternalLink className="h-3 w-3" />
                 Live
@@ -2563,9 +2772,8 @@ function WorkFrame({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; t
                 href={p.githubUrl}
                 target="_blank"
                 rel="noreferrer"
-                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
-                  p.placeholder ? "pointer-events-none opacity-40" : ""
-                }`}
+                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
+                  }`}
               >
                 <Github className="h-3 w-3" />
                 GitHub
@@ -3016,9 +3224,8 @@ function Arena() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`relative px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] transition-colors ${
-                activeTab === tab.key ? "text-[var(--pf-c1)]" : "text-white/40 hover:text-white/80"
-              }`}
+              className={`relative px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] transition-colors ${activeTab === tab.key ? "text-[var(--pf-c1)]" : "text-white/40 hover:text-white/80"
+                }`}
             >
               {activeTab === tab.key && (
                 <motion.span
@@ -3090,9 +3297,8 @@ function Arena() {
                 {profile.stats.map((s, i) => (
                   <div
                     key={s.label}
-                    className={`flex flex-col justify-center px-5 py-5 md:px-7 md:py-7 ${
-                      i % 2 === 0 ? "border-r border-white/10" : ""
-                    } ${i < 2 ? "border-b border-white/10" : ""}`}
+                    className={`flex flex-col justify-center px-5 py-5 md:px-7 md:py-7 ${i % 2 === 0 ? "border-r border-white/10" : ""
+                      } ${i < 2 ? "border-b border-white/10" : ""}`}
                   >
                     <div className="font-display text-2xl italic text-white md:text-4xl">
                       {s.value}
@@ -3129,9 +3335,8 @@ function Arena() {
                     initial={{ width: 0 }}
                     animate={{ width: `${b.pct}%` }}
                     transition={{ duration: 0.8, delay: i * 0.12, ease: [0.2, 0.7, 0.2, 1] }}
-                    className={`${b.color} flex items-center justify-start overflow-hidden px-3 ${
-                      i > 0 ? "border-l border-[var(--pf-bg)]/60" : ""
-                    }`}
+                    className={`${b.color} flex items-center justify-start overflow-hidden px-3 ${i > 0 ? "border-l border-[var(--pf-bg)]/60" : ""
+                      }`}
                   >
                     <span className="whitespace-nowrap font-mono text-[8px] font-bold uppercase tracking-[0.2em] text-[var(--pf-bg)]">
                       {b.count} {b.label}
@@ -3146,11 +3351,10 @@ function Arena() {
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`font-mono text-[9px] uppercase tracking-[0.3em] transition ${
-                      activeTab === tab.key
-                        ? "text-[var(--pf-c1)]"
-                        : "text-white/30 hover:text-white/60"
-                    }`}
+                    className={`font-mono text-[9px] uppercase tracking-[0.3em] transition ${activeTab === tab.key
+                      ? "text-[var(--pf-c1)]"
+                      : "text-white/30 hover:text-white/60"
+                      }`}
                   >
                     {tab.label} {activeTab === tab.key ? "↗" : "/"}
                   </button>
@@ -3695,12 +3899,12 @@ function Portfolio() {
       if (saved) document.documentElement.setAttribute("data-pf-theme", saved);
       else document.documentElement.setAttribute("data-pf-theme", "gold");
       // eslint-disable-next-line no-empty
-    } catch (_) {}
+    } catch (_) { }
     setMounted(true);
   }, []);
 
   useLenis();
-  const active = useActiveSection();
+  const active = useActiveSection(mounted);
 
   // Return null on the server so SSR produces no HTML, avoiding a
   // Suspense-boundary hydration mismatch with the TanStack Start client router.
