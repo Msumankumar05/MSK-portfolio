@@ -960,7 +960,7 @@ function Navbar({ active }: { active: string }) {
           ))}
         </ul>
         <a
-          href="/resume.pdf"
+          href="/Resume.pdf"
           target="_blank"
           rel="noreferrer"
           className="hidden md:flex ml-2 items-center gap-1.5 rounded-full bg-[var(--pf-c1)] px-4 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-black transition hover:bg-white"
@@ -1026,7 +1026,7 @@ function Navbar({ active }: { active: string }) {
               ))}
             </ul>
             <a
-              href="/resume.pdf"
+              href="/Resume.pdf"
               target="_blank"
               rel="noreferrer"
               onClick={handleNavClick}
@@ -2295,7 +2295,7 @@ function Hero() {
               </a>
             </Magnetic>
             <a
-              href="/resume.pdf"
+              href="/Resume.pdf"
               target="_blank"
               rel="noreferrer"
               className="flex items-center justify-center gap-2 px-4 py-3.5 font-mono text-[11px] uppercase tracking-[0.25em] text-white/40 transition hover:text-[var(--pf-c1)]"
