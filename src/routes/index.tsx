@@ -757,29 +757,37 @@ function Starfield() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[var(--pf-bg)]"
+      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[var(--pf-bg)] transition-colors duration-700"
     >
+      {/* Dynamic Smooth Ambient Gradient Mesh */}
       <div
-        className="absolute inset-0 opacity-40"
+        className="absolute inset-0 opacity-50 transition-opacity duration-700"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 20% 30%, rgb(from var(--pf-c1) r g b / 0.10), transparent 55%), radial-gradient(circle at 80% 70%, rgb(from var(--pf-c2) r g b / 0.10), transparent 55%)",
+            "radial-gradient(ellipse 75% 55% at 20% 25%, rgb(from var(--pf-c1) r g b / 0.12), transparent 60%), radial-gradient(ellipse 65% 50% at 80% 70%, rgb(from var(--pf-c2) r g b / 0.10), transparent 60%)",
         }}
       />
+      {/* Subtle Micro Dot Net */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 opacity-[0.07]"
+        style={{
+          backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.35) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+        }}
+      />
+      {/* Ambient Star Particles */}
+      <div
+        className="absolute inset-0 opacity-70"
         style={{
           backgroundImage:
             "radial-gradient(1px 1px at 25% 30%, rgba(255,255,255,0.6) 50%, transparent 100%),\
            radial-gradient(1px 1px at 70% 20%, rgba(255,255,255,0.4) 50%, transparent 100%),\
-           radial-gradient(1px 1px at 40% 80%, rgb(from var(--pf-c1) r g b / 0.6) 50%, transparent 100%),\
+           radial-gradient(1px 1px at 40% 80%, rgb(from var(--pf-c1) r g b / 0.5) 50%, transparent 100%),\
            radial-gradient(1px 1px at 85% 55%, rgb(from var(--pf-c2) r g b / 0.5) 50%, transparent 100%),\
-           radial-gradient(1px 1px at 15% 60%, rgba(255,255,255,0.5) 50%, transparent 100%),\
-           radial-gradient(1px 1px at 55% 45%, rgba(255,255,255,0.35) 50%, transparent 100%),\
-           radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.4) 50%, transparent 100%),\
-           radial-gradient(1px 1px at 90% 90%, rgb(from var(--pf-c1) r g b / 0.5) 50%, transparent 100%)",
+           radial-gradient(1px 1px at 15% 60%, rgba(255,255,255,0.4) 50%, transparent 100%),\
+           radial-gradient(1px 1px at 55% 45%, rgba(255,255,255,0.3) 50%, transparent 100%)",
           backgroundSize:
-            "600px 600px, 800px 800px, 500px 500px, 700px 700px, 900px 900px, 400px 400px, 650px 650px, 750px 750px",
+            "600px 600px, 800px 800px, 500px 500px, 700px 700px, 900px 900px, 400px 400px",
           backgroundRepeat: "repeat",
         }}
       />
@@ -798,11 +806,11 @@ function ScrollAurora() {
     <>
       <motion.div
         style={{ rotate, y: y1 }}
-        className="absolute left-[-15%] top-[10%] h-[70vmin] w-[70vmin] rounded-[42%_58%_63%_37%] bg-[var(--pf-c1)]/[0.08] blur-3xl"
+        className="absolute left-[-15%] top-[10%] h-[75vmin] w-[75vmin] rounded-[42%_58%_63%_37%] bg-[var(--pf-c1)]/[0.09] blur-3xl animate-aurora-orb-1"
       />
       <motion.div
         style={{ rotate: useTransform(rotate, (v) => -v), y: y2 }}
-        className="absolute right-[-15%] top-[40%] h-[70vmin] w-[70vmin] rounded-[63%_37%_44%_56%] bg-[var(--pf-c2)]/[0.07] blur-3xl"
+        className="absolute right-[-15%] top-[40%] h-[75vmin] w-[75vmin] rounded-[63%_37%_44%_56%] bg-[var(--pf-c2)]/[0.08] blur-3xl animate-aurora-orb-2"
       />
     </>
   );
@@ -959,6 +967,7 @@ function Navbar({ active }: { active: string }) {
             </li>
           ))}
         </ul>
+
         <a
           href="/Resume.pdf"
           target="_blank"
@@ -1040,8 +1049,69 @@ function Navbar({ active }: { active: string }) {
     </header>
   );
 }
+function fetchTerminalAiResponse(userPrompt: string): Promise<string> {
+  return new Promise((resolve) => {
+    const apiKey = (import.meta.env.VITE_OPENROUTER_API_KEY as string | undefined)?.trim();
+    const model = (import.meta.env.VITE_OPENROUTER_MODEL as string | undefined)?.trim() || "google/gemini-2.0-flash-001";
+
+    const q = userPrompt.toLowerCase();
+
+    let fallbackResult = "";
+    if (q.includes("project") || q.includes("farmora") || q.includes("cinedb") || q.includes("sky")) {
+      fallbackResult = "Suman's Top Projects:\n• Farmora: MERN e-commerce platform for farm-to-home produce.\n• CineDB: TMDB-powered movie discovery web app.\n• SKY AI: Real-time AI chat & voice interaction assistant.\n• Mobile Todo: Kotlin & Room DB task planner.";
+    } else if (q.includes("skill") || q.includes("stack") || q.includes("tech") || q.includes("react") || q.includes("node")) {
+      fallbackResult = "Suman's Tech Stack:\n• Frontend: React, TypeScript, JavaScript, Tailwind CSS\n• Backend: Node.js, Express.js, REST APIs\n• Mobile: Flutter, Kotlin, React Native\n• DB & AI: MongoDB, Firebase, MySQL, OpenRouter API, LLMs";
+    } else if (q.includes("contact") || q.includes("email") || q.includes("hire") || q.includes("reach")) {
+      fallbackResult = "Contact Suman:\n• Email: ms.kumar.developer05@gmail.com\n• LinkedIn: linkedin.com/in/m-suman-kumar-43b3a1300\n• GitHub: github.com/Msumankumar05";
+    } else if (q.includes("who") || q.includes("about") || q.includes("suman") || q.includes("background")) {
+      fallbackResult = "Makoju Suman Kumar is an MCA student & Full-Stack Engineer based in Odisha, India. He builds fast, production-ready web, mobile, and AI products.";
+    } else {
+      fallbackResult = `Makoju Suman Kumar is a Full-Stack Engineer specializing in React, Node.js, Flutter, and AI development.\nQuery answered regarding: "${userPrompt}"`;
+    }
+
+    if (!apiKey) {
+      resolve(
+        `⚠️  VITE_OPENROUTER_API_KEY is not configured in your .env file.\nShowing cached response:\n\n${fallbackResult}`
+      );
+      return;
+    }
+
+    fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+        "X-Title": "MSK Portfolio AI Terminal",
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [
+          {
+            role: "system",
+            content: "You are an AI shell assistant for Makoju Suman Kumar (MSK). Answer concisely in bullet points or short clear sentences.",
+          },
+          { role: "user", content: userPrompt },
+        ],
+      }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("API failed");
+        return res.json();
+      })
+      .then((data) => {
+        const text = data?.choices?.[0]?.message?.content;
+        if (text) resolve(text.trim());
+        else resolve(fallbackResult);
+      })
+      .catch(() => {
+        resolve(fallbackResult);
+      });
+  });
+}
 
 const COMMANDS = {
+  ai: { desc: "Ask AI Assistant (OpenRouter)", icon: "🤖" },
+  ask: { desc: "Ask AI Assistant (OpenRouter)", icon: "🤖" },
   help: { desc: "Show available commands", icon: "📖" },
   about: { desc: "About Makoju Suman Kumar", icon: "👨‍💻" },
   skills: { desc: "Technical core stack", icon: "⚡" },
@@ -1062,10 +1132,8 @@ const COMMANDS = {
 
 function TerminalEmulator() {
   const [history, setHistory] = useState<string[]>([
-    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-    "  ✦ MSK Terminal v2.0.0 ✦",
-    "  Interactive portfolio shell • Type 'help' to begin",
-    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    "✦ MSK Interactive Shell v2.0  ·  OpenRouter AI Active",
+    "Type 'ai <question>' to query Suman's AI, or 'help' for commands.",
     "",
   ]);
   const [input, setInput] = useState("");
@@ -1073,7 +1141,6 @@ function TerminalEmulator() {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [suggestionIndex, setSuggestionIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [cursorVisible, setCursorVisible] = useState(true);
@@ -1095,7 +1162,6 @@ function TerminalEmulator() {
         .slice(0, 5);
       setSuggestions(matches);
       setShowSuggestions(matches.length > 0);
-      setSuggestionIndex(-1);
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
@@ -1122,89 +1188,97 @@ function TerminalEmulator() {
     const lowerCmd = cmd.toLowerCase();
     let response: string[] = [];
 
+    // AI Shell Commands: ai <prompt> or ask <prompt>
+    if (lowerCmd.startsWith("ai ") || lowerCmd.startsWith("ask ") || lowerCmd === "ai" || lowerCmd === "ask") {
+      const userPrompt = cmd.replace(/^(ai|ask)\s*/i, "").trim();
+      if (!userPrompt) {
+        response = [
+          `▸ ${cmd}`,
+          "🤖 OpenRouter AI Assistant:",
+          "  Usage : ai <your question>",
+          "  Ex    : ai Tell me about Farmora project",
+          "  Ex    : ask What are Suman's top skills?",
+        ];
+        setHistory((prev) => [...prev, ...response, ""]);
+        setInput("");
+        scrollToBottom();
+        return;
+      }
+
+      setHistory((prev) => [
+        ...prev,
+        `▸ ${cmd}`,
+        "🤖 Querying OpenRouter LLM...",
+      ]);
+      setInput("");
+      scrollToBottom();
+
+      fetchTerminalAiResponse(userPrompt).then((answer) => {
+        setHistory((prev) => [
+          ...prev.slice(0, -1),
+          "🤖 OpenRouter AI:",
+          ...answer.split("\n").map((line) => `  ${line}`),
+          "",
+        ]);
+        scrollToBottom();
+      });
+      return;
+    }
+
     switch (lowerCmd) {
       case "help":
         response = [
           `▸ ${cmd}`,
-          "",
-          "  Available Commands",
-          "  ───────────────────",
+          "  Available Commands:",
           ...Object.entries(COMMANDS).map(
-            ([key, { icon, desc }]) => `  ${icon}  ${key.padEnd(12)} ${desc}`,
+            ([key, { icon, desc }]) => `  ${icon} ${key.padEnd(10)} ${desc}`,
           ),
-          "",
-          "  ⌨️  Keyboard Shortcuts",
-          "  ────────────────────",
-          "  ↑  Previous command",
-          "  ↓  Next command",
-          "  Tab Auto-complete",
-          "  Ctrl+L Clear screen",
         ];
         break;
 
       case "about":
         response = [
           `▸ ${cmd}`,
-          "",
           "  Makoju Suman Kumar",
-          "  ───────────────────",
-          "  🎓  MCA Postgraduate",
-          "  💼  Full-Stack Engineer",
-          "  📍  Odisha, India",
-          "  🚀  Web • Mobile • AI",
-          "  💡  Clean code enthusiast",
-          "  🌟  Open to opportunities",
+          "  🎓 MCA Student & Full-Stack Developer",
+          "  📍 Odisha, India  ·  Web • Mobile • AI",
         ];
         break;
 
       case "skills":
         response = [
           `▸ ${cmd}`,
-          "",
-          "  Technical Core Stack",
-          "  ────────────────────",
-          "  📝  TS • JS • Dart • Kotlin • Java",
-          "  🏗️  React • Node • Express • Flutter",
-          "  🗄️  MongoDB • MySQL • Firebase • SQLite",
-          "  🤖  LLM • Agents • Web Speech",
-          "  ☁️  AWS • Vercel • Netlify • Docker",
-          "  📦  Git • CI/CD • Webpack • Vite",
+          "  Core Stack:",
+          "  ⚡ React, TypeScript, Node.js, Express",
+          "  📱 Flutter, Kotlin, React Native",
+          "  🗄️ MongoDB, MySQL, Firebase, OpenRouter AI",
         ];
         break;
 
       case "projects":
         response = [
           `▸ ${cmd}`,
-          "",
-          "  Highlighted Projects",
-          "  ────────────────────",
-          "  🌾  Farmora    – MERN commerce platform",
-          "  🎬  CineDB     – Movie database crawler",
-          "  🤖  SKY AI     – Voice conversational AI",
-          "  ✅  Todo Pro   – Offline SQLite planner",
-          "  📱  Flutter App – Cross-platform mobile",
-          "  🎨  Portfolio  – Interactive 3D site",
-          "",
-          "  🔗  github.com/Msumankumar05",
+          "  Top Applications:",
+          "  🌾 Farmora   – MERN commerce platform",
+          "  🎬 CineDB    – Movie discovery crawler",
+          "  🤖 SKY AI    – Voice conversational AI",
+          "  📱 Mobile    – Kotlin & Flutter apps",
         ];
         break;
 
       case "contact":
         response = [
           `▸ ${cmd}`,
-          "",
-          "  Let's Connect",
-          "  ──────────────",
-          "  📧  ms.kumar.developer05@gmail.com",
-          "  🐙  github.com/Msumankumar05",
-          "  🔗  linkedin.com/in/makoju-suman-kumar",
-          "  🐦  @msk_dev",
+          "  Reach Suman:",
+          "  📧 ms.kumar.developer05@gmail.com",
+          "  🐙 github.com/Msumankumar05",
+          "  🔗 linkedin.com/in/m-suman-kumar-43b3a1300",
         ];
         break;
 
       case "echo": {
         const text = cmd.slice(5) || "Hello, World!";
-        response = [`▸ ${cmd}`, "", `  ${text}`];
+        response = [`▸ ${cmd}`, `  ${text}`];
         break;
       }
 
@@ -1212,120 +1286,53 @@ function TerminalEmulator() {
         const now = new Date();
         response = [
           `▸ ${cmd}`,
-          "",
-          `  ${now.toLocaleDateString("en-US", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}`,
-          `  ${now.toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: true,
-          })}`,
-          `  ${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
+          `  ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`,
         ];
         break;
       }
 
       case "whoami":
-        response = [
-          `▸ ${cmd}`,
-          "",
-          "  👤  guest",
-          "  📝  ID: 1000",
-          "  🏠  /home/guest/portfolio",
-          "  🖥️  /bin/bash",
-        ];
+        response = [`▸ ${cmd}`, "  guest@msk-portfolio"];
         break;
 
       case "pwd":
-        response = [`▸ ${cmd}`, "", "  /home/guest/portfolio"];
+        response = [`▸ ${cmd}`, "  /home/msk/portfolio"];
         break;
 
       case "ls":
         response = [
           `▸ ${cmd}`,
-          "",
-          "  📁 about/          📁 projects/",
-          "  📁 skills/         📁 contact/",
-          "  📄 README.md       📄 package.json",
-          "  📄 .env.example    📄 Dockerfile",
+          "  about/  projects/  skills/  contact/  README.md",
         ];
         break;
 
       case "neofetch":
         response = [
           `▸ ${cmd}`,
-          "",
-          "  System Information",
-          "  ───────────────────",
-          "  OS       MSK Portfolio v2.0",
-          "  Kernel   6.8.0-msk",
-          "  Shell    bash 5.2.15",
-          "  Theme    Dynamic",
-          "  Memory   8.2GB / 16GB",
-          "  Uptime   2h 34m",
-          "  Status   Open to Work 🟢",
+          "  OS: MSK Portfolio v2.0",
+          "  Role: Full-Stack & AI Engineer",
+          "  Status: Available for Work 🟢",
         ];
         break;
 
-      case "uptime": {
-        const uptime = Math.floor(Math.random() * 24 * 60 * 60);
-        const hours = Math.floor(uptime / 3600);
-        const minutes = Math.floor((uptime % 3600) / 60);
-        const seconds = uptime % 60;
-        response = [
-          `▸ ${cmd}`,
-          "",
-          `  ⏱️  ${hours}h ${minutes}m ${seconds}s`,
-          `  📊  Load: ${(Math.random() * 2 + 0.1).toFixed(2)}`,
-          `  💻  Sessions: 1`,
-        ];
+      case "uptime":
+        response = [`▸ ${cmd}`, "  Session Uptime: 100% · Active"];
         break;
-      }
 
       case "history":
-        if (commandHistory.length === 0) {
-          response = [`▸ ${cmd}`, "", "  No commands in history"];
-        } else {
-          response = [
-            `▸ ${cmd}`,
-            "",
-            ...commandHistory.map((c, i) => `  ${(i + 1).toString().padStart(3)}  ${c}`),
-            "",
-            `  Total: ${commandHistory.length} commands`,
-          ];
-        }
+        response = [
+          `▸ ${cmd}`,
+          ...commandHistory.map((c, i) => `  ${i + 1}. ${c}`),
+        ];
         break;
 
       case "version":
-        response = [
-          `▸ ${cmd}`,
-          "",
-          "  ✦ MSK Terminal v2.0.0 ✦",
-          "  ──────────────────────",
-          "  React 19 • Framer Motion",
-          "  14+ commands • Theme aware",
-          "  ↑↓ history • Tab complete",
-        ];
+        response = [`▸ ${cmd}`, "  MSK Shell v2.0.0 (Vite + React 19)"];
         break;
 
       case "theme": {
-        const theme = document.documentElement.getAttribute("data-pf-theme") || "cyber";
-        const isGold = theme === "gold";
-        const isEmerald = theme === "emerald";
-        const isDevialet = theme === "devialet";
-        response = [
-          `▸ ${cmd}`,
-          "",
-          `  🎨  Theme: ${isGold ? "Gold" : isEmerald ? "Obsidian Emerald" : isDevialet ? "Devialet Luxury" : "Cyber"}`,
-          `  💠  Primary: ${isGold ? "#f5c14a" : isEmerald ? "#00ff88" : isDevialet ? "#111111" : "#00e5ff"}`,
-          `  🔶  Secondary: ${isGold ? "#ff7a2d" : isEmerald ? "#00f0ff" : isDevialet ? "#c3a275" : "#ff2d7d"}`,
-          `  💜  Accent: ${isGold ? "#ffd98a" : isEmerald ? "#a6ff00" : isDevialet ? "#737373" : "#c084fc"}`,
-        ];
+        const theme = document.documentElement.getAttribute("data-pf-theme") || "gold";
+        response = [`▸ ${cmd}`, `  Current Active Theme: ${theme.toUpperCase()}`];
         break;
       }
 
@@ -1338,8 +1345,8 @@ function TerminalEmulator() {
         const suggestion = getSuggestion(lowerCmd);
         response = [
           `▸ ${cmd}`,
-          `  ✗  Command not found: ${lowerCmd}`,
-          suggestion !== "no suggestion" ? `  💡  Did you mean: ${suggestion}` : "",
+          `  ✗ Command not found: ${lowerCmd}`,
+          suggestion !== "no suggestion" ? `  💡 Did you mean: ${suggestion}` : "",
         ].filter(Boolean);
       }
     }
@@ -1356,13 +1363,10 @@ function TerminalEmulator() {
 
     const partial = commands.filter((c) => c.startsWith(cmd));
     if (partial.length === 1) return partial[0];
-    if (partial.length > 1) return `${partial.slice(0, 3).join(", ")} (${partial.length})`;
-
     return "no suggestion";
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Up/Down for history
     if (e.key === "ArrowUp") {
       e.preventDefault();
       if (commandHistory.length > 0) {
@@ -1380,23 +1384,15 @@ function TerminalEmulator() {
         setHistoryIndex(-1);
         setInput("");
       }
-    }
-    // Tab completion
-    else if (e.key === "Tab") {
+    } else if (e.key === "Tab") {
       e.preventDefault();
       if (suggestions.length > 0) {
         setInput(suggestions[0]);
         setShowSuggestions(false);
       }
-    }
-    // Ctrl+L clear
-    else if (e.key === "l" && e.ctrlKey) {
+    } else if (e.key === "l" && e.ctrlKey) {
       e.preventDefault();
       setHistory([]);
-    }
-    // Escape to close suggestions
-    else if (e.key === "Escape") {
-      setShowSuggestions(false);
     }
   };
 
@@ -1412,97 +1408,82 @@ function TerminalEmulator() {
   return (
     <div
       onClick={focusInput}
-      className="h-[240px] cursor-text overflow-y-auto px-4 py-3 font-mono text-[11px] leading-relaxed text-white/80 select-text"
+      className="h-[250px] cursor-text overflow-y-auto px-4 py-3 font-mono text-[11px] leading-relaxed text-white/80 select-text flex flex-col justify-between"
       ref={containerRef}
       style={{ scrollbarWidth: "thin", scrollbarColor: "var(--pf-c1) transparent" }}
     >
-      <style>{`
-        .terminal-line {
-          animation: fadeSlide 0.12s ease-out;
-          white-space: pre-wrap;
-          word-break: break-word;
-        }
-        @keyframes fadeSlide {
-          from { opacity: 0; transform: translateY(3px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .suggestion-item {
-          transition: all 0.15s ease;
-        }
-      `}</style>
+      <div>
+        {/* History */}
+        <div className="space-y-1">
+          {history.map((line, i) => {
+            if (!line) return <div key={i} className="h-2" />;
 
-      {/* History */}
-      <div className="space-y-0.5">
-        {history.map((line, i) => {
-          if (!line) return <div key={i} className="h-3" />;
+            let color = "text-white/70";
+            if (line.startsWith("▸")) color = "text-[var(--pf-c1)] font-semibold";
+            else if (line.startsWith("🤖")) color = "text-[var(--pf-c1)] font-medium";
+            else if (line.includes("✗")) color = "text-rose-400";
+            else if (line.includes("💡")) color = "text-amber-300";
+            else if (line.startsWith("✦")) color = "text-white/40 font-mono text-[10px]";
 
-          let color = "text-white/60";
-          if (line.startsWith("▸")) color = "text-[var(--pf-c1)]";
-          else if (line.includes("✗")) color = "text-[#ff5f57]";
-          else if (line.includes("💡")) color = "text-[#febc2e]";
-          else if (line.includes("━━")) color = "text-white/20";
-          else if (line.includes("✦")) color = "text-[var(--pf-c2)]";
-          else if (line.includes("Available") || line.includes("Commands")) color = "text-white/40";
-          else if (line.match(/^ {2}[A-Z]/)) color = "text-white/50";
+            return (
+              <div key={i} className={`terminal-line ${color}`}>
+                {line}
+              </div>
+            );
+          })}
+        </div>
 
-          return (
-            <div key={i} className={`terminal-line ${color}`}>
-              {line}
-            </div>
-          );
-        })}
+        {/* Input prompt */}
+        <form onSubmit={handleCommand} className="mt-3 flex items-center gap-1.5 font-mono text-[11px]">
+          <span className="text-[var(--pf-c1)] select-none shrink-0 font-bold">msk@dev</span>
+          <span className="text-white/40 select-none shrink-0">❯</span>
+          <input
+            ref={inputRef}
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="flex-1 bg-transparent text-white outline-none border-none p-0 font-mono text-[11px] focus:ring-0 focus:outline-none min-w-0 tracking-wide"
+            maxLength={100}
+            autoCapitalize="none"
+            autoComplete="off"
+            spellCheck={false}
+            placeholder="type 'ai hello' or 'help'..."
+          />
+          <span
+            className={`text-[var(--pf-c1)] select-none transition-opacity duration-100 ${
+              cursorVisible ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            ▋
+          </span>
+        </form>
       </div>
 
-      {/* Input area */}
-      <form onSubmit={handleCommand} className="mt-1 flex items-center relative">
-        <span className="text-[var(--pf-c2)] mr-2 shrink-0 select-none text-[11px]">❯</span>
-        <input
-          ref={inputRef}
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="flex-1 bg-transparent text-white outline-none border-none p-0 font-mono text-[11px] focus:ring-0 focus:outline-none min-w-0"
-          maxLength={100}
-          autoCapitalize="none"
-          autoComplete="off"
-          spellCheck={false}
-          placeholder="type a command..."
-        />
-        <span
-          className={`ml-1 text-[var(--pf-c1)]/50 select-none transition-opacity duration-100 ${cursorVisible ? "opacity-100" : "opacity-0"
-            }`}
-        >
-          ▋
-        </span>
-      </form>
-
-      {/* Auto-suggestions */}
-      {showSuggestions && suggestions.length > 0 && (
-        <div className="mt-1.5 flex gap-1.5 flex-wrap">
-          {suggestions.map((cmd, idx) => (
-            <span
+      {/* Quick Suggestion Chips */}
+      <div className="mt-3 pt-2 flex items-center justify-between border-t border-white/5 font-mono text-[9px] text-white/40">
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-none py-0.5">
+          {["ai", "about", "skills", "projects", "clear"].map((cmd) => (
+            <button
               key={cmd}
-              className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] text-white/50 cursor-pointer hover:bg-white/10 hover:text-white/80 transition-all"
-              onClick={() => {
-                setInput(cmd);
-                setShowSuggestions(false);
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (cmd === "ai") {
+                  setInput("ai ");
+                } else {
+                  setInput(cmd);
+                }
                 inputRef.current?.focus();
               }}
+              className="rounded bg-white/[0.04] border border-white/8 px-2 py-0.5 text-white/60 hover:text-white hover:border-[var(--pf-c1)] transition"
             >
               {COMMANDS[cmd as keyof typeof COMMANDS]?.icon} {cmd}
-            </span>
+            </button>
           ))}
         </div>
-      )}
-
-      {/* Minimal status */}
-      <div className="mt-2 pt-1 flex items-center justify-between text-[8px] text-white/20 border-t border-white/5">
-        <span>v2.0.0</span>
-        <span className="flex items-center gap-2">
-          <span>{commandHistory.length} cmds</span>
-          <span className="w-1 h-1 rounded-full bg-white/10" />
-          <span>{history.length} lines</span>
+        <span className="shrink-0 text-[8px] text-[var(--pf-c1)] font-semibold uppercase tracking-wider">
+          OpenRouter LLM
         </span>
       </div>
     </div>
@@ -1571,12 +1552,51 @@ function HeroCard() {
     package: { icon: "◉", label: "package.json", color: "text-[#febc2e]" },
   };
 
-  // ─── THEME COLOUR MAP (UPDATED FOR OBSIDIAN) ──────────────
-  const themeColors: Record<string, { c1: string; c2: string; c3: string }> = {
-    cyber:    { c1: "#00e5ff", c2: "#ff2d7d", c3: "#c084fc" },
-    gold:     { c1: "#f5c14a", c2: "#ff7a2d", c3: "#ffd98a" },
-    emerald:  { c1: "#00ff88", c2: "#00f0ff", c3: "#a6ff00" },
-    devialet: { c1: "#e8352a", c2: "#ff8b6a", c3: "#c9a87c" }, // Obsidian Crimson
+  // ─── THEME PALETTE CONFIG ─────────────────────────────
+  const themesList = [
+    { id: "gold",     label: "Gold",     name: "Luxury Gold",     c1: "#f5c14a", c2: "#ff7a2d", c3: "#ffd98a" },
+    { id: "cyber",    label: "Cyber",    name: "Neon Cyber",      c1: "#00e5ff", c2: "#ff2d7d", c3: "#c084fc" },
+    { id: "emerald",  label: "Emerald",  name: "Bio Emerald",     c1: "#00ff88", c2: "#00f0ff", c3: "#a6ff00" },
+    { id: "devialet", label: "Obsidian", name: "Obsidian Crimson",c1: "#e8352a", c2: "#ff8b6a", c3: "#c9a87c" },
+    { id: "midnight", label: "Midnight", name: "Midnight Violet", c1: "#a78bfa", c2: "#8b5cf6", c3: "#c4b5fd" },
+    { id: "sunset",   label: "Sunset",   name: "Warm Sunset",     c1: "#ff6b6b", c2: "#ffa94d", c3: "#ffd93d" },
+    { id: "ocean",    label: "Ocean",    name: "Deep Ocean",      c1: "#00d4ff", c2: "#0066ff", c3: "#7dd3fc" },
+  ];
+
+  const [currentTheme, setCurrentTheme] = useState(() => {
+    if (typeof document !== "undefined") {
+      return document.documentElement.getAttribute("data-pf-theme") || "gold";
+    }
+    return "gold";
+  });
+
+  const handleApplyTheme = (nextThemeId: string) => {
+    if (typeof document === "undefined") return;
+
+    const el = document.documentElement;
+    document.body.classList.add("pf-theme-morph");
+
+    const heroCard = document.querySelector(".pf-hero-card-inner") as HTMLElement | null;
+    if (heroCard) {
+      heroCard.classList.add("pf-card-lift");
+      setTimeout(() => {
+        el.setAttribute("data-pf-theme", nextThemeId);
+        setCurrentTheme(nextThemeId);
+        try { localStorage.setItem("pf-theme", nextThemeId); } catch (_) {}
+      }, 100);
+
+      setTimeout(() => {
+        heroCard.classList.remove("pf-card-lift");
+      }, 600);
+    } else {
+      el.setAttribute("data-pf-theme", nextThemeId);
+      setCurrentTheme(nextThemeId);
+      try { localStorage.setItem("pf-theme", nextThemeId); } catch (_) {}
+    }
+
+    setTimeout(() => {
+      document.body.classList.remove("pf-theme-morph");
+    }, 700);
   };
 
   return (
@@ -1632,44 +1652,56 @@ function HeroCard() {
         <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
 
         {/* Header */}
-        <div className="relative flex items-center justify-between px-5 py-3 border-b border-white/5 bg-white/[0.03]">
-          <div className="flex items-center gap-4">
+        <div className="relative flex items-center justify-between px-5 py-3 border-b border-white/8 bg-black/40 backdrop-blur-md">
+          <div className="flex items-center gap-3">
             <div className="flex gap-1.5">
               {["#ff5f57", "#febc2e", "#28c840"].map((color, i) => (
                 <span
                   key={i}
-                  className="h-2.5 w-2.5 rounded-full transition-all duration-300 hover:scale-110 hover:brightness-125"
-                  style={{ backgroundColor: color }}
+                  className="h-2.5 w-2.5 rounded-full transition-all duration-300 hover:scale-110 shadow-sm"
+                  style={{ backgroundColor: color, boxShadow: `0 0 6px ${color}80` }}
                 />
               ))}
             </div>
-            <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-md p-0.5 border border-white/5">
+            <span className="font-mono text-[9px] text-white/35 tracking-widest hidden sm:inline-block">
+              zsh — msk@dev-station:~
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:flex items-center gap-1.5 font-mono text-[8px] font-bold tracking-wider text-[var(--pf-c1)] bg-[var(--pf-c1)]/10 px-2 py-0.5 rounded border border-[var(--pf-c1)]/30">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-c1)] animate-pulse" />
+              AI ACTIVE
+            </span>
+
+            <div className="flex items-center gap-1 bg-white/[0.04] rounded-lg p-0.5 border border-white/8">
               {[
-                { id: "code" as const, label: "✦ profile.tsx" },
-                { id: "terminal" as const, label: "◈ terminal.sh" },
+                { id: "code" as const, label: "✦ profile.json" },
+                { id: "terminal" as const, label: "🤖 ai-terminal.sh" },
               ].map(({ id, label }) => (
                 <button
                   key={id}
                   onClick={() => setTab(id)}
-                  className={`font-mono text-[9px] tracking-[0.15em] px-3 py-1 rounded transition-all duration-300 ${
+                  className={`font-mono text-[9px] tracking-[0.15em] px-3 py-1 rounded-md transition-all duration-300 flex items-center gap-1.5 ${
                     tab === id
-                      ? "bg-white/10 text-white shadow-sm"
-                      : "text-white/30 hover:text-white/60 hover:bg-white/5"
+                      ? "bg-white/12 text-white shadow-sm border border-white/10 font-semibold"
+                      : "text-white/40 hover:text-white/70 hover:bg-white/5"
                   }`}
                 >
                   {label}
                 </button>
               ))}
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--pf-c1)] opacity-60" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--pf-c1)]" />
+
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[var(--pf-c1)]/10 border border-[var(--pf-c1)]/20">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--pf-c1)] opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--pf-c1)]" />
+              </span>
+              <span className="font-mono text-[8px] uppercase tracking-[0.2em] text-[var(--pf-c1)] font-semibold">
+                LIVE
+              </span>
             </div>
-            <span className="font-mono text-[8px] uppercase tracking-[0.25em] text-[var(--pf-c1)]/60">
-              live
-            </span>
           </div>
         </div>
 
@@ -1829,95 +1861,29 @@ function HeroCard() {
           ))}
         </div>
 
-        {/* ─── PRO THEME SWAP BUTTON ──────────────────────────── */}
-        <button
-          type="button"
-          onClick={(e) => {
-            const el = document.documentElement;
-            const current = el.getAttribute("data-pf-theme") || "gold";
-
-            // Cycle: gold → cyber → emerald → devialet → gold
-            let next = "gold";
-            if (current === "gold") next = "cyber";
-            else if (current === "cyber") next = "emerald";
-            else if (current === "emerald") next = "devialet";
-            else if (current === "devialet") next = "gold";
-
-            if (document.getElementById("pf-portal-overlay")) return;
-
-            const { c1, c2, c3 } = themeColors[next] || themeColors.cyber;
-
-            // Get click origin coordinates (fallback to button center)
-            const rect = e.currentTarget.getBoundingClientRect();
-            const clickX = e.clientX ?? (rect.left + rect.width / 2);
-            const clickY = e.clientY ?? (rect.top + rect.height / 2);
-
-            // ─── Enable transitions & theme morphing state ──────────────────
-            document.body.classList.add("pf-theme-morph");
-
-            // ─── Cinematic liquid portal overlay ──────────────────────
-            const overlay = document.createElement("div");
-            overlay.id = "pf-portal-overlay";
-            overlay.style.cssText = `
-              position: fixed; inset: 0; z-index: 99999; pointer-events: none;
-              --px: ${clickX}px; --py: ${clickY}px;
-              --c1: ${c1}; --c2: ${c2}; --c3: ${c3};
-            `;
-            overlay.innerHTML = `
-              <div class="pf-liquid-ripple"></div>
-              <div class="pf-refraction-ring"></div>
-            `;
-            document.body.appendChild(overlay);
-
-            // ─── Card depth lift & shimmer sweep ──────────────────────────
-            const heroCard = document.querySelector(".pf-hero-card-inner") as HTMLElement | null;
-            if (heroCard) {
-              heroCard.classList.add("pf-card-lift");
-
-              // Glass refraction shimmer sweep
-              const shimmer = document.createElement("div");
-              shimmer.className = "pf-shimmer-sweep";
-              heroCard.appendChild(shimmer);
-
-              // Swap theme mid-shimmer (320ms)
-              setTimeout(() => {
-                el.setAttribute("data-pf-theme", next);
-                try { localStorage.setItem("pf-theme", next); } catch (_) {}
-              }, 320);
-
-              // Clean up card effects
-              setTimeout(() => {
-                heroCard.classList.remove("pf-card-lift");
-                shimmer.remove();
-              }, 1200);
-            } else {
-              // Fallback: swap theme immediately
-              el.setAttribute("data-pf-theme", next);
-              try { localStorage.setItem("pf-theme", next); } catch (_) {}
-            }
-
-            // ─── Clean up portal overlay and morph classes ───────────────
-            setTimeout(() => {
-              overlay.remove();
-              document.body.classList.remove("pf-theme-morph");
-            }, 1200);
-          }}
-          className="group relative flex w-full items-center justify-center gap-3 border-t border-white/5 px-5 py-3.5 font-mono text-[9px] font-medium uppercase tracking-[0.25em] text-white/50 transition-all duration-300 hover:text-white hover:bg-white/[0.03] pf-theme-swap-btn"
-          style={{
-            background:
-              "linear-gradient(90deg, rgb(from var(--pf-c1) r g b / 0.04), rgb(from var(--pf-c2) r g b / 0.04), rgb(from var(--pf-c3) r g b / 0.04))",
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex gap-1.5">
-              <span className="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-110 pf-theme-dot" style={{ background: "var(--pf-c1)" }} />
-              <span className="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-110 delay-75 pf-theme-dot" style={{ background: "var(--pf-c2)" }} />
-              <span className="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-110 delay-150 pf-theme-dot" style={{ background: "var(--pf-c3)" }} />
-            </div>
-            <span className="tracking-[0.3em]">Swap Theme</span>
-            <span className="transition-transform duration-500 text-[11px] pf-spin-icon">⟳</span>
+        {/* ─── PRO THEME SWAP BUTTON (NO TEMPLATE NAMES) ──────────────────────────── */}
+        <div className="p-4 border-t border-white/5">
+          <div className="pf-pro-swap-wrapper">
+            <button
+              type="button"
+              onClick={() => {
+                const currentIndex = themesList.findIndex((t) => t.id === currentTheme);
+                const nextIndex = (currentIndex + 1) % themesList.length;
+                handleApplyTheme(themesList[nextIndex].id);
+              }}
+              className="pf-pro-swap-btn"
+            >
+              {/* Color accent dots */}
+              <div className="flex items-center gap-1.5">
+                <span className="pf-pro-dot" style={{ background: "var(--pf-c1)", boxShadow: "0 0 6px var(--pf-c1)" }} />
+                <span className="pf-pro-dot" style={{ background: "var(--pf-c2)", boxShadow: "0 0 6px var(--pf-c2)" }} />
+                <span className="pf-pro-dot" style={{ background: "var(--pf-c3)", boxShadow: "0 0 6px var(--pf-c3)" }} />
+              </div>
+              <span className="tracking-[0.3em]">SWAP THEME</span>
+              <span className="pf-pro-spin">⟳</span>
+            </button>
           </div>
-        </button>
+        </div>
 
         {/* Shine overlay */}
         <div
@@ -2036,6 +2002,9 @@ function Hero() {
       className="relative flex min-h-screen lg:h-screen lg:min-h-0 items-center overflow-hidden px-6 pt-24 pb-16 md:px-20 lg:py-0"
     >
       {/* ── Backgrounds ── */}
+      {/* Pro perspective grid */}
+      <div className="pf-hero-cyber-grid z-0" />
+
       {/* cursor spotlight */}
       <div
         ref={spotRef}
@@ -3782,7 +3751,7 @@ function BackToTop() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 16 }}
           href="#home"
-          className="fixed bottom-24 right-6 z-40 flex h-10 w-10 items-center justify-center border border-white/15 bg-black/60 text-white backdrop-blur transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)]"
+          className="fixed bottom-20 right-6 z-40 flex h-10 w-10 items-center justify-center border border-white/15 bg-black/60 text-white backdrop-blur transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)]"
         >
           <ArrowUp className="h-4 w-4" />
         </motion.a>
