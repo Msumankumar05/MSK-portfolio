@@ -296,9 +296,11 @@ function useInView<T extends HTMLElement>() {
 function useLenis() {
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.15,
+      duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
+      touchMultiplier: 1.5,
+      infinite: false,
     });
     let raf = 0;
     const loop = (time: number) => {
@@ -314,7 +316,7 @@ function useLenis() {
       const el = document.querySelector(id) as HTMLElement | null;
       if (!el) return;
       e.preventDefault();
-      lenis.scrollTo(el, { offset: -40, duration: 1.4 });
+      lenis.scrollTo(el, { offset: -40, duration: 1.2 });
     };
     document.addEventListener("click", onClick);
     return () => {
@@ -327,7 +329,7 @@ function useLenis() {
 
 function Magnetic({
   children,
-  strength = 0.28,
+  strength = 0.25,
   className = "",
 }: {
   children: ReactNode;
@@ -335,13 +337,13 @@ function Magnetic({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const x = useSpring(0, { stiffness: 180, damping: 15 });
-  const y = useSpring(0, { stiffness: 180, damping: 15 });
+  const x = useSpring(0, { stiffness: 220, damping: 20 });
+  const y = useSpring(0, { stiffness: 220, damping: 20 });
   return (
     <motion.div
       ref={ref}
       style={{ x, y }}
-      className={className}
+      className={`transform-gpu ${className}`}
       onMouseMove={(e) => {
         const r = ref.current!.getBoundingClientRect();
         x.set((e.clientX - (r.left + r.width / 2)) * strength);
@@ -953,13 +955,15 @@ function Navbar({ active }: { active: string }) {
             <li key={item.id}>
               <a
                 href={`#${item.id}`}
-                className={`relative rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${active === item.id ? "text-[var(--pf-c1)]" : "text-white/60 hover:text-white"}`}
+                className={`relative rounded-full px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors duration-200 ${
+                  active === item.id ? "text-white font-semibold" : "text-white/60 hover:text-white"
+                }`}
               >
                 {active === item.id && (
                   <motion.span
-                    layoutId="nav-underline"
-                    className="absolute inset-x-3 -bottom-0.5 h-px bg-[var(--pf-c1)]"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    layoutId="nav-pill"
+                    className="absolute inset-0 rounded-full bg-[var(--pf-c1)]/15 border border-[var(--pf-c1)]/30 -z-10 shadow-[0_0_12px_rgba(245,193,74,0.15)]"
+                    transition={{ type: "spring", stiffness: 350, damping: 28 }}
                   />
                 )}
                 {item.label}
@@ -1049,69 +1053,122 @@ function Navbar({ active }: { active: string }) {
     </header>
   );
 }
-function fetchTerminalAiResponse(userPrompt: string): Promise<string> {
-  return new Promise((resolve) => {
-    const apiKey = (import.meta.env.VITE_OPENROUTER_API_KEY as string | undefined)?.trim();
-    const model = (import.meta.env.VITE_OPENROUTER_MODEL as string | undefined)?.trim() || "google/gemini-2.0-flash-001";
 
-    const q = userPrompt.toLowerCase();
+async function fetchTerminalAiResponse(userPrompt: string): Promise<string> {
+  const apiKey = (import.meta.env.VITE_OPENROUTER_API_KEY as string | undefined)?.trim();
+  const configuredModel = (import.meta.env.VITE_OPENROUTER_MODEL as string | undefined)?.trim();
 
-    let fallbackResult = "";
-    if (q.includes("project") || q.includes("farmora") || q.includes("cinedb") || q.includes("sky")) {
-      fallbackResult = "Suman's Top Projects:\n• Farmora: MERN e-commerce platform for farm-to-home produce.\n• CineDB: TMDB-powered movie discovery web app.\n• SKY AI: Real-time AI chat & voice interaction assistant.\n• Mobile Todo: Kotlin & Room DB task planner.";
-    } else if (q.includes("skill") || q.includes("stack") || q.includes("tech") || q.includes("react") || q.includes("node")) {
-      fallbackResult = "Suman's Tech Stack:\n• Frontend: React, TypeScript, JavaScript, Tailwind CSS\n• Backend: Node.js, Express.js, REST APIs\n• Mobile: Flutter, Kotlin, React Native\n• DB & AI: MongoDB, Firebase, MySQL, OpenRouter API, LLMs";
-    } else if (q.includes("contact") || q.includes("email") || q.includes("hire") || q.includes("reach")) {
-      fallbackResult = "Contact Suman:\n• Email: ms.kumar.developer05@gmail.com\n• LinkedIn: linkedin.com/in/m-suman-kumar-43b3a1300\n• GitHub: github.com/Msumankumar05";
-    } else if (q.includes("who") || q.includes("about") || q.includes("suman") || q.includes("background")) {
-      fallbackResult = "Makoju Suman Kumar is an MCA student & Full-Stack Engineer based in Odisha, India. He builds fast, production-ready web, mobile, and AI products.";
-    } else {
-      fallbackResult = `Makoju Suman Kumar is a Full-Stack Engineer specializing in React, Node.js, Flutter, and AI development.\nQuery answered regarding: "${userPrompt}"`;
+  const q = userPrompt.toLowerCase();
+
+  // Intelligent local portfolio AI knowledge engine
+  const getLocalKnowledgeResponse = (): string => {
+    if (q.includes("farmora")) {
+      return "🌾 Farmora (MERN E-Commerce):\n• Full-stack agricultural commerce platform connecting farmers directly to buyers.\n• Tech Stack: React, Node.js, Express, MongoDB, Tailwind CSS.\n• Features: Product catalog, shopping cart, order management, secure checkout.";
     }
-
-    if (!apiKey) {
-      resolve(
-        `⚠️  VITE_OPENROUTER_API_KEY is not configured in your .env file.\nShowing cached response:\n\n${fallbackResult}`
-      );
-      return;
+    if (q.includes("cinedb")) {
+      return "🎬 CineDB (Movie Discovery):\n• Modern movie and TV series exploration web application.\n• Tech Stack: React, TMDB REST API, Framer Motion, Tailwind CSS.\n• Features: Trending movies, search filters, actor details, trailer embeds.";
     }
+    if (q.includes("sky") || q.includes("voice") || q.includes("assistant")) {
+      return "🤖 SKY AI (Voice & Chat Assistant):\n• Intelligent conversational panel with real-time AI responses & voice interaction.\n• Tech Stack: React, Node.js, OpenRouter API, Web Speech API.\n• Features: Voice-to-text input, TTS audio playback, streaming responses.";
+    }
+    if (q.includes("project") || q.includes("work") || q.includes("build") || q.includes("app")) {
+      return "🚀 Makoju Suman Kumar's Highlighted Projects:\n1. 🌾 Farmora — MERN Produce E-Commerce Platform\n2. 🎬 CineDB — TMDB Movie & TV Discovery Web App\n3. 🤖 SKY AI — Voice & Text Conversational AI Assistant\n4. 📱 Task Planner — Mobile App in Kotlin & Flutter";
+    }
+    if (q.includes("skill") || q.includes("stack") || q.includes("tech") || q.includes("tool") || q.includes("react") || q.includes("flutter")) {
+      return "⚡ Core Technology Stack:\n• Frontend: React, TypeScript, JavaScript, Tailwind CSS, HTML/CSS\n• Backend: Node.js, Express.js, RESTful APIs, System Design\n• Mobile: Flutter, Kotlin, React Native\n• Database: MongoDB, MySQL, Firebase, Redis\n• AI/ML: OpenRouter LLM API, Prompt Engineering, Agentic Workflows";
+    }
+    if (q.includes("contact") || q.includes("email") || q.includes("hire") || q.includes("reach") || q.includes("linkedin") || q.includes("github")) {
+      return "📫 Connect with Makoju Suman Kumar:\n• Email: ms.kumar.developer05@gmail.com\n• GitHub: github.com/Msumankumar05\n• LinkedIn: linkedin.com/in/m-suman-kumar-43b3a1300\n• Location: Odisha, India (Open to Remote / Relocation)";
+    }
+    if (q.includes("who") || q.includes("about") || q.includes("suman") || q.includes("education") || q.includes("mca")) {
+      return "👨‍💻 About Makoju Suman Kumar:\n• Role: Full-Stack Engineer & MCA Graduate Student\n• Degree: Master of Computer Applications (MCA) & B.Sc Computer Science\n• Focus: Web development, mobile apps, clean architecture & AI tools\n• Location: Odisha, India";
+    }
+    return `⚡ MSK Portfolio Assistant:\nMakoju Suman Kumar is a Full-Stack & Mobile Engineer specializing in React, Node.js, Flutter, and AI development.\n\nQuery: "${userPrompt}"`;
+  };
 
-    fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-        "X-Title": "MSK Portfolio AI Terminal",
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          {
-            role: "system",
-            content: "You are an AI shell assistant for Makoju Suman Kumar (MSK). Answer concisely in bullet points or short clear sentences.",
-          },
-          { role: "user", content: userPrompt },
-        ],
-      }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("API failed");
-        return res.json();
-      })
-      .then((data) => {
-        const text = data?.choices?.[0]?.message?.content;
-        if (text) resolve(text.trim());
-        else resolve(fallbackResult);
-      })
-      .catch(() => {
-        resolve(fallbackResult);
+  if (!apiKey) {
+    return getLocalKnowledgeResponse();
+  }
+
+  // Active free model fallback chain
+  const modelsToTry = configuredModel
+    ? [
+        configuredModel,
+        "google/gemma-4-31b-it:free",
+        "inclusionai/ling-3.0-flash:free",
+        "google/gemma-4-26b-a4b-it:free",
+        "openai/gpt-oss-20b:free",
+        "openrouter/auto",
+      ]
+    : [
+        "google/gemma-4-31b-it:free",
+        "inclusionai/ling-3.0-flash:free",
+        "google/gemma-4-26b-a4b-it:free",
+        "openai/gpt-oss-20b:free",
+        "openrouter/auto",
+      ];
+
+  for (const model of modelsToTry) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 9000);
+
+      const originUrl = typeof window !== "undefined" ? window.location.origin : "https://msk-portfolio.vercel.app";
+
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+          "HTTP-Referer": originUrl,
+          "X-Title": "MSK Portfolio AI Terminal",
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an AI assistant for Makoju Suman Kumar (MSK)'s portfolio terminal. Suman is an MCA student & Full-Stack/Mobile/AI Engineer from Odisha, India. Skilled in React, Node, Express, MongoDB, Flutter, Kotlin, AI APIs. Answer user queries concisely, accurately, and politely in shell text format.",
+            },
+            { role: "user", content: userPrompt },
+          ],
+          temperature: 0.7,
+          max_tokens: 350,
+        }),
       });
-  });
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => null);
+        const errMsg = errJson?.error?.message || `HTTP ${res.status}`;
+        console.warn(`[OpenRouter AI] Model ${model} returned error:`, errMsg);
+        if (res.status === 401) {
+          return `⚠️ OpenRouter API Key Invalid (401 Unauthorized).\nPlease check VITE_OPENROUTER_API_KEY in your .env file.\n\nLocal response:\n${getLocalKnowledgeResponse()}`;
+        }
+        continue;
+      }
+
+      const data = await res.json();
+      const answer = data?.choices?.[0]?.message?.content?.trim();
+      if (answer) {
+        return answer;
+      }
+    } catch (err: any) {
+      if (err?.name === "AbortName" || err?.name === "AbortError") {
+        console.warn(`[OpenRouter AI] Model ${model} timed out after 9s.`);
+      } else {
+        console.warn(`[OpenRouter AI] Model ${model} failed:`, err?.message || err);
+      }
+    }
+  }
+
+  return getLocalKnowledgeResponse();
 }
 
 const COMMANDS = {
-  ai: { desc: "Ask AI Assistant (OpenRouter)", icon: "🤖" },
-  ask: { desc: "Ask AI Assistant (OpenRouter)", icon: "🤖" },
   help: { desc: "Show available commands", icon: "📖" },
   about: { desc: "About Makoju Suman Kumar", icon: "👨‍💻" },
   skills: { desc: "Technical core stack", icon: "⚡" },
@@ -1132,8 +1189,7 @@ const COMMANDS = {
 
 function TerminalEmulator() {
   const [history, setHistory] = useState<string[]>([
-    "✦ MSK Interactive Shell v2.0  ·  OpenRouter AI Active",
-    "Type 'ai <question>' to query Suman's AI, or 'help' for commands.",
+    "__BANNER__",
     "",
   ]);
   const [input, setInput] = useState("");
@@ -1188,51 +1244,15 @@ function TerminalEmulator() {
     const lowerCmd = cmd.toLowerCase();
     let response: string[] = [];
 
-    // AI Shell Commands: ai <prompt> or ask <prompt>
-    if (lowerCmd.startsWith("ai ") || lowerCmd.startsWith("ask ") || lowerCmd === "ai" || lowerCmd === "ask") {
-      const userPrompt = cmd.replace(/^(ai|ask)\s*/i, "").trim();
-      if (!userPrompt) {
-        response = [
-          `▸ ${cmd}`,
-          "🤖 OpenRouter AI Assistant:",
-          "  Usage : ai <your question>",
-          "  Ex    : ai Tell me about Farmora project",
-          "  Ex    : ask What are Suman's top skills?",
-        ];
-        setHistory((prev) => [...prev, ...response, ""]);
-        setInput("");
-        scrollToBottom();
-        return;
-      }
-
-      setHistory((prev) => [
-        ...prev,
-        `▸ ${cmd}`,
-        "🤖 Querying OpenRouter LLM...",
-      ]);
-      setInput("");
-      scrollToBottom();
-
-      fetchTerminalAiResponse(userPrompt).then((answer) => {
-        setHistory((prev) => [
-          ...prev.slice(0, -1),
-          "🤖 OpenRouter AI:",
-          ...answer.split("\n").map((line) => `  ${line}`),
-          "",
-        ]);
-        scrollToBottom();
-      });
-      return;
-    }
-
     switch (lowerCmd) {
       case "help":
         response = [
           `▸ ${cmd}`,
-          "  Available Commands:",
+          "  Built-in Commands:",
           ...Object.entries(COMMANDS).map(
             ([key, { icon, desc }]) => `  ${icon} ${key.padEnd(10)} ${desc}`,
           ),
+          "  🤖 Ask any question directly without commands!",
         ];
         break;
 
@@ -1342,12 +1362,27 @@ function TerminalEmulator() {
         return;
 
       default: {
-        const suggestion = getSuggestion(lowerCmd);
-        response = [
+        // Any unknown query -> strip optional 'ai ' / 'ask ' and send DIRECTLY to AI!
+        const cleanPrompt = cmd.replace(/^(ai|ask)\s+/i, "").trim();
+
+        setHistory((prev) => [
+          ...prev,
           `▸ ${cmd}`,
-          `  ✗ Command not found: ${lowerCmd}`,
-          suggestion !== "no suggestion" ? `  💡 Did you mean: ${suggestion}` : "",
-        ].filter(Boolean);
+          "🤖 Thinking...",
+        ]);
+        setInput("");
+        scrollToBottom();
+
+        fetchTerminalAiResponse(cleanPrompt).then((answer) => {
+          setHistory((prev) => [
+            ...prev.slice(0, -1),
+            "🤖 AI:",
+            ...answer.split("\n").map((line) => `  ${line}`),
+            "",
+          ]);
+          scrollToBottom();
+        });
+        return;
       }
     }
 
@@ -1405,87 +1440,140 @@ function TerminalEmulator() {
     scrollToBottom();
   }, []);
 
+  /* ── line renderer ── */
+  const renderLine = (line: string, i: number) => {
+    if (!line) return <div key={i} style={{ height: 5 }} />;
+
+    // Markdown-like formatting helpers
+    const parseLine = (txt: string) => {
+      return txt.replace(/\*\*(.*?)\*\*/g, '<span class="font-bold text-white">$1</span>')
+                .replace(/`(.*?)`/g, '<code class="bg-white/10 px-1 py-0.5 rounded text-[10px]">$1</code>');
+    };
+
+    // Banner
+    if (line === "__BANNER__") {
+      return (
+        <div key={i} className="select-none" style={{ color: "rgba(255,255,255,0.28)", fontSize: 11, letterSpacing: "0.04em", marginBottom: 6 }}>
+          Type <span style={{ color: "var(--pf-c1)", opacity: 0.8 }}>help</span> to see commands · or ask me anything
+        </div>
+      );
+    }
+
+    // Command echo — simple ❯ prompt
+    if (line.startsWith("▸")) {
+      const cmd = line.slice(1).trim();
+      return (
+        <div key={i} className="flex items-center gap-2" style={{ lineHeight: 1.85 }}>
+          <span className="shrink-0 select-none" style={{ color: "var(--pf-c1)" }}>❯</span>
+          <span style={{ color: "rgba(255,255,255,0.85)" }}>{cmd}</span>
+        </div>
+      );
+    }
+
+    // AI thinking / header
+    if (line.startsWith("🤖")) {
+      const label = line.replace("🤖 ", "");
+      const isThinking = label === "Thinking...";
+      return (
+        <div key={i} className="flex items-center gap-2" style={{ lineHeight: 1.85, color: "var(--pf-c1)", opacity: isThinking ? 0.6 : 1 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", opacity: 0.5 }}>AI</span>
+          <span style={{ opacity: 0.3 }}>·</span>
+          <span style={{ fontSize: 11 }}>{isThinking ? "thinking…" : label === "AI:" ? "response" : label}</span>
+        </div>
+      );
+    }
+
+    // Error
+    if (line.includes("✗")) {
+      return <div key={i} style={{ paddingLeft: 16, lineHeight: 1.8, color: "#f87171", fontSize: 11 }}>{line.trimStart()}</div>;
+    }
+
+    // Regular output lines with markdown parsing
+    return (
+      <div 
+        key={i} 
+        style={{ paddingLeft: 16, lineHeight: 1.8, color: "rgba(255,255,255,0.48)", fontSize: 11 }}
+        dangerouslySetInnerHTML={{ __html: parseLine(line.trimStart()) }}
+      />
+    );
+  };
+
   return (
     <div
       onClick={focusInput}
-      className="h-[250px] cursor-text overflow-y-auto px-4 py-3 font-mono text-[11px] leading-relaxed text-white/80 select-text flex flex-col justify-between"
-      ref={containerRef}
-      style={{ scrollbarWidth: "thin", scrollbarColor: "var(--pf-c1) transparent" }}
+      className="flex flex-col cursor-text select-text"
+      style={{
+        height: 260,
+        background: "transparent",
+        fontFamily: "'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace",
+      }}
     >
-      <div>
-        {/* History */}
-        <div className="space-y-1">
-          {history.map((line, i) => {
-            if (!line) return <div key={i} className="h-2" />;
+      {/* output */}
+      <div
+        ref={containerRef}
+        className="flex-1 overflow-y-auto"
+        style={{
+          padding: "14px 18px 6px",
+          fontSize: 11.5,
+          scrollbarWidth: "none",
+        }}
+      >
+        {history.map((line, i) => renderLine(line, i))}
+      </div>
 
-            let color = "text-white/70";
-            if (line.startsWith("▸")) color = "text-[var(--pf-c1)] font-semibold";
-            else if (line.startsWith("🤖")) color = "text-[var(--pf-c1)] font-medium";
-            else if (line.includes("✗")) color = "text-rose-400";
-            else if (line.includes("💡")) color = "text-amber-300";
-            else if (line.startsWith("✦")) color = "text-white/40 font-mono text-[10px]";
+      {/* separator */}
+      <div style={{ margin: "0 18px", height: 1, background: "rgba(255,255,255,0.04)" }} />
 
-            return (
-              <div key={i} className={`terminal-line ${color}`}>
-                {line}
-              </div>
-            );
-          })}
-        </div>
+      {/* input row */}
+      <form
+        onSubmit={handleCommand}
+        className="flex items-center shrink-0 gap-2"
+        style={{ padding: "9px 18px", fontSize: 11.5, fontFamily: "inherit" }}
+      >
+        {/* simple accent prompt */}
+        <span className="shrink-0 select-none" style={{ color: "var(--pf-c1)" }}>❯</span>
 
-        {/* Input prompt */}
-        <form onSubmit={handleCommand} className="mt-3 flex items-center gap-1.5 font-mono text-[11px]">
-          <span className="text-[var(--pf-c1)] select-none shrink-0 font-bold">msk@dev</span>
-          <span className="text-white/40 select-none shrink-0">❯</span>
-          <input
-            ref={inputRef}
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent text-white outline-none border-none p-0 font-mono text-[11px] focus:ring-0 focus:outline-none min-w-0 tracking-wide"
-            maxLength={100}
-            autoCapitalize="none"
-            autoComplete="off"
-            spellCheck={false}
-            placeholder="type 'ai hello' or 'help'..."
-          />
-          <span
-            className={`text-[var(--pf-c1)] select-none transition-opacity duration-100 ${
-              cursorVisible ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            ▋
+        <input
+          ref={inputRef}
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="flex-1 bg-transparent outline-none border-none p-0 focus:ring-0 min-w-0"
+          style={{
+            color: "rgba(255,255,255,0.88)",
+            fontFamily: "inherit",
+            fontSize: "inherit",
+            caretColor: "transparent",
+          }}
+          maxLength={120}
+          autoCapitalize="none"
+          autoComplete="off"
+          spellCheck={false}
+          placeholder="type a command or ask me anything…"
+        />
+
+        {/* ghost hint */}
+        {input && suggestions.length > 0 && (
+          <span className="shrink-0 select-none" style={{ color: "rgba(255,255,255,0.16)" }}>
+            {suggestions[0].slice(input.length)}
           </span>
-        </form>
-      </div>
+        )}
 
-      {/* Quick Suggestion Chips */}
-      <div className="mt-3 pt-2 flex items-center justify-between border-t border-white/5 font-mono text-[9px] text-white/40">
-        <div className="flex gap-1.5 overflow-x-auto scrollbar-none py-0.5">
-          {["ai", "about", "skills", "projects", "clear"].map((cmd) => (
-            <button
-              key={cmd}
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (cmd === "ai") {
-                  setInput("ai ");
-                } else {
-                  setInput(cmd);
-                }
-                inputRef.current?.focus();
-              }}
-              className="rounded bg-white/[0.04] border border-white/8 px-2 py-0.5 text-white/60 hover:text-white hover:border-[var(--pf-c1)] transition"
-            >
-              {COMMANDS[cmd as keyof typeof COMMANDS]?.icon} {cmd}
-            </button>
-          ))}
-        </div>
-        <span className="shrink-0 text-[8px] text-[var(--pf-c1)] font-semibold uppercase tracking-wider">
-          OpenRouter LLM
-        </span>
-      </div>
+        {/* block cursor */}
+        <span
+          className="shrink-0"
+          style={{
+            width: 6,
+            height: 13,
+            borderRadius: 1,
+            background: "var(--pf-c1)",
+            opacity: cursorVisible ? 0.7 : 0,
+            transition: "opacity 75ms",
+            flexShrink: 0,
+          }}
+        />
+      </form>
     </div>
   );
 }
@@ -1653,55 +1741,33 @@ function HeroCard() {
 
         {/* Header */}
         <div className="relative flex items-center justify-between px-5 py-3 border-b border-white/8 bg-black/40 backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <div className="flex gap-1.5">
-              {["#ff5f57", "#febc2e", "#28c840"].map((color, i) => (
-                <span
-                  key={i}
-                  className="h-2.5 w-2.5 rounded-full transition-all duration-300 hover:scale-110 shadow-sm"
-                  style={{ backgroundColor: color, boxShadow: `0 0 6px ${color}80` }}
-                />
-              ))}
-            </div>
-            <span className="font-mono text-[9px] text-white/35 tracking-widest hidden sm:inline-block">
-              zsh — msk@dev-station:~
-            </span>
+          <div className="flex items-center gap-1.5 bg-white/[0.04] rounded-lg p-0.5 border border-white/8">
+            {[
+              { id: "code" as const, label: "EDITOR" },
+              { id: "terminal" as const, label: "SHELL" },
+            ].map(({ id, label }) => (
+              <button
+                key={id}
+                onClick={() => setTab(id)}
+                className={`font-mono text-[9px] tracking-[0.15em] px-3 py-1 rounded-md transition-all duration-300 ${
+                  tab === id
+                    ? "bg-white/12 text-white font-semibold"
+                    : "text-white/40 hover:text-white/70"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="hidden sm:flex items-center gap-1.5 font-mono text-[8px] font-bold tracking-wider text-[var(--pf-c1)] bg-[var(--pf-c1)]/10 px-2 py-0.5 rounded border border-[var(--pf-c1)]/30">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-c1)] animate-pulse" />
-              AI ACTIVE
+          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[var(--pf-c1)]/10 border border-[var(--pf-c1)]/20">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--pf-c1)] opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--pf-c1)]" />
             </span>
-
-            <div className="flex items-center gap-1 bg-white/[0.04] rounded-lg p-0.5 border border-white/8">
-              {[
-                { id: "code" as const, label: "✦ profile.json" },
-                { id: "terminal" as const, label: "🤖 ai-terminal.sh" },
-              ].map(({ id, label }) => (
-                <button
-                  key={id}
-                  onClick={() => setTab(id)}
-                  className={`font-mono text-[9px] tracking-[0.15em] px-3 py-1 rounded-md transition-all duration-300 flex items-center gap-1.5 ${
-                    tab === id
-                      ? "bg-white/12 text-white shadow-sm border border-white/10 font-semibold"
-                      : "text-white/40 hover:text-white/70 hover:bg-white/5"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[var(--pf-c1)]/10 border border-[var(--pf-c1)]/20">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--pf-c1)] opacity-75" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--pf-c1)]" />
-              </span>
-              <span className="font-mono text-[8px] uppercase tracking-[0.2em] text-[var(--pf-c1)] font-semibold">
-                LIVE
-              </span>
-            </div>
+            <span className="font-mono text-[8px] uppercase tracking-[0.2em] text-[var(--pf-c1)] font-semibold">
+              LIVE
+            </span>
           </div>
         </div>
 
@@ -1844,45 +1910,35 @@ function HeroCard() {
           <TerminalEmulator />
         )}
 
-        {/* Divider */}
-        <div className="relative px-5">
-          <div className="h-px bg-gradient-to-r from-[var(--pf-c1)]/20 via-[var(--pf-c2)]/20 to-transparent" />
-        </div>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2 px-5 py-3 bg-white/[0.02]">
-          {["MERN", "Flutter", "React Native", "AI / LLMs", "TypeScript"].map((tag) => (
-            <span
-              key={tag}
-              className="group relative px-2.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.2em] text-[var(--pf-c1)]/50 border border-[var(--pf-c1)]/10 rounded transition-all duration-300 hover:border-[var(--pf-c1)]/40 hover:text-[var(--pf-c1)]/80 hover:bg-[var(--pf-c1)]/5"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {/* ─── PRO THEME SWAP BUTTON (NO TEMPLATE NAMES) ──────────────────────────── */}
-        <div className="p-4 border-t border-white/5">
-          <div className="pf-pro-swap-wrapper">
-            <button
-              type="button"
-              onClick={() => {
-                const currentIndex = themesList.findIndex((t) => t.id === currentTheme);
-                const nextIndex = (currentIndex + 1) % themesList.length;
-                handleApplyTheme(themesList[nextIndex].id);
-              }}
-              className="pf-pro-swap-btn"
-            >
-              {/* Color accent dots */}
-              <div className="flex items-center gap-1.5">
-                <span className="pf-pro-dot" style={{ background: "var(--pf-c1)", boxShadow: "0 0 6px var(--pf-c1)" }} />
-                <span className="pf-pro-dot" style={{ background: "var(--pf-c2)", boxShadow: "0 0 6px var(--pf-c2)" }} />
-                <span className="pf-pro-dot" style={{ background: "var(--pf-c3)", boxShadow: "0 0 6px var(--pf-c3)" }} />
-              </div>
-              <span className="tracking-[0.3em]">SWAP THEME</span>
-              <span className="pf-pro-spin">⟳</span>
-            </button>
+        {/* Footer info bar */}
+        <div className="flex items-center justify-between px-5 py-2.5 border-t border-white/5 bg-white/[0.01]">
+          <div className="flex flex-wrap gap-1.5">
+            {["MERN", "Flutter", "React Native", "AI", "TypeScript"].map((tag) => (
+              <span
+                key={tag}
+                className="px-2 py-0.5 font-mono text-[8px] uppercase tracking-wider text-[var(--pf-c1)]/60 bg-[var(--pf-c1)]/5 border border-[var(--pf-c1)]/15 rounded"
+              >
+                {tag}
+              </span>
+            ))}
           </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              const currentIndex = themesList.findIndex((t) => t.id === currentTheme);
+              const nextIndex = (currentIndex + 1) % themesList.length;
+              handleApplyTheme(themesList[nextIndex].id);
+            }}
+            className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-white/50 hover:text-white transition-colors py-1 px-2 rounded hover:bg-white/5"
+            title="Swap Portfolio Color Theme"
+          >
+            <div className="flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--pf-c1)" }} />
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--pf-c2)" }} />
+            </div>
+            <span>Theme</span>
+          </button>
         </div>
 
         {/* Shine overlay */}
@@ -2503,35 +2559,38 @@ function Stack() {
           {SKILL_GROUPS.map((group, i) => {
             const Icon = group.icon;
             return (
-              <motion.div
-                key={group.title}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.6, delay: i * 0.05 }}
-                className="group relative overflow-hidden bg-[var(--pf-bg)] p-8"
-              >
-                <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[var(--pf-c1)]/0 blur-3xl transition-all duration-500 group-hover:bg-[var(--pf-c1)]/10" />
-                <div className="relative flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Icon className="h-4 w-4 text-[var(--pf-c1)]" />
-                    <h3 className="font-display text-2xl italic text-white">{group.title}</h3>
-                  </div>
-                  <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/30">
-                    0{i + 1}
-                  </span>
-                </div>
-                <div className="mt-6 flex flex-wrap gap-2">
-                  {group.items.map((x) => (
-                    <span
-                      key={x}
-                      className="border border-white/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-white/65 transition group-hover:border-white/25"
-                    >
-                      {x}
+                <motion.div
+                  key={group.title}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -3 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                  className="group relative overflow-hidden bg-[var(--pf-bg)] p-8 transform-gpu transition-shadow duration-300 hover:shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)]"
+                >
+                  <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[var(--pf-c1)]/0 blur-3xl transition-all duration-500 group-hover:bg-[var(--pf-c1)]/10" />
+                  <div className="relative flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Icon className="h-4 w-4 text-[var(--pf-c1)]" />
+                      <h3 className="font-display text-2xl italic text-white">{group.title}</h3>
+                    </div>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/30">
+                      0{i + 1}
                     </span>
-                  ))}
-                </div>
-              </motion.div>
+                  </div>
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {group.items.map((x) => (
+                      <motion.span
+                        key={x}
+                        whileHover={{ scale: 1.05, y: -1 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                        className="inline-block border border-white/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-white/65 transition-colors group-hover:border-white/25 group-hover:text-white cursor-default"
+                      >
+                        {x}
+                      </motion.span>
+                    ))}
+                  </div>
+                </motion.div>
             );
           })}
         </div>
@@ -2929,7 +2988,7 @@ function Work() {
   const { scrollYProgress } = useScroll({ target: wrap, offset: ["start start", "end end"] });
   const total = PROJECTS.length;
   const x = useTransform(scrollYProgress, [0, 1], ["0vw", `-${(total - 1) * 100}vw`]);
-  const smoothX = useSpring(x, { stiffness: 90, damping: 22, mass: 0.5 });
+  const smoothX = useSpring(x, { stiffness: 110, damping: 24, mass: 0.4 });
   const [active, setActive] = useState(0);
   useEffect(() => {
     return scrollYProgress.on("change", (v) => {

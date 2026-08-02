@@ -129,11 +129,26 @@
   * {
     border-color: var(--color-border);
   }
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
+
+/* GPU hardware acceleration helper */
+.transform-gpu {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
 
 /* ============================================================
    🌈  Portfolio Theme System — 6 Aesthetic Palettes
@@ -150,30 +165,25 @@
   inherits: true;
   initial-value: #ff7a2d;
 }
-@property --pf-c3 {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #ffd98a;
-}
 @property --pf-bg {
   syntax: "<color>";
   inherits: true;
-  initial-value: #0e0a05;
+  initial-value: #070709;
 }
 @property --pf-card {
   syntax: "<color>";
   inherits: true;
-  initial-value: #17120a;
+  initial-value: #0e0e13;
 }
 
-/* ── Default Gold (matches JS default — no flash on load) ── */
+/* ── Default Gold (matches JS default) ── */
 :root {
   --pf-c1: #f5c14a;
   --pf-c2: #ff7a2d;
   --pf-c3: #ffd98a;
-  --pf-bg: #0e0a05;
-  --pf-card: #17120a;
-  --pf-glow: 0 0 40px rgba(245, 193, 74, 0.2);
+  --pf-bg: #070709;
+  --pf-card: #0e0e13;
+  --pf-glow: 0 0 40px rgba(245, 193, 74, 0.15);
 }
 
 /* ── Cyber Theme (cyan / pink / purple) ── */
@@ -181,8 +191,8 @@
   --pf-c1: #00e5ff;
   --pf-c2: #ff2d7d;
   --pf-c3: #c084fc;
-  --pf-bg: #05070a;
-  --pf-card: #080c14;
+  --pf-bg: #05060a;
+  --pf-card: #0b0d14;
   --pf-glow: 0 0 40px rgba(0, 229, 255, 0.15);
 }
 
@@ -191,9 +201,9 @@
   --pf-c1: #f5c14a;
   --pf-c2: #ff7a2d;
   --pf-c3: #ffd98a;
-  --pf-bg: #0e0a05;
-  --pf-card: #17120a;
-  --pf-glow: 0 0 40px rgba(245, 193, 74, 0.2);
+  --pf-bg: #070709;
+  --pf-card: #0e0e13;
+  --pf-glow: 0 0 40px rgba(245, 193, 74, 0.15);
 }
 
 /* ── Emerald Theme (neon nature) ── */
@@ -201,8 +211,8 @@
   --pf-c1: #00ff88;
   --pf-c2: #00f0ff;
   --pf-c3: #a6ff00;
-  --pf-bg: #030805;
-  --pf-card: #06120b;
+  --pf-bg: #040806;
+  --pf-card: #09120c;
   --pf-glow: 0 0 40px rgba(0, 255, 136, 0.15);
 }
 
@@ -211,9 +221,9 @@
   --pf-c1: #00d4ff;
   --pf-c2: #0066ff;
   --pf-c3: #7dd3fc;
-  --pf-bg: #020a1a;
-  --pf-card: #061020;
-  --pf-glow: 0 0 40px rgba(0, 212, 255, 0.2);
+  --pf-bg: #030712;
+  --pf-card: #090e1a;
+  --pf-glow: 0 0 40px rgba(0, 212, 255, 0.15);
 }
 
 /* ── Sunset Theme (warm coral / peach / amber) ── */
@@ -221,9 +231,9 @@
   --pf-c1: #ff6b6b;
   --pf-c2: #ffa94d;
   --pf-c3: #ffd93d;
-  --pf-bg: #1a0c0a;
-  --pf-card: #2a1410;
-  --pf-glow: 0 0 40px rgba(255, 107, 107, 0.2);
+  --pf-bg: #0a0607;
+  --pf-card: #140b0e;
+  --pf-glow: 0 0 40px rgba(255, 107, 107, 0.15);
 }
 
 /* ── Midnight Theme (deep indigo / violet / silver) ── */
@@ -231,20 +241,21 @@
   --pf-c1: #a78bfa;
   --pf-c2: #8b5cf6;
   --pf-c3: #c4b5fd;
-  --pf-bg: #04060f;
-  --pf-card: #0a0e1a;
-  --pf-glow: 0 0 40px rgba(167, 139, 250, 0.2);
+  --pf-bg: #05050c;
+  --pf-card: #0b0b16;
+  --pf-glow: 0 0 40px rgba(167, 139, 250, 0.15);
 }
 
 /* ── Obsidian (deep crimson luxury — was Devialet) ── */
 :root[data-pf-theme="devialet"] {
-  --pf-c1: #e8352a;        /* vivid crimson */
-  --pf-c2: #ff8b6a;        /* warm coral accent */
-  --pf-c3: #c9a87c;        /* aged gold highlight */
-  --pf-bg: #0a0704;        /* near-black warm obsidian */
-  --pf-card: #120d08;      /* rich dark walnut card */
-  --pf-glow: 0 0 40px rgba(232, 53, 42, 0.2);
+  --pf-c1: #e8352a;
+  --pf-c2: #ff8b6a;
+  --pf-c3: #c9a87c;
+  --pf-bg: #070505;
+  --pf-card: #100a0a;
+  --pf-glow: 0 0 40px rgba(232, 53, 42, 0.15);
 }
+
 
 /* ── Obsidian: ambient background ── */
 :root[data-pf-theme="devialet"] .pointer-events-none.fixed.inset-0.-z-10 > div:nth-child(1) {
@@ -535,12 +546,13 @@ body.pf-theme-morph *::after {
   inset: -10%;
   pointer-events: none;
   background-image: 
-    linear-gradient(to right, rgb(from var(--pf-c1) r g b / 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(from var(--pf-c1) r g b / 0.04) 1px, transparent 1px);
-  background-size: 40px 40px;
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 20%, transparent 80%);
-  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 20%, transparent 80%);
-  animation: pf-grid-drift 20s ease-in-out infinite alternate;
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0),
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 32px 32px, 64px 64px, 64px 64px;
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, #000 20%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, #000 20%, transparent 85%);
+  animation: pf-grid-drift 25s ease-in-out infinite alternate;
 }
 
 @keyframes pf-grid-drift {
