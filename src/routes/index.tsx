@@ -1511,11 +1511,16 @@ function TerminalEmulator() {
       {/* output */}
       <div
         ref={containerRef}
+        data-lenis-prevent="true"
+        data-lenis-prevent-touch="true"
+        onWheel={(e) => e.stopPropagation()}
         className="flex-1 overflow-y-auto"
         style={{
           padding: "14px 18px 6px",
           fontSize: 11.5,
-          scrollbarWidth: "none",
+          overscrollBehavior: "contain",
+          scrollbarWidth: "thin",
+          scrollbarColor: "rgba(255,255,255,0.2) transparent",
         }}
       >
         {history.map((line, i) => renderLine(line, i))}
@@ -1795,7 +1800,17 @@ function HeroCard() {
                 </button>
               ))}
             </div>
-            <div className="flex-1 overflow-y-auto p-4 select-text" style={{ scrollbarWidth: "thin" }}>
+            <div 
+              data-lenis-prevent="true"
+              data-lenis-prevent-touch="true"
+              onWheel={(e) => e.stopPropagation()}
+              className="flex-1 overflow-y-auto p-4 select-text" 
+              style={{ 
+                scrollbarWidth: "thin",
+                scrollbarColor: "rgba(255,255,255,0.2) transparent",
+                overscrollBehavior: "contain",
+              }}
+            >
               <style>{`
                 .editor-scroll::-webkit-scrollbar { width: 2px; }
                 .editor-scroll::-webkit-scrollbar-thumb { background: var(--pf-c1); border-radius: 0; }
