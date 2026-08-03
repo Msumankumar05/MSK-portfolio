@@ -506,16 +506,13 @@ function HeroAurora({ mx, my }: { mx: MotionValue<number>; my: MotionValue<numbe
           const cpy = (points[i].y + points[i + 1].y) / 2;
           ctx.quadraticCurveTo(points[i].x, points[i].y, cpx, cpy);
         }
-        ctx.strokeStyle = `rgba(${col.r},${col.g},${col.b},0.12)`;
+        ctx.strokeStyle = `rgba(${col.r},${col.g},${col.b},0.15)`;
         ctx.lineWidth = 1.5;
-        ctx.shadowColor = `rgba(${col.r},${col.g},${col.b},0.3)`;
-        ctx.shadowBlur = 20;
         ctx.stroke();
-        ctx.shadowBlur = 0;
       }
 
-      // Floating luminous particles
-      const particleCount = 35;
+      // Floating luminous particles (reduced count, no shadow)
+      const particleCount = 18;
       for (let i = 0; i < particleCount; i++) {
         const seed = i * 137.508;
         const px = ((seed * 0.618) % 1) * w;
@@ -528,10 +525,7 @@ function HeroAurora({ mx, my }: { mx: MotionValue<number>; my: MotionValue<numbe
         ctx.beginPath();
         ctx.arc(px, py, radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${col.r},${col.g},${col.b},${Math.max(0.05, alpha)})`;
-        ctx.shadowColor = `rgba(${col.r},${col.g},${col.b},0.4)`;
-        ctx.shadowBlur = 8;
         ctx.fill();
-        ctx.shadowBlur = 0;
       }
 
       animId = requestAnimationFrame(draw);
@@ -623,14 +617,14 @@ function NeuralConstellation() {
       r: number; colorIdx: number; pulseOffset: number;
     }> = [];
 
-    const particleCount = 50;
+    const particleCount = 25;
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * (canvas.clientWidth || 1920),
         y: Math.random() * (canvas.clientHeight || 1080),
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35,
-        r: Math.random() * 1.8 + 0.4,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        r: Math.random() * 1.5 + 0.5,
         colorIdx: i % 3,
         pulseOffset: Math.random() * Math.PI * 2,
       });
@@ -642,15 +636,21 @@ function NeuralConstellation() {
     const handleMouseMove = (e: MouseEvent) => { mouseX = e.clientX; mouseY = e.clientY; };
     const handleMouseLeave = () => { mouseX = -1000; mouseY = -1000; };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     document.addEventListener("mouseleave", handleMouseLeave);
 
     let t = 0;
+    let lastColorCheck = 0;
+    let cachedRgbs: [readonly [number, number, number], readonly [number, number, number], readonly [number, number, number]] | null = null;
 
     const draw = (ts: number) => {
       t = ts;
-      const { c1, c2, c3 } = getThemeColors();
-      const rgbs = [parseCssColor(c1), parseCssColor(c2), parseCssColor(c3)];
+      if (!cachedRgbs || ts - lastColorCheck > 1000) {
+        const { c1, c2, c3 } = getThemeColors();
+        cachedRgbs = [parseCssColor(c1), parseCssColor(c2), parseCssColor(c3)];
+        lastColorCheck = ts;
+      }
+      const rgbs = cachedRgbs;
 
       ctx.clearRect(0, 0, width, height);
 
@@ -666,19 +666,19 @@ function NeuralConstellation() {
         const pulse = 0.2 + Math.sin(t * 0.001 + p1.pulseOffset) * 0.1;
 
         ctx.fillStyle = `rgba(${r},${g},${b},${pulse})`;
-        ctx.shadowColor = `rgba(${r},${g},${b},0.3)`;
-        ctx.shadowBlur = 6;
         ctx.beginPath();
         ctx.arc(p1.x, p1.y, p1.r, 0, Math.PI * 2);
         ctx.fill();
-        ctx.shadowBlur = 0;
 
-        // Connect nearby particles
+        // Connect nearby particles (using dx*dx + dy*dy <= 100*100)
         for (let j = i + 1; j < particleCount; j++) {
           const p2 = particles[j];
-          const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-          if (dist < 120) {
-            const alpha = (1 - dist / 120) * 0.08;
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
+          const distSq = dx * dx + dy * dy;
+          if (distSq < 10000) {
+            const dist = Math.sqrt(distSq);
+            const alpha = (1 - dist / 100) * 0.08;
             const [r2, g2, b2] = rgbs[p2.colorIdx];
             ctx.strokeStyle = `rgba(${(r + r2) >> 1},${(g + g2) >> 1},${(b + b2) >> 1},${alpha})`;
             ctx.lineWidth = 0.5;
@@ -691,11 +691,14 @@ function NeuralConstellation() {
 
         // Mouse interaction
         if (mouseX > -500) {
-          const distToMouse = Math.hypot(p1.x - mouseX, p1.y - mouseY);
-          if (distToMouse < 160) {
-            const alpha = (1 - distToMouse / 160) * 0.2;
+          const dx = p1.x - mouseX;
+          const dy = p1.y - mouseY;
+          const distSq = dx * dx + dy * dy;
+          if (distSq < 22500) {
+            const dist = Math.sqrt(distSq);
+            const alpha = (1 - dist / 150) * 0.18;
             ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
-            ctx.lineWidth = 0.7;
+            ctx.lineWidth = 0.6;
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(mouseX, mouseY);
@@ -807,12 +810,20 @@ function ScrollAurora() {
   return (
     <>
       <motion.div
-        style={{ rotate, y: y1 }}
-        className="absolute left-[-15%] top-[10%] h-[75vmin] w-[75vmin] rounded-[42%_58%_63%_37%] bg-[var(--pf-c1)]/[0.09] blur-3xl animate-aurora-orb-1"
+        style={{
+          rotate,
+          y: y1,
+          background: "radial-gradient(circle, rgb(from var(--pf-c1) r g b / 0.08) 0%, transparent 70%)",
+        }}
+        className="pointer-events-none absolute left-[-15%] top-[10%] h-[75vmin] w-[75vmin] rounded-full transform-gpu will-change-transform"
       />
       <motion.div
-        style={{ rotate: useTransform(rotate, (v) => -v), y: y2 }}
-        className="absolute right-[-15%] top-[40%] h-[75vmin] w-[75vmin] rounded-[63%_37%_44%_56%] bg-[var(--pf-c2)]/[0.08] blur-3xl animate-aurora-orb-2"
+        style={{
+          rotate: useTransform(rotate, (v) => -v),
+          y: y2,
+          background: "radial-gradient(circle, rgb(from var(--pf-c2) r g b / 0.07) 0%, transparent 70%)",
+        }}
+        className="pointer-events-none absolute right-[-15%] top-[40%] h-[75vmin] w-[75vmin] rounded-full transform-gpu will-change-transform"
       />
     </>
   );
@@ -955,9 +966,8 @@ function Navbar({ active }: { active: string }) {
             <li key={item.id}>
               <a
                 href={`#${item.id}`}
-                className={`relative rounded-full px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors duration-200 ${
-                  active === item.id ? "text-white font-semibold" : "text-white/60 hover:text-white"
-                }`}
+                className={`relative rounded-full px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors duration-200 ${active === item.id ? "text-white font-semibold" : "text-white/60 hover:text-white"
+                  }`}
               >
                 {active === item.id && (
                   <motion.span
@@ -1093,20 +1103,20 @@ async function fetchTerminalAiResponse(userPrompt: string): Promise<string> {
   // Active free model fallback chain
   const modelsToTry = configuredModel
     ? [
-        configuredModel,
-        "google/gemma-4-31b-it:free",
-        "inclusionai/ling-3.0-flash:free",
-        "google/gemma-4-26b-a4b-it:free",
-        "openai/gpt-oss-20b:free",
-        "openrouter/auto",
-      ]
+      configuredModel,
+      "google/gemma-4-31b-it:free",
+      "inclusionai/ling-3.0-flash:free",
+      "google/gemma-4-26b-a4b-it:free",
+      "openai/gpt-oss-20b:free",
+      "openrouter/auto",
+    ]
     : [
-        "google/gemma-4-31b-it:free",
-        "inclusionai/ling-3.0-flash:free",
-        "google/gemma-4-26b-a4b-it:free",
-        "openai/gpt-oss-20b:free",
-        "openrouter/auto",
-      ];
+      "google/gemma-4-31b-it:free",
+      "inclusionai/ling-3.0-flash:free",
+      "google/gemma-4-26b-a4b-it:free",
+      "openai/gpt-oss-20b:free",
+      "openrouter/auto",
+    ];
 
   for (const model of modelsToTry) {
     try {
@@ -1447,7 +1457,7 @@ function TerminalEmulator() {
     // Markdown-like formatting helpers
     const parseLine = (txt: string) => {
       return txt.replace(/\*\*(.*?)\*\*/g, '<span class="font-bold text-white">$1</span>')
-                .replace(/`(.*?)`/g, '<code class="bg-white/10 px-1 py-0.5 rounded text-[10px]">$1</code>');
+        .replace(/`(.*?)`/g, '<code class="bg-white/10 px-1 py-0.5 rounded text-[10px]">$1</code>');
     };
 
     // Banner
@@ -1490,8 +1500,8 @@ function TerminalEmulator() {
 
     // Regular output lines with markdown parsing
     return (
-      <div 
-        key={i} 
+      <div
+        key={i}
         style={{ paddingLeft: 16, lineHeight: 1.8, color: "rgba(255,255,255,0.48)", fontSize: 11 }}
         dangerouslySetInnerHTML={{ __html: parseLine(line.trimStart()) }}
       />
@@ -1647,13 +1657,13 @@ function HeroCard() {
 
   // ─── THEME PALETTE CONFIG ─────────────────────────────
   const themesList = [
-    { id: "gold",     label: "Gold",     name: "Luxury Gold",     c1: "#f5c14a", c2: "#ff7a2d", c3: "#ffd98a" },
-    { id: "cyber",    label: "Cyber",    name: "Neon Cyber",      c1: "#00e5ff", c2: "#ff2d7d", c3: "#c084fc" },
-    { id: "emerald",  label: "Emerald",  name: "Bio Emerald",     c1: "#00ff88", c2: "#00f0ff", c3: "#a6ff00" },
-    { id: "devialet", label: "Obsidian", name: "Obsidian Crimson",c1: "#e8352a", c2: "#ff8b6a", c3: "#c9a87c" },
+    { id: "gold", label: "Gold", name: "Luxury Gold", c1: "#f5c14a", c2: "#ff7a2d", c3: "#ffd98a" },
+    { id: "cyber", label: "Cyber", name: "Neon Cyber", c1: "#00e5ff", c2: "#ff2d7d", c3: "#c084fc" },
+    { id: "emerald", label: "Emerald", name: "Bio Emerald", c1: "#00ff88", c2: "#00f0ff", c3: "#a6ff00" },
+    { id: "devialet", label: "Obsidian", name: "Obsidian Crimson", c1: "#e8352a", c2: "#ff8b6a", c3: "#c9a87c" },
     { id: "midnight", label: "Midnight", name: "Midnight Violet", c1: "#a78bfa", c2: "#8b5cf6", c3: "#c4b5fd" },
-    { id: "sunset",   label: "Sunset",   name: "Warm Sunset",     c1: "#ff6b6b", c2: "#ffa94d", c3: "#ffd93d" },
-    { id: "ocean",    label: "Ocean",    name: "Deep Ocean",      c1: "#00d4ff", c2: "#0066ff", c3: "#7dd3fc" },
+    { id: "sunset", label: "Sunset", name: "Warm Sunset", c1: "#ff6b6b", c2: "#ffa94d", c3: "#ffd93d" },
+    { id: "ocean", label: "Ocean", name: "Deep Ocean", c1: "#00d4ff", c2: "#0066ff", c3: "#7dd3fc" },
   ];
 
   const [currentTheme, setCurrentTheme] = useState(() => {
@@ -1662,34 +1672,55 @@ function HeroCard() {
     }
     return "gold";
   });
+  const [themeToast, setThemeToast] = useState<{ name: string; c1: string } | null>(null);
 
-  const handleApplyTheme = (nextThemeId: string) => {
+  const handleApplyTheme = (nextThemeId: string, event?: React.MouseEvent) => {
     if (typeof document === "undefined") return;
 
     const el = document.documentElement;
     document.body.classList.add("pf-theme-morph");
 
+    // Spawn expanding ripple shockwave at cursor or screen center
+    const x = event ? event.clientX : window.innerWidth / 2;
+    const y = event ? event.clientY : window.innerHeight / 2;
+
+    const ripple = document.createElement("div");
+    ripple.className = "pf-theme-ripple-surge";
+    ripple.style.left = `${x}px`;
+    ripple.style.top = `${y}px`;
+    document.body.appendChild(ripple);
+
+    setTimeout(() => {
+      ripple.remove();
+    }, 850);
+
+    const themeObj = themesList.find((t) => t.id === nextThemeId);
+    if (themeObj) {
+      setThemeToast({ name: themeObj.name, c1: themeObj.c1 });
+      setTimeout(() => setThemeToast(null), 1800);
+    }
+
     const heroCard = document.querySelector(".pf-hero-card-inner") as HTMLElement | null;
     if (heroCard) {
-      heroCard.classList.add("pf-card-lift");
+      heroCard.classList.add("pf-card-theme-pulse");
       setTimeout(() => {
         el.setAttribute("data-pf-theme", nextThemeId);
         setCurrentTheme(nextThemeId);
-        try { localStorage.setItem("pf-theme", nextThemeId); } catch (_) {}
+        try { localStorage.setItem("pf-theme", nextThemeId); } catch (_) { }
       }, 100);
 
       setTimeout(() => {
-        heroCard.classList.remove("pf-card-lift");
-      }, 600);
+        heroCard.classList.remove("pf-card-theme-pulse");
+      }, 750);
     } else {
       el.setAttribute("data-pf-theme", nextThemeId);
       setCurrentTheme(nextThemeId);
-      try { localStorage.setItem("pf-theme", nextThemeId); } catch (_) {}
+      try { localStorage.setItem("pf-theme", nextThemeId); } catch (_) { }
     }
 
     setTimeout(() => {
       document.body.classList.remove("pf-theme-morph");
-    }, 700);
+    }, 750);
   };
 
   return (
@@ -1749,17 +1780,19 @@ function HeroCard() {
           <div className="flex items-center gap-1.5 bg-white/[0.04] rounded-lg p-0.5 border border-white/8">
             {[
               { id: "code" as const, label: "EDITOR" },
-              { id: "terminal" as const, label: "SHELL" },
-            ].map(({ id, label }) => (
+              { id: "terminal" as const, label: "AI SHELL", badge: true },
+            ].map(({ id, label, badge }) => (
               <button
                 key={id}
                 onClick={() => setTab(id)}
-                className={`font-mono text-[9px] tracking-[0.15em] px-3 py-1 rounded-md transition-all duration-300 ${
-                  tab === id
-                    ? "bg-white/12 text-white font-semibold"
-                    : "text-white/40 hover:text-white/70"
-                }`}
+                className={`font-mono text-[9px] tracking-[0.15em] px-3 py-1 rounded-md transition-all duration-300 flex items-center gap-1.5 ${tab === id
+                  ? "bg-white/12 text-white font-semibold shadow-sm"
+                  : "text-white/40 hover:text-white/70"
+                  }`}
               >
+                {badge && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-c1)] animate-pulse" />
+                )}
                 {label}
               </button>
             ))}
@@ -1787,11 +1820,10 @@ function HeroCard() {
                 <button
                   key={key}
                   onClick={() => setSelectedFile(key as any)}
-                  className={`group flex w-full items-center gap-2 px-3 py-1.5 text-left transition-all duration-200 ${
-                    selectedFile === key
-                      ? "bg-white/8 text-white border-r-2 border-[var(--pf-c1)]"
-                      : "text-white/40 hover:text-white/70 hover:bg-white/5"
-                  }`}
+                  className={`group flex w-full items-center gap-2 px-3 py-1.5 text-left transition-all duration-200 ${selectedFile === key
+                    ? "bg-white/8 text-white border-r-2 border-[var(--pf-c1)]"
+                    : "text-white/40 hover:text-white/70 hover:bg-white/5"
+                    }`}
                 >
                   <span className={`text-[10px] ${selectedFile === key ? color : "text-white/30"}`}>
                     {icon}
@@ -1800,12 +1832,12 @@ function HeroCard() {
                 </button>
               ))}
             </div>
-            <div 
+            <div
               data-lenis-prevent="true"
               data-lenis-prevent-touch="true"
               onWheel={(e) => e.stopPropagation()}
-              className="flex-1 overflow-y-auto p-4 select-text" 
-              style={{ 
+              className="flex-1 overflow-y-auto p-4 select-text"
+              style={{
                 scrollbarWidth: "thin",
                 scrollbarColor: "rgba(255,255,255,0.2) transparent",
                 overscrollBehavior: "contain",
@@ -1940,10 +1972,10 @@ function HeroCard() {
 
           <button
             type="button"
-            onClick={() => {
+            onClick={(e) => {
               const currentIndex = themesList.findIndex((t) => t.id === currentTheme);
               const nextIndex = (currentIndex + 1) % themesList.length;
-              handleApplyTheme(themesList[nextIndex].id);
+              handleApplyTheme(themesList[nextIndex].id, e);
             }}
             className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-white/50 hover:text-white transition-colors py-1 px-2 rounded hover:bg-white/5"
             title="Swap Portfolio Color Theme"
@@ -1955,6 +1987,27 @@ function HeroCard() {
             <span>Theme</span>
           </button>
         </div>
+
+        {/* Theme toast notification banner */}
+        <AnimatePresence>
+          {themeToast && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.9, filter: "blur(6px)" }}
+              animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -15, scale: 0.9, filter: "blur(6px)" }}
+              transition={{ type: "spring", stiffness: 450, damping: 25 }}
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2.5 rounded-full border border-white/20 bg-black/85 px-4 py-2 backdrop-blur-xl shadow-2xl pointer-events-none"
+            >
+              <span
+                className="h-2 w-2 rounded-full animate-ping"
+                style={{ background: themeToast.c1 }}
+              />
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white font-semibold">
+                Theme · <span style={{ color: themeToast.c1 }}>{themeToast.name}</span>
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Shine overlay */}
         <div
@@ -2070,62 +2123,49 @@ function Hero() {
   return (
     <section
       id="home"
-      className="relative flex min-h-screen lg:h-screen lg:min-h-0 items-center overflow-hidden px-6 pt-24 pb-16 md:px-20 lg:py-0"
+      className="relative flex min-h-screen items-center overflow-hidden px-6 pt-28 pb-16 md:px-16 lg:px-20 lg:py-16 xl:py-20"
     >
       {/* ── Backgrounds ── */}
       {/* Pro perspective grid */}
-      <div className="pf-hero-cyber-grid z-0" />
+      <div className="pf-hero-cyber-grid z-0 opacity-80" />
 
-      {/* cursor spotlight */}
+      {/* Hero center spotlight aura */}
       <div
         ref={spotRef}
-        className="pointer-events-none absolute inset-0 z-0"
+        className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-300"
         style={{
           background:
-            "radial-gradient(700px circle at var(--x,40%) var(--y,50%), rgb(from var(--pf-c1) r g b / 0.09), transparent 55%)",
+            "radial-gradient(800px circle at var(--x,40%) var(--y,50%), rgb(from var(--pf-c1) r g b / 0.16), transparent 60%)",
         }}
       />
-      {/* animated ambient orb — top right */}
+
+      {/* Vibrant animated ambient orb — top right */}
       <motion.div
         animate={{
           scale: [1, 1.15, 1],
-          opacity: [0.08, 0.14, 0.08],
-          x: [0, 30, 0],
+          x: [0, 25, 0],
           y: [0, -20, 0],
         }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="pointer-events-none absolute right-[-5%] top-[-10%] h-[70%] w-[55%] z-0 rounded-full blur-[100px]"
+        className="pointer-events-none absolute right-[-5%] top-[-10%] h-[75%] w-[60%] z-0 rounded-full transform-gpu will-change-transform"
         style={{
           background:
-            "radial-gradient(ellipse at 60% 40%, var(--pf-c3), var(--pf-c1), transparent 70%)",
+            "radial-gradient(ellipse at 60% 40%, rgb(from var(--pf-c1) r g b / 0.18), rgb(from var(--pf-c2) r g b / 0.12), transparent 70%)",
         }}
       />
-      {/* animated ambient orb — bottom left */}
+
+      {/* Vibrant animated ambient orb — bottom left */}
       <motion.div
         animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.06, 0.12, 0.06],
-          x: [0, -15, 0],
+          scale: [1, 1.18, 1],
+          x: [0, -20, 0],
           y: [0, 25, 0],
         }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        className="pointer-events-none absolute bottom-[-15%] left-[-10%] h-[50%] w-[40%] z-0 rounded-full blur-[80px]"
+        className="pointer-events-none absolute bottom-[-15%] left-[-10%] h-[60%] w-[45%] z-0 rounded-full transform-gpu will-change-transform"
         style={{
           background:
-            "radial-gradient(ellipse at 30% 70%, var(--pf-c2), transparent 65%)",
-        }}
-      />
-      {/* center accent glow */}
-      <motion.div
-        animate={{
-          scale: [1, 1.08, 1],
-          opacity: [0.04, 0.08, 0.04],
-        }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 4 }}
-        className="pointer-events-none absolute left-[20%] top-[30%] h-[40%] w-[40%] z-0 rounded-full blur-[120px]"
-        style={{
-          background:
-            "radial-gradient(circle, var(--pf-c1), transparent 60%)",
+            "radial-gradient(ellipse at 30% 70%, rgb(from var(--pf-c2) r g b / 0.15), rgb(from var(--pf-c3) r g b / 0.08), transparent 65%)",
         }}
       />
 
@@ -2141,7 +2181,7 @@ function Hero() {
         my={my}
         factorX={1.5}
         factorY={0.8}
-        className="left-[42%] top-[25%] z-20"
+        className="left-[42%] top-[22%] z-20 hidden md:block"
       >
         <motion.div
           animate={{ rotate: 360, y: [0, -10, 0] }}
@@ -2149,95 +2189,49 @@ function Hero() {
             rotate: { duration: 15, repeat: Infinity, ease: "linear" },
             y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
           }}
-          className="relative h-7 w-7 rotate-45 border border-[var(--pf-c1)]/30 bg-[var(--pf-bg)]/40 backdrop-blur-sm flex items-center justify-center shadow-[0_0_15px_rgb(from var(--pf-c1) r g b / 0.12)]"
+          className="relative h-7 w-7 rotate-45 border border-[var(--pf-c1)]/50 bg-black/60 backdrop-blur-md flex items-center justify-center shadow-[0_0_20px_rgb(from_var(--pf-c1)_r_g_b_/_0.3)]"
         >
-          <span className="text-[10px] text-[var(--pf-c1)]/60 font-mono -rotate-45">✦</span>
-          <motion.div
-            animate={{ opacity: [0.15, 0.4, 0.15], scale: [1, 1.6, 1] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute inset-0 rounded-sm bg-[var(--pf-c1)]/10 blur-md"
-          />
-        </motion.div>
-      </FloatingShape>
-      <FloatingShape
-        mx={mx}
-        my={my}
-        factorX={-1.2}
-        factorY={1.2}
-        className="right-[45%] bottom-[20%] z-20"
-      >
-        <motion.div
-          animate={{ rotate: -360, y: [0, 12, 0] }}
-          transition={{
-            rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-            y: { duration: 5, repeat: Infinity, ease: "easeInOut" },
-          }}
-          className="relative h-8 w-8 border border-[var(--pf-c2)]/30 bg-[var(--pf-bg)]/40 backdrop-blur-sm flex items-center justify-center shadow-[0_0_15px_rgb(from var(--pf-c2) r g b / 0.12)]"
-          style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}
-        />
-      </FloatingShape>
-      <FloatingShape
-        mx={mx}
-        my={my}
-        factorX={0.6}
-        factorY={-1.4}
-        className="right-[8%] top-[15%] z-20"
-      >
-        <motion.div
-          animate={{ rotate: 180, y: [0, -15, 0] }}
-          transition={{
-            rotate: { duration: 25, repeat: Infinity, ease: "linear" },
-            y: { duration: 6, repeat: Infinity, ease: "easeInOut" },
-          }}
-          className="relative h-10 w-10 border border-[var(--pf-c3)]/30 bg-[var(--pf-bg)]/40 backdrop-blur-sm flex items-center justify-center shadow-[0_0_15px_rgb(from var(--pf-c3) r g b / 0.12)]"
-          style={{ clipPath: "polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)" }}
-        >
-          <motion.div
-            animate={{ opacity: [0.1, 0.3, 0.1], scale: [1, 1.5, 1] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute inset-0 bg-[var(--pf-c3)]/10 blur-lg"
-            style={{ clipPath: "polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)" }}
-          />
+          <span className="text-[10px] text-[var(--pf-c1)] font-mono -rotate-45">✦</span>
         </motion.div>
       </FloatingShape>
 
       {/* ── Main grid ── */}
-      <div className="relative z-10 grid w-full max-w-7xl mx-auto grid-cols-1 items-center gap-12 lg:grid-cols-12">
+      <div className="relative z-10 grid w-full max-w-7xl mx-auto grid-cols-1 items-center gap-10 lg:gap-12 lg:grid-cols-12">
         {/* ── LEFT column ── */}
         <div className="lg:col-span-7">
           {/* Status pill */}
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-6 inline-flex items-center gap-2.5 border border-white/10 bg-white/[0.04] px-4 py-2 backdrop-blur-sm"
+            initial={{ opacity: 0, y: -16, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-4 inline-flex items-center gap-2.5 border border-white/10 bg-white/[0.04] px-3.5 py-1.5 backdrop-blur-sm transition-colors duration-300 hover:border-[var(--pf-c1)]/30 hover:bg-[var(--pf-c1)]/5"
           >
             <span className="relative flex h-1.5 w-1.5 shrink-0">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--pf-c1)] opacity-75" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--pf-c1)] shadow-[0_0_8px_var(--pf-c1)]" />
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/55">
+            <span className="font-mono text-[9.5px] uppercase tracking-[0.25em] text-white/60">
               Odisha, India
             </span>
             <span className="h-3 w-px bg-white/15" />
-            <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--pf-c1)]">
+            <span className="font-mono text-[9.5px] uppercase tracking-[0.25em] text-[var(--pf-c1)] font-semibold">
               Open to Work
             </span>
           </motion.div>
 
           {/* Name */}
           <motion.div
-            initial={{ opacity: 0, y: 28, filter: "blur(10px)" }}
+            initial={{ opacity: 0, y: 32, filter: "blur(12px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 1.0, ease: [0.2, 0.7, 0.2, 1] }}
+            transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             style={{ rotateX: rx, rotateY: ry, transformPerspective: 1400 }}
           >
-            <span className="mb-1.5 block font-display text-xl italic font-light text-white/40 md:text-2xl tracking-wide">
+            <span className="mb-1 block font-display text-lg italic font-light text-white/40 md:text-xl tracking-wide">
               Hi, I'm
             </span>
             <h1
-              className="font-display leading-[0.92] tracking-tight text-white select-none cursor-default"
-              style={{ fontSize: "clamp(4.5rem, 11vw, 8.2rem)" }}
+              className="font-display leading-[0.9] tracking-tight text-white select-none cursor-default"
+              style={{ fontSize: "clamp(3.8rem, 9vw, 7.5rem)" }}
             >
               MSK
               <span
@@ -2254,72 +2248,74 @@ function Hero() {
 
           {/* Role chips */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25, duration: 0.6 }}
-            className="mt-5 flex flex-wrap gap-2"
+            initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ delay: 0.22, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-4 flex flex-wrap gap-2"
           >
             {["Full-Stack Engineer", "Mobile Dev", "AI Builder"].map((chip) => (
-              <span
+              <motion.span
                 key={chip}
-                className="border border-white/10 bg-white/[0.03] px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white/55"
+                whileHover={{ scale: 1.05, y: -2 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="border border-white/10 bg-white/[0.03] px-3 py-1 font-mono text-[9.5px] uppercase tracking-[0.2em] text-white/60 transition-colors duration-300 hover:border-[var(--pf-c1)]/40 hover:text-white hover:bg-[var(--pf-c1)]/10"
               >
                 {chip}
-              </span>
+              </motion.span>
             ))}
           </motion.div>
 
           {/* Tagline */}
           <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.7 }}
-            className="mt-5 max-w-[80ch] text-[12px] font-light leading-relaxed text-white/50"
+            initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ delay: 0.32, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-4 max-w-[65ch] text-[12px] font-light leading-relaxed text-white/55 md:text-[12.5px]"
           >
             Building the full spectrum — from pixel-perfect user interfaces and scalable backend
             architectures to cross-platform mobile applications and{" "}
-            <span className="text-[var(--pf-c2)] font-mono">AI-powered</span> experiences. I focus
+            <span className="text-[var(--pf-c2)] font-mono font-medium">AI-powered</span> experiences. I focus
             on creating fast, accessible, and production-ready digital products that combine elegant
             design, clean architecture, and exceptional user experiences.
           </motion.p>
 
           {/* Telemetry HUD Dashboard Matrix */}
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.42, duration: 0.6 }}
-            className="mt-5 max-w-[42ch] grid grid-cols-3 gap-px border border-white/5 bg-white/5 font-mono text-[9px] uppercase tracking-[0.2em] text-white/40"
+            initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ delay: 0.4, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-4 max-w-[40ch] grid grid-cols-3 gap-px border border-white/10 bg-white/5 font-mono text-[8.5px] uppercase tracking-[0.2em] text-white/40 shadow-sm"
           >
-            <div className="bg-[var(--pf-bg)]/60 px-3.5 py-2 border-r border-white/5">
-              <span className="text-white/20 select-none">ping /</span>{" "}
+            <div className="bg-[var(--pf-bg)]/80 px-3 py-1.5 border-r border-white/5">
+              <span className="text-white/30 select-none">ping /</span>{" "}
               <span className="text-[var(--pf-c1)] font-bold tabular-nums">{ping}ms</span>
             </div>
-            <div className="bg-[var(--pf-bg)]/60 px-3.5 py-2 border-r border-white/5">
-              <span className="text-white/20 select-none">env /</span>{" "}
+            <div className="bg-[var(--pf-bg)]/80 px-3 py-1.5 border-r border-white/5">
+              <span className="text-white/30 select-none">env /</span>{" "}
               <span className="text-white/70">
                 {sys.os} · {sys.browser}
               </span>
             </div>
-            <div className="bg-[var(--pf-bg)]/60 px-3.5 py-2">
-              <span className="text-white/20 select-none">time /</span>{" "}
+            <div className="bg-[var(--pf-bg)]/80 px-3 py-1.5">
+              <span className="text-white/30 select-none">time /</span>{" "}
               <span className="text-white/70 tabular-nums">{time || "11:03 PM"}</span>
             </div>
           </motion.div>
 
           {/* CTA row */}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.48, duration: 0.7 }}
-            className="mt-8 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3"
+            initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ delay: 0.48, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-6 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3"
           >
             <Magnetic>
               <a
                 href="#work"
-                className="group relative flex items-center justify-center gap-2.5 overflow-hidden bg-[var(--pf-c1)] px-7 py-3.5 font-mono text-[11px] font-bold uppercase tracking-[0.25em] text-black transition-all hover:bg-white"
+                className="group relative flex items-center justify-center gap-2.5 overflow-hidden bg-[var(--pf-c1)] px-6 py-3 font-mono text-[10.5px] font-bold uppercase tracking-[0.25em] text-black shadow-[0_0_20px_rgb(from_var(--pf-c1)_r_g_b_/_0.25)] transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-[0_0_30px_rgb(255_255_255_/_0.4)]"
               >
                 {/* shimmer */}
-                <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
+                <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                 View Projects
                 <span className="transition-transform duration-300 group-hover:translate-x-1">
                   →
@@ -2329,7 +2325,7 @@ function Hero() {
             <Magnetic strength={0.2}>
               <a
                 href="#contact"
-                className="flex items-center justify-center gap-2 border border-white/20 px-7 py-3.5 font-mono text-[11px] font-bold uppercase tracking-[0.25em] text-white transition hover:border-white hover:bg-white hover:text-black"
+                className="flex items-center justify-center gap-2 border border-white/20 px-6 py-3 font-mono text-[10.5px] font-bold uppercase tracking-[0.25em] text-white transition-all duration-300 hover:scale-105 hover:border-white hover:bg-white hover:text-black"
               >
                 Get In Touch
               </a>
@@ -2338,7 +2334,7 @@ function Hero() {
               href="/Resume.pdf"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-2 px-4 py-3.5 font-mono text-[11px] uppercase tracking-[0.25em] text-white/40 transition hover:text-[var(--pf-c1)]"
+              className="flex items-center justify-center gap-2 px-3 py-3 font-mono text-[10.5px] uppercase tracking-[0.25em] text-white/40 transition hover:text-[var(--pf-c1)]"
             >
               <Download className="h-3 w-3" /> Resume
             </a>
@@ -2349,7 +2345,7 @@ function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.65, duration: 0.7 }}
-            className="mt-7 flex flex-wrap gap-x-5 gap-y-3"
+            className="mt-5 flex flex-wrap gap-x-5 gap-y-2.5"
           >
             {SOCIAL_LINKS.map(({ label, icon: Icon, href }) => (
               <a
@@ -2357,7 +2353,7 @@ function Hero() {
                 href={href}
                 target="_blank"
                 rel="noreferrer"
-                className="group flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.25em] text-white/30 transition hover:text-white"
+                className="group flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-[0.25em] text-white/30 transition hover:text-white"
               >
                 <Icon className="h-3 w-3" />
                 {label}
@@ -2371,13 +2367,13 @@ function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.85, duration: 0.8 }}
-            className="mt-9 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]"
+            className="mt-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]"
           >
             <div className="flex w-max animate-marquee gap-2">
               {[...TECH_BADGES, ...TECH_BADGES].map((t, i) => (
                 <span
                   key={i}
-                  className="whitespace-nowrap border border-white/10 bg-white/[0.02] px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white/55"
+                  className="whitespace-nowrap border border-white/10 bg-white/[0.02] px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-white/50"
                 >
                   {t}
                 </span>
@@ -2391,10 +2387,10 @@ function Hero() {
           initial={{ opacity: 0, x: 40, scale: 0.95 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
           transition={{ delay: 0.28, duration: 1.0, ease: [0.2, 0.7, 0.2, 1] }}
-          className="hidden lg:flex lg:col-span-5 lg:items-center lg:justify-end"
+          className="flex lg:col-span-5 items-center justify-center lg:justify-end mt-4 lg:mt-0"
           style={{ perspective: 1000 }}
         >
-          <div className="hero-card-scale origin-center">
+          <div className="hero-card-scale origin-center w-full max-w-[480px]">
             <HeroCard />
           </div>
         </motion.div>
@@ -2574,38 +2570,38 @@ function Stack() {
           {SKILL_GROUPS.map((group, i) => {
             const Icon = group.icon;
             return (
-                <motion.div
-                  key={group.title}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -3 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
-                  className="group relative overflow-hidden bg-[var(--pf-bg)] p-8 transform-gpu transition-shadow duration-300 hover:shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)]"
-                >
-                  <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[var(--pf-c1)]/0 blur-3xl transition-all duration-500 group-hover:bg-[var(--pf-c1)]/10" />
-                  <div className="relative flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Icon className="h-4 w-4 text-[var(--pf-c1)]" />
-                      <h3 className="font-display text-2xl italic text-white">{group.title}</h3>
-                    </div>
-                    <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/30">
-                      0{i + 1}
-                    </span>
+              <motion.div
+                key={group.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                whileHover={{ y: -3 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                className="group relative overflow-hidden bg-[var(--pf-bg)] p-8 transform-gpu transition-shadow duration-300 hover:shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)]"
+              >
+                <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[var(--pf-c1)]/0 blur-3xl transition-all duration-500 group-hover:bg-[var(--pf-c1)]/10" />
+                <div className="relative flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Icon className="h-4 w-4 text-[var(--pf-c1)]" />
+                    <h3 className="font-display text-2xl italic text-white">{group.title}</h3>
                   </div>
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {group.items.map((x) => (
-                      <motion.span
-                        key={x}
-                        whileHover={{ scale: 1.05, y: -1 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                        className="inline-block border border-white/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-white/65 transition-colors group-hover:border-white/25 group-hover:text-white cursor-default"
-                      >
-                        {x}
-                      </motion.span>
-                    ))}
-                  </div>
-                </motion.div>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/30">
+                    0{i + 1}
+                  </span>
+                </div>
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {group.items.map((x) => (
+                    <motion.span
+                      key={x}
+                      whileHover={{ scale: 1.05, y: -1 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                      className="inline-block border border-white/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-white/65 transition-colors group-hover:border-white/25 group-hover:text-white cursor-default"
+                    >
+                      {x}
+                    </motion.span>
+                  ))}
+                </div>
+              </motion.div>
             );
           })}
         </div>
