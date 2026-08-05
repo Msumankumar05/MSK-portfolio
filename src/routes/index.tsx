@@ -1064,7 +1064,12 @@ function Navbar({ active }: { active: string }) {
   );
 }
 
-async function fetchTerminalAiResponse(userPrompt: string): Promise<string> {
+type ConversationMessage = { role: "user" | "assistant"; content: string };
+
+async function fetchTerminalAiResponse(
+  userPrompt: string,
+  conversationMessages: ConversationMessage[] = []
+): Promise<string> {
   const apiKey = (import.meta.env.VITE_OPENROUTER_API_KEY as string | undefined)?.trim();
   const configuredModel = (import.meta.env.VITE_OPENROUTER_MODEL as string | undefined)?.trim();
 
@@ -1140,8 +1145,9 @@ async function fetchTerminalAiResponse(userPrompt: string): Promise<string> {
             {
               role: "system",
               content:
-                "You are an AI assistant for Makoju Suman Kumar (MSK)'s portfolio terminal. Suman is an MCA student & Full-Stack/Mobile/AI Engineer from Odisha, India. Skilled in React, Node, Express, MongoDB, Flutter, Kotlin, AI APIs. Answer user queries concisely, accurately, and politely in shell text format.",
+                "You are an AI assistant for Makoju Suman Kumar (MSK)'s portfolio terminal. Suman is an MCA student & Full-Stack/Mobile/AI Engineer from Odisha, India. Skilled in React, Node, Express, MongoDB, Flutter, Kotlin, AI APIs. Answer user queries concisely, accurately, and politely in shell text format. You have memory of the entire conversation so far — use it to give context-aware, coherent replies.",
             },
+            ...conversationMessages,
             { role: "user", content: userPrompt },
           ],
           temperature: 0.7,
@@ -1197,19 +1203,51 @@ const COMMANDS = {
   theme: { desc: "Current theme info", icon: "🎨" },
 };
 
+const STORAGE_KEY_HISTORY = "msk_terminal_history";
+const STORAGE_KEY_CMD_HISTORY = "msk_terminal_cmd_history";
+const STORAGE_KEY_CONV = "msk_terminal_conv";
+
+function loadFromSession<T>(key: string, fallback: T): T {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (raw) return JSON.parse(raw) as T;
+  } catch {}
+  return fallback;
+}
+
 function TerminalEmulator() {
-  const [history, setHistory] = useState<string[]>([
-    "__BANNER__",
-    "",
-  ]);
+  const [history, setHistory] = useState<string[]>(() =>
+    loadFromSession(STORAGE_KEY_HISTORY, ["__BANNER__", ""])
+  );
   const [input, setInput] = useState("");
-  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [commandHistory, setCommandHistory] = useState<string[]>(() =>
+    loadFromSession(STORAGE_KEY_CMD_HISTORY, [])
+  );
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [cursorVisible, setCursorVisible] = useState(true);
+  // Multi-turn AI conversation memory
+  const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>(() =>
+    loadFromSession(STORAGE_KEY_CONV, [])
+  );
+
+  // Persist terminal output to sessionStorage on every change
+  useEffect(() => {
+    try { sessionStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history)); } catch {}
+  }, [history]);
+
+  // Persist command history (up-arrow navigation) to sessionStorage
+  useEffect(() => {
+    try { sessionStorage.setItem(STORAGE_KEY_CMD_HISTORY, JSON.stringify(commandHistory)); } catch {}
+  }, [commandHistory]);
+
+  // Persist multi-turn conversation memory to sessionStorage
+  useEffect(() => {
+    try { sessionStorage.setItem(STORAGE_KEY_CONV, JSON.stringify(conversationHistory)); } catch {}
+  }, [conversationHistory]);
 
   // Blinking cursor
   useEffect(() => {
@@ -1367,13 +1405,23 @@ function TerminalEmulator() {
       }
 
       case "clear":
-        setHistory([]);
+        setHistory(["__BANNER__", ""]);
+        setCommandHistory([]);
+        setConversationHistory([]);
         setInput("");
+        try {
+          sessionStorage.removeItem(STORAGE_KEY_HISTORY);
+          sessionStorage.removeItem(STORAGE_KEY_CMD_HISTORY);
+          sessionStorage.removeItem(STORAGE_KEY_CONV);
+        } catch {}
         return;
 
       default: {
         // Any unknown query -> strip optional 'ai ' / 'ask ' and send DIRECTLY to AI!
         const cleanPrompt = cmd.replace(/^(ai|ask)\s+/i, "").trim();
+
+        // Snapshot current conversation history for this request
+        const currentConv = conversationHistory;
 
         setHistory((prev) => [
           ...prev,
@@ -1383,7 +1431,13 @@ function TerminalEmulator() {
         setInput("");
         scrollToBottom();
 
-        fetchTerminalAiResponse(cleanPrompt).then((answer) => {
+        fetchTerminalAiResponse(cleanPrompt, currentConv).then((answer) => {
+          // Append both user turn and assistant reply to conversation memory
+          setConversationHistory((prev) => [
+            ...prev,
+            { role: "user", content: cleanPrompt },
+            { role: "assistant", content: answer },
+          ]);
           setHistory((prev) => [
             ...prev.slice(0, -1),
             "🤖 AI:",
