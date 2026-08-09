@@ -35,6 +35,19 @@ import {
   Cpu,
   BookOpen,
   Compass,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+  Trash2,
+  RotateCcw,
+  Volume1,
+  Radio,
+  Activity,
+  Pause,
+  Play,
+  X,
+  Zap,
 } from "lucide-react";
 
 /* ---------- Data ---------- */
@@ -1066,6 +1079,23 @@ function Navbar({ active }: { active: string }) {
 
 type ConversationMessage = { role: "user" | "assistant"; content: string };
 
+function sanitizeAiText(rawText: string): string {
+  if (!rawText) return "";
+  return rawText
+    // Strip markdown code fences (```bash, ```sh, ```) and backticks
+    .replace(/^```[a-z]*\s*\n?/gim, "")
+    .replace(/\n?```$/gim, "")
+    .replace(/```/g, "")
+    // Strip artificial LLM terminal headers/banners
+    .replace(/MSK\s+PORTFOLIO\s+TERMINAL(\s+v[\d\.]+)?/gi, "")
+    .replace(/STATUS:\s*ONLINE/gi, "")
+    .replace(/USER:\s*UNKNOWN/gi, "")
+    .replace(/SYSTEM:\s*AI\s+ASSISTANT[^\n]*/gi, "")
+    .replace(/^[-=]{3,}\s*$/gm, "") // strip separator lines
+    .replace(/\n{3,}/g, "\n\n")     // collapse extra newlines
+    .trim();
+}
+
 async function fetchTerminalAiResponse(
   userPrompt: string,
   conversationMessages: ConversationMessage[] = []
@@ -1092,17 +1122,20 @@ async function fetchTerminalAiResponse(
     if (q.includes("skill") || q.includes("stack") || q.includes("tech") || q.includes("tool") || q.includes("react") || q.includes("flutter")) {
       return "⚡ Core Technology Stack:\n• Frontend: React, TypeScript, JavaScript, Tailwind CSS, HTML/CSS\n• Backend: Node.js, Express.js, RESTful APIs, System Design\n• Mobile: Flutter, Kotlin, React Native\n• Database: MongoDB, MySQL, Firebase, Redis\n• AI/ML: OpenRouter LLM API, Prompt Engineering, Agentic Workflows";
     }
-    if (q.includes("contact") || q.includes("email") || q.includes("hire") || q.includes("reach") || q.includes("linkedin") || q.includes("github")) {
-      return "📫 Connect with Makoju Suman Kumar:\n• Email: ms.kumar.developer05@gmail.com\n• GitHub: github.com/Msumankumar05\n• LinkedIn: linkedin.com/in/m-suman-kumar-43b3a1300\n• Location: Odisha, India (Open to Remote / Relocation)";
+    if (q.includes("contact") || q.includes("email") || q.includes("hire") || q.includes("reach") || q.includes("linkedin") || q.includes("github") || q.includes("instagram") || q.includes("social") || q.includes("connect")) {
+      return "📫 Connect with Makoju Suman Kumar:\n• Email: ms.kumar.developer05@gmail.com\n• GitHub: github.com/Msumankumar05\n• LinkedIn: www.linkedin.com/in/itsmskdev\n• Instagram: instagram.com/suman_k_72\n• Location: Odisha, India (Open to Remote / Relocation)";
     }
     if (q.includes("who") || q.includes("about") || q.includes("suman") || q.includes("education") || q.includes("mca")) {
-      return "👨‍💻 About Makoju Suman Kumar:\n• Role: Full-Stack Engineer & MCA Graduate Student\n• Degree: Master of Computer Applications (MCA) & B.Sc Computer Science\n• Focus: Web development, mobile apps, clean architecture & AI tools\n• Location: Odisha, India";
+      return "👨‍💻 About Makoju Suman Kumar (MSK):\n• Role: Full-Stack Engineer, Mobile Developer & MCA Student\n• Degree: Master of Computer Applications (MCA) & B.Sc Computer Science\n• Focus: Web development, mobile apps, clean architecture & AI tools\n• Location: Odisha, India (Open to Remote & Relocation)";
     }
-    return `⚡ MSK Portfolio Assistant:\nMakoju Suman Kumar is a Full-Stack & Mobile Engineer specializing in React, Node.js, Flutter, and AI development.\n\nQuery: "${userPrompt}"`;
+    if (q.includes("instagram") || q.includes("insta")) {
+      return "📸 Suman on Instagram:\n• Handle: @suman_k_72\n• URL: instagram.com/suman_k_72";
+    }
+    return `⚡ MSK Portfolio Assistant:\nMakoju Suman Kumar is a Full-Stack & Mobile Engineer from Odisha, India specializing in React, Node.js, Flutter, and AI development.\n\nQuery: "${userPrompt}"`;
   };
 
   if (!apiKey) {
-    return getLocalKnowledgeResponse();
+    return sanitizeAiText(getLocalKnowledgeResponse());
   }
 
   // Active free model fallback chain
@@ -1145,7 +1178,7 @@ async function fetchTerminalAiResponse(
             {
               role: "system",
               content:
-                "You are an AI assistant for Makoju Suman Kumar (MSK)'s portfolio terminal. Suman is an MCA student & Full-Stack/Mobile/AI Engineer from Odisha, India. Skilled in React, Node, Express, MongoDB, Flutter, Kotlin, AI APIs. Answer user queries concisely, accurately, and politely in shell text format. You have memory of the entire conversation so far — use it to give context-aware, coherent replies.",
+                "You are the AI assistant embedded inside Makoju Suman Kumar's (MSK) personal portfolio terminal. You know everything about Suman and always answer as his helpful representative.\n\nFULL PROFILE:\n- Full Name: Makoju Suman Kumar (MSK)\n- Role: Full-Stack Engineer, Mobile Developer & AI enthusiast\n- Education: MCA (Master of Computer Applications) student & B.Sc Computer Science graduate\n- Location: Odisha, India. Open to remote work and relocation.\n\nCONTACT & SOCIALS:\n- Email: ms.kumar.developer05@gmail.com\n- GitHub: github.com/Msumankumar05\n- LinkedIn: www.linkedin.com/in/itsmskdev\n- Instagram: instagram.com/suman_k_72\n\nSKILLS:\n- Frontend: React, TypeScript, JavaScript, HTML/CSS, Tailwind CSS, Vite\n- Backend: Node.js, Express.js, RESTful APIs\n- Mobile: Flutter, Kotlin, React Native\n- Database: MongoDB, MySQL, Firebase, Redis\n- AI/ML: OpenRouter API, Web Speech API, Prompt Engineering, Agentic Workflows\n\nPROJECTS:\n1. Farmora — MERN full-stack agricultural e-commerce platform\n2. CineDB — React + TMDB movie & TV discovery app\n3. SKY AI — Voice & text conversational AI assistant with TTS/STT\n4. Task Planner — Mobile app built with Kotlin & Flutter\n\nRULES:\n1. Answer in direct plain text — no markdown code fences, no backticks wrapping output.\n2. Never output headers like 'MSK PORTFOLIO TERMINAL', 'STATUS: ONLINE', 'USER: UNKNOWN'.\n3. Be concise, friendly and professional.\n4. When asked about contact or social links, always share all of them including Instagram.",
             },
             ...conversationMessages,
             { role: "user", content: userPrompt },
@@ -1168,9 +1201,9 @@ async function fetchTerminalAiResponse(
       }
 
       const data = await res.json();
-      const answer = data?.choices?.[0]?.message?.content?.trim();
-      if (answer) {
-        return answer;
+      const rawAnswer = data?.choices?.[0]?.message?.content?.trim();
+      if (rawAnswer) {
+        return sanitizeAiText(rawAnswer);
       }
     } catch (err: any) {
       if (err?.name === "AbortName" || err?.name === "AbortError") {
@@ -1181,7 +1214,7 @@ async function fetchTerminalAiResponse(
     }
   }
 
-  return getLocalKnowledgeResponse();
+  return sanitizeAiText(getLocalKnowledgeResponse());
 }
 
 const COMMANDS = {
@@ -1206,12 +1239,13 @@ const COMMANDS = {
 const STORAGE_KEY_HISTORY = "msk_terminal_history";
 const STORAGE_KEY_CMD_HISTORY = "msk_terminal_cmd_history";
 const STORAGE_KEY_CONV = "msk_terminal_conv";
+const STORAGE_KEY_AUTOSPEAK = "msk_terminal_autospeak";
 
 function loadFromSession<T>(key: string, fallback: T): T {
   try {
     const raw = sessionStorage.getItem(key);
     if (raw) return JSON.parse(raw) as T;
-  } catch {}
+  } catch { }
   return fallback;
 }
 
@@ -1229,25 +1263,67 @@ function TerminalEmulator() {
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [cursorVisible, setCursorVisible] = useState(true);
+
   // Multi-turn AI conversation memory
   const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>(() =>
     loadFromSession(STORAGE_KEY_CONV, [])
   );
 
+  // Voice Assistance States
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [autoSpeak, setAutoSpeak] = useState<boolean>(() =>
+    loadFromSession(STORAGE_KEY_AUTOSPEAK, false)
+  );
+  const recognitionRef = useRef<any>(null);
+
+  // Live Voice Mode Pro States
+  const [isLiveMode, setIsLiveMode] = useState(false);
+  const [liveState, setLiveState] = useState<"listening" | "thinking" | "speaking" | "paused">("listening");
+  const [liveTranscript, setLiveTranscript] = useState("");
+  const [liveResponse, setLiveResponse] = useState("");
+  const isLiveRef = useRef(false);
+  const liveStateRef = useRef<"listening" | "thinking" | "speaking" | "paused">("listening");
+
+  useEffect(() => {
+    isLiveRef.current = isLiveMode;
+  }, [isLiveMode]);
+
+  useEffect(() => {
+    liveStateRef.current = liveState;
+  }, [liveState]);
+
   // Persist terminal output to sessionStorage on every change
   useEffect(() => {
-    try { sessionStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history)); } catch {}
+    try { sessionStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history)); } catch { }
   }, [history]);
 
   // Persist command history (up-arrow navigation) to sessionStorage
   useEffect(() => {
-    try { sessionStorage.setItem(STORAGE_KEY_CMD_HISTORY, JSON.stringify(commandHistory)); } catch {}
+    try { sessionStorage.setItem(STORAGE_KEY_CMD_HISTORY, JSON.stringify(commandHistory)); } catch { }
   }, [commandHistory]);
 
   // Persist multi-turn conversation memory to sessionStorage
   useEffect(() => {
-    try { sessionStorage.setItem(STORAGE_KEY_CONV, JSON.stringify(conversationHistory)); } catch {}
+    try { sessionStorage.setItem(STORAGE_KEY_CONV, JSON.stringify(conversationHistory)); } catch { }
   }, [conversationHistory]);
+
+  // Persist auto-speak preference
+  useEffect(() => {
+    try { sessionStorage.setItem(STORAGE_KEY_AUTOSPEAK, JSON.stringify(autoSpeak)); } catch { }
+  }, [autoSpeak]);
+
+  // Clean up voice synthesis & recognition on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch { }
+      }
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   // Blinking cursor
   useEffect(() => {
@@ -1280,10 +1356,291 @@ function TerminalEmulator() {
     }, 10);
   };
 
+  // Text-to-speech (TTS) voice playback
+  const speakText = (rawText: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+
+    window.speechSynthesis.cancel();
+
+    // Clean text for smooth, natural audio rendering
+    const cleanedText = rawText
+      .replace(/\*\*/g, "")
+      .replace(/`/g, "")
+      .replace(/•/g, "")
+      .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, "")
+      .replace(/\n+/g, ". ")
+      .trim();
+
+    if (!cleanedText) return;
+
+    const utterance = new SpeechSynthesisUtterance(cleanedText);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const stopSpeaking = () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+  // Live TTS audio playback with completion callback
+  const speakLiveText = (text: string, onEnd: () => void) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      onEnd();
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const clean = text
+      .replace(/\*\*/g, "")
+      .replace(/`/g, "")
+      .replace(/•/g, "")
+      .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, "")
+      .replace(/\n+/g, ". ")
+      .trim();
+
+    if (!clean) {
+      onEnd();
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(clean);
+    utterance.rate = 1.05;
+    utterance.pitch = 1.0;
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      onEnd();
+    };
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+      onEnd();
+    };
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Continuous Live Voice Loop
+  const startLiveListening = () => {
+    if (typeof window === "undefined") return;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      setHistory((prev) => [
+        ...prev,
+        "⚠️ Live Voice Mode requires Web Speech API (supported in Chrome, Edge, Safari).",
+        "",
+      ]);
+      setIsLiveMode(false);
+      return;
+    }
+
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch { }
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = "en-US";
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        setLiveState("listening");
+      };
+
+      recognition.onresult = (event: any) => {
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        if (transcript) {
+          setLiveTranscript(transcript);
+          setInput(transcript);
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn("Live voice recognition error:", event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+        const speechPrompt = inputRef.current?.value || liveTranscript;
+        if (isLiveRef.current && speechPrompt.trim() && liveStateRef.current === "listening") {
+          processLiveVoicePrompt(speechPrompt.trim());
+        }
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.error("Failed to start Live Voice recognition:", err);
+      setIsListening(false);
+    }
+  };
+
+  // Process live prompt -> AI -> speak -> resume loop
+  const processLiveVoicePrompt = async (promptText: string) => {
+    if (!promptText) return;
+    setLiveState("thinking");
+    setLiveTranscript(promptText);
+
+    setHistory((prev) => [...prev, `▸ [Live Voice] ${promptText}`, "🤖 Thinking..."]);
+    scrollToBottom();
+
+    const currentConv = conversationHistory;
+    const answer = await fetchTerminalAiResponse(promptText, currentConv);
+    const cleanAnswer = sanitizeAiText(answer);
+
+    setConversationHistory((prev) => [
+      ...prev,
+      { role: "user", content: promptText },
+      { role: "assistant", content: cleanAnswer },
+    ]);
+
+    setHistory((prev) => [
+      ...prev.slice(0, -1),
+      "🤖 AI:",
+      ...cleanAnswer.split("\n").map((line) => `  ${line}`),
+      "",
+    ]);
+    scrollToBottom();
+
+    setLiveResponse(cleanAnswer);
+    setInput("");
+
+    if (!isLiveRef.current) return;
+
+    // Speak response and automatically resume listening loop when finished!
+    setLiveState("speaking");
+    speakLiveText(cleanAnswer, () => {
+      if (isLiveRef.current && liveStateRef.current !== "paused") {
+        setLiveTranscript("");
+        setLiveResponse("");
+        startLiveListening();
+      }
+    });
+  };
+
+  const toggleLiveMode = () => {
+    if (isLiveMode) {
+      setIsLiveMode(false);
+      stopSpeaking();
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch { }
+      }
+      setIsListening(false);
+    } else {
+      setIsLiveMode(true);
+      setLiveTranscript("");
+      setLiveResponse("");
+      startLiveListening();
+    }
+  };
+
+  // Speech-to-text (STT) standard voice input handler
+  const toggleVoiceInput = () => {
+    if (typeof window === "undefined") return;
+
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      setHistory((prev) => [
+        ...prev,
+        "⚠️ Voice input is not supported in this browser. Please use Chrome, Edge, or Safari.",
+        "",
+      ]);
+      scrollToBottom();
+      return;
+    }
+
+    if (isListening) {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch { }
+      }
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = "en-US";
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        if (transcript) {
+          setInput(transcript);
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn("Speech recognition error:", event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+        inputRef.current?.focus();
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.error("Speech recognition error:", err);
+      setIsListening(false);
+    }
+  };
+
+  // Clear terminal output & chat memory
+  const handleClear = () => {
+    stopSpeaking();
+    if (recognitionRef.current && isListening) {
+      try { recognitionRef.current.stop(); } catch { }
+      setIsListening(false);
+    }
+    setHistory(["__BANNER__", ""]);
+    setCommandHistory([]);
+    setConversationHistory([]);
+    setInput("");
+    setHistoryIndex(-1);
+    try {
+      sessionStorage.removeItem(STORAGE_KEY_HISTORY);
+      sessionStorage.removeItem(STORAGE_KEY_CMD_HISTORY);
+      sessionStorage.removeItem(STORAGE_KEY_CONV);
+    } catch { }
+    setTimeout(() => inputRef.current?.focus(), 10);
+  };
+
   const handleCommand = (e: React.FormEvent) => {
     e.preventDefault();
     const cmd = input.trim();
     if (!cmd) return;
+
+    if (isListening && recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch { }
+      setIsListening(false);
+    }
 
     setCommandHistory((prev) => [...prev, cmd]);
     setHistoryIndex(-1);
@@ -1300,7 +1657,7 @@ function TerminalEmulator() {
           ...Object.entries(COMMANDS).map(
             ([key, { icon, desc }]) => `  ${icon} ${key.padEnd(10)} ${desc}`,
           ),
-          "  🤖 Ask any question directly without commands!",
+          "  🤖 Ask any question directly or tap 🎙️ for Voice Input!",
         ];
         break;
 
@@ -1340,7 +1697,7 @@ function TerminalEmulator() {
           "  Reach Suman:",
           "  📧 ms.kumar.developer05@gmail.com",
           "  🐙 github.com/Msumankumar05",
-          "  🔗 linkedin.com/in/m-suman-kumar-43b3a1300",
+          "  🔗 www.linkedin.com/in/itsmskdev",
         ];
         break;
 
@@ -1405,15 +1762,8 @@ function TerminalEmulator() {
       }
 
       case "clear":
-        setHistory(["__BANNER__", ""]);
-        setCommandHistory([]);
-        setConversationHistory([]);
-        setInput("");
-        try {
-          sessionStorage.removeItem(STORAGE_KEY_HISTORY);
-          sessionStorage.removeItem(STORAGE_KEY_CMD_HISTORY);
-          sessionStorage.removeItem(STORAGE_KEY_CONV);
-        } catch {}
+      case "cls":
+        handleClear();
         return;
 
       default: {
@@ -1432,18 +1782,24 @@ function TerminalEmulator() {
         scrollToBottom();
 
         fetchTerminalAiResponse(cleanPrompt, currentConv).then((answer) => {
+          // Sanitize answer to remove code fence blocks and artificial terminal headers like a PRO
+          const cleanAnswer = sanitizeAiText(answer);
+
           // Append both user turn and assistant reply to conversation memory
           setConversationHistory((prev) => [
             ...prev,
             { role: "user", content: cleanPrompt },
-            { role: "assistant", content: answer },
+            { role: "assistant", content: cleanAnswer },
           ]);
           setHistory((prev) => [
             ...prev.slice(0, -1),
             "🤖 AI:",
-            ...answer.split("\n").map((line) => `  ${line}`),
+            ...cleanAnswer.split("\n").map((line) => `  ${line}`),
             "",
           ]);
+          if (autoSpeak) {
+            speakText(cleanAnswer);
+          }
           scrollToBottom();
         });
         return;
@@ -1491,7 +1847,7 @@ function TerminalEmulator() {
       }
     } else if (e.key === "l" && e.ctrlKey) {
       e.preventDefault();
-      setHistory([]);
+      handleClear();
     }
   };
 
@@ -1508,17 +1864,31 @@ function TerminalEmulator() {
   const renderLine = (line: string, i: number) => {
     if (!line) return <div key={i} style={{ height: 5 }} />;
 
+    const rawTrimmed = line.trim();
+
+    // Skip raw codeblock delimiters (like ```bash, ```sh, ```, `bash, `) entirely like a PRO
+    if (/^`{1,3}([a-z]*)$/i.test(rawTrimmed) || rawTrimmed === "bash" || rawTrimmed === "sh") {
+      return null;
+    }
+
     // Markdown-like formatting helpers
     const parseLine = (txt: string) => {
-      return txt.replace(/\*\*(.*?)\*\*/g, '<span class="font-bold text-white">$1</span>')
-        .replace(/`(.*?)`/g, '<code class="bg-white/10 px-1 py-0.5 rounded text-[10px]">$1</code>');
+      let clean = txt
+        .replace(/^`{1,3}\s*/, "")
+        .replace(/\s*`{1,3}$/, "");
+
+      return clean
+        .replace(/\*\*(.*?)\*\*/g, '<span class="font-semibold text-white">$1</span>')
+        .replace(/`(.*?)`/g, '<code class="bg-white/10 px-1 py-0.5 rounded text-[10px] text-[var(--pf-c1)] font-mono">$1</code>')
+        .replace(/^(\$[a-zA-Z0-9_ -]+)/i, '<span class="text-[var(--pf-c1)] font-semibold">$1</span>')
+        .replace(/^([A-Za-z0-9_ -]+:)/, '<span class="text-white/80 font-medium">$1</span>');
     };
 
     // Banner
     if (line === "__BANNER__") {
       return (
         <div key={i} className="select-none" style={{ color: "rgba(255,255,255,0.28)", fontSize: 11, letterSpacing: "0.04em", marginBottom: 6 }}>
-          Type <span style={{ color: "var(--pf-c1)", opacity: 0.8 }}>help</span> to see commands · or ask me anything
+          Type <span style={{ color: "var(--pf-c1)", opacity: 0.8 }}>help</span> to see commands · 🎙️ Voice input & 🔊 Voice output enabled · or ask me anything
         </div>
       );
     }
@@ -1539,16 +1909,43 @@ function TerminalEmulator() {
       const label = line.replace("🤖 ", "");
       const isThinking = label === "Thinking...";
       return (
-        <div key={i} className="flex items-center gap-2" style={{ lineHeight: 1.85, color: "var(--pf-c1)", opacity: isThinking ? 0.6 : 1 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", opacity: 0.5 }}>AI</span>
-          <span style={{ opacity: 0.3 }}>·</span>
-          <span style={{ fontSize: 11 }}>{isThinking ? "thinking…" : label === "AI:" ? "response" : label}</span>
+        <div key={i} className="flex items-center justify-between gap-2" style={{ lineHeight: 1.85, color: "var(--pf-c1)", opacity: isThinking ? 0.6 : 1 }}>
+          <div className="flex items-center gap-2">
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", opacity: 0.5 }}>AI</span>
+            <span style={{ opacity: 0.3 }}>·</span>
+            <span style={{ fontSize: 11 }}>{isThinking ? "thinking…" : label === "AI:" ? "response" : label}</span>
+          </div>
+          {!isThinking && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                // Find complete AI response text starting after line i
+                const responseLines: string[] = [];
+                for (let j = i + 1; j < history.length; j++) {
+                  if (history[j].startsWith("▸") || history[j].startsWith("🤖") || history[j] === "") break;
+                  responseLines.push(history[j].trim());
+                }
+                const fullText = responseLines.join(" ");
+                if (isSpeaking) {
+                  stopSpeaking();
+                } else if (fullText) {
+                  speakText(fullText);
+                }
+              }}
+              className="flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition"
+              title={isSpeaking ? "Stop speech" : "Read AI response aloud"}
+            >
+              {isSpeaking ? <VolumeX className="w-3 h-3 text-red-400" /> : <Volume1 className="w-3 h-3 text-[var(--pf-c1)]" />}
+              <span>{isSpeaking ? "Stop" : "Listen"}</span>
+            </button>
+          )}
         </div>
       );
     }
 
     // Error
-    if (line.includes("✗")) {
+    if (line.includes("✗") || line.includes("⚠️")) {
       return <div key={i} style={{ paddingLeft: 16, lineHeight: 1.8, color: "#f87171", fontSize: 11 }}>{line.trimStart()}</div>;
     }
 
@@ -1565,14 +1962,142 @@ function TerminalEmulator() {
   return (
     <div
       onClick={focusInput}
-      className="flex flex-col cursor-text select-text"
+      className="flex flex-col cursor-text select-text relative overflow-hidden"
       style={{
         height: 260,
         background: "transparent",
         fontFamily: "'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace",
       }}
     >
-      {/* output */}
+      {/* Minimal Top Bar */}
+      <div className="flex items-center justify-between px-4 py-1.5 border-b border-white/[0.06]">
+        <div className="flex items-center gap-2">
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ background: isListening ? "#f87171" : isSpeaking ? "var(--pf-c1)" : "rgba(255,255,255,0.2)" }}
+          />
+          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", letterSpacing: "0.08em" }}>
+            {isListening ? "listening…" : isSpeaking ? "speaking…" : "ai shell"}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          {/* Live Voice button — compact */}
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); toggleLiveMode(); }}
+            className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] transition ${isLiveMode
+                ? "text-red-400 bg-red-500/10"
+                : "text-white/25 hover:text-white/60"
+              }`}
+            title="Live Voice Mode"
+          >
+            <Radio className="w-2.5 h-2.5" />
+            <span>live</span>
+          </button>
+
+          {/* Auto speak toggle */}
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); if (isSpeaking) stopSpeaking(); setAutoSpeak(!autoSpeak); }}
+            className={`p-1 rounded transition ${autoSpeak ? "text-[var(--pf-c1)]" : "text-white/25 hover:text-white/50"
+              }`}
+            title={autoSpeak ? "Auto voice on" : "Auto voice off"}
+          >
+            {autoSpeak ? <Volume2 className="w-3 h-3" /> : <VolumeX className="w-3 h-3" />}
+          </button>
+
+          {/* Clear */}
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleClear(); }}
+            className="p-1 rounded text-white/25 hover:text-white/50 transition"
+            title="Clear (Ctrl+L)"
+          >
+            <RotateCcw className="w-3 h-3" />
+          </button>
+        </div>
+      </div>
+
+      {/* Live Voice minimal overlay */}
+      <AnimatePresence>
+        {isLiveMode && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-black/85 backdrop-blur-sm"
+          >
+            {/* Orb */}
+            <button
+              type="button"
+              onClick={() => {
+                if (liveState === "speaking") stopSpeaking();
+                else if (liveState === "paused") startLiveListening();
+                else if (liveTranscript) processLiveVoicePrompt(liveTranscript);
+              }}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${liveState === "listening"
+                  ? "bg-red-500/20 border border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.3)]"
+                  : liveState === "thinking"
+                    ? "bg-white/5 border border-white/20"
+                    : liveState === "speaking"
+                      ? "bg-[var(--pf-c1)]/10 border border-[var(--pf-c1)]/40 shadow-[0_0_20px_rgba(168,255,120,0.2)]"
+                      : "bg-white/5 border border-white/10"
+                }`}
+            >
+              {liveState === "listening" ? (
+                <Mic className="w-5 h-5 text-red-400 animate-pulse" />
+              ) : liveState === "thinking" ? (
+                <Activity className="w-5 h-5 text-white/40 animate-pulse" />
+              ) : liveState === "speaking" ? (
+                <Volume2 className="w-5 h-5 text-[var(--pf-c1)]" />
+              ) : (
+                <MicOff className="w-5 h-5 text-white/30" />
+              )}
+            </button>
+
+            {/* Status text */}
+            <div className="text-center space-y-1">
+              <p style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", letterSpacing: "0.06em" }}>
+                {liveState === "listening" ? "speak now" : liveState === "thinking" ? "thinking…" : liveState === "speaking" ? "speaking…" : "paused"}
+              </p>
+              {liveTranscript && (
+                <p style={{ fontSize: 9.5, color: "rgba(255,255,255,0.35)", maxWidth: 200 }} className="truncate">
+                  "{liveTranscript}"
+                </p>
+              )}
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (liveState === "paused") startLiveListening();
+                  else {
+                    stopSpeaking();
+                    if (recognitionRef.current) try { recognitionRef.current.stop(); } catch { }
+                    setLiveState("paused");
+                  }
+                }}
+                className="px-2 py-0.5 rounded text-[9px] bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition"
+              >
+                {liveState === "paused" ? "resume" : "pause"}
+              </button>
+              <button
+                type="button"
+                onClick={toggleLiveMode}
+                className="px-2 py-0.5 rounded text-[9px] text-red-400/70 hover:text-red-400 transition"
+              >
+                end
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Output */}
       <div
         ref={containerRef}
         data-lenis-prevent="true"
@@ -1580,27 +2105,25 @@ function TerminalEmulator() {
         onWheel={(e) => e.stopPropagation()}
         className="flex-1 overflow-y-auto"
         style={{
-          padding: "14px 18px 6px",
+          padding: "10px 18px 6px",
           fontSize: 11.5,
           overscrollBehavior: "contain",
-          scrollbarWidth: "thin",
-          scrollbarColor: "rgba(255,255,255,0.2) transparent",
+          scrollbarWidth: "none",
         }}
       >
         {history.map((line, i) => renderLine(line, i))}
       </div>
 
-      {/* separator */}
+      {/* Separator */}
       <div style={{ margin: "0 18px", height: 1, background: "rgba(255,255,255,0.04)" }} />
 
-      {/* input row */}
+      {/* Input row */}
       <form
         onSubmit={handleCommand}
         className="flex items-center shrink-0 gap-2"
-        style={{ padding: "9px 18px", fontSize: 11.5, fontFamily: "inherit" }}
+        style={{ padding: "7px 12px 7px 18px", fontSize: 11.5, fontFamily: "inherit" }}
       >
-        {/* simple accent prompt */}
-        <span className="shrink-0 select-none" style={{ color: "var(--pf-c1)" }}>❯</span>
+        <span className="shrink-0 select-none" style={{ color: "var(--pf-c1)", opacity: 0.7 }}>❯</span>
 
         <input
           ref={inputRef}
@@ -1610,7 +2133,7 @@ function TerminalEmulator() {
           onKeyDown={handleKeyDown}
           className="flex-1 bg-transparent outline-none border-none p-0 focus:ring-0 min-w-0"
           style={{
-            color: "rgba(255,255,255,0.88)",
+            color: "rgba(255,255,255,0.85)",
             fontFamily: "inherit",
             fontSize: "inherit",
             caretColor: "transparent",
@@ -1619,29 +2142,48 @@ function TerminalEmulator() {
           autoCapitalize="none"
           autoComplete="off"
           spellCheck={false}
-          placeholder="type a command or ask me anything…"
+          placeholder={isListening ? "listening…" : "type a command or ask anything…"}
         />
 
-        {/* ghost hint */}
+        {/* ghost autocomplete hint */}
         {input && suggestions.length > 0 && (
-          <span className="shrink-0 select-none" style={{ color: "rgba(255,255,255,0.16)" }}>
+          <span className="shrink-0 select-none" style={{ color: "rgba(255,255,255,0.14)" }}>
             {suggestions[0].slice(input.length)}
           </span>
         )}
 
-        {/* block cursor */}
+        {/* blinking cursor block */}
         <span
           className="shrink-0"
           style={{
             width: 6,
-            height: 13,
+            height: 12,
             borderRadius: 1,
             background: "var(--pf-c1)",
-            opacity: cursorVisible ? 0.7 : 0,
-            transition: "opacity 75ms",
-            flexShrink: 0,
+            opacity: cursorVisible ? 0.6 : 0,
+            transition: "opacity 80ms",
           }}
         />
+
+        {/* mic */}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); toggleVoiceInput(); }}
+          className={`shrink-0 p-1 rounded transition ${isListening ? "text-red-400 animate-pulse" : "text-white/25 hover:text-white/60"
+            }`}
+          title={isListening ? "Stop" : "Voice input"}
+        >
+          {isListening ? <Mic className="w-3.5 h-3.5" /> : <MicOff className="w-3.5 h-3.5" />}
+        </button>
+
+        {/* send */}
+        <button
+          type="submit"
+          className="shrink-0 p-1 rounded text-white/25 hover:text-[var(--pf-c1)] transition"
+          title="Send"
+        >
+          <Send className="w-3.5 h-3.5" />
+        </button>
       </form>
     </div>
   );
@@ -1967,7 +2509,7 @@ function HeroCard() {
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"linkedin"</span>
                         <span className="text-white/30">: </span>
-                        <span className="text-[#a8ff78]">"linkedin.com/in/makoju-suman-kumar"</span>
+                        <span className="text-[#a8ff78]">"www.linkedin.com/in/itsmskdev"</span>
                       </div>
                       <div><span className="text-white/30">{"}"}</span></div>
                     </div>
@@ -2114,7 +2656,7 @@ const SOCIAL_LINKS = [
   {
     label: "LinkedIn",
     icon: Linkedin,
-    href: "https://www.linkedin.com/in/m-suman-kumar-43b3a1300/",
+    href: "https://www.linkedin.com/in/itsmskdev/",
   },
   { label: "Instagram", icon: Instagram, href: "https://www.instagram.com/suman_k_72/" },
   { label: "Email", icon: Mail, href: "mailto: makojusumankumar@gmail.com" },
@@ -3636,7 +4178,7 @@ function Contact() {
               { k: "Email", v: "ms.kumar.developer05@gmail.com", i: Mail },
               { k: "Location", v: "Odisha, India", i: MapPin },
               { k: "GitHub", v: "github.com/Msumankumar05", i: Github },
-              { k: "LinkedIn", v: "linkedin.com/in/m-suman-kumar", i: Linkedin },
+              { k: "LinkedIn", v: "www.linkedin.com/in/itsmskdev", i: Linkedin },
             ].map(({ k, v, i: Icon }) => (
               <div
                 key={k}
@@ -3815,11 +4357,11 @@ function Footer() {
                 { label: "GitHub", href: "https://github.com/Msumankumar05", icon: Github },
                 {
                   label: "LinkedIn",
-                  href: "https://www.linkedin.com/in/m-suman-kumar-43b3a1300/",
+                  href: "https://www.linkedin.com/in/itsmskdev/",
                   icon: Linkedin,
                 },
                 { label: "Email", href: "mailto: makojusumankumar@gmail.com", icon: Mail },
-              ].map(({ label, href, icon: Icon }) => (
+              ].map(({ label, href, icon: Icon }) => (  
                 <a
                   key={label}
                   href={href}
