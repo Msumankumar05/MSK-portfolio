@@ -84,7 +84,13 @@ const structuredData = {
         "Full-Stack Engineer & MCA graduate student specializing in React, TypeScript, Node.js, Flutter, and applied AI systems.",
       jobTitle: "Full-Stack Engineer",
       url: "https://itsmsk.vercel.app/",
-      image: "https://itsmsk.vercel.app/og-image.png",
+      image: {
+        "@type": "ImageObject",
+        url: "https://itsmsk.vercel.app/og-image.png",
+        width: 1200,
+        height: 630,
+        caption: "Makoju Suman Kumar (MSK) — Full-Stack Engineer & AI Developer",
+      },
       email: "mailto:ms.kumar.developer05@gmail.com",
       address: {
         "@type": "PostalAddress",
@@ -96,10 +102,16 @@ const structuredData = {
         "https://www.linkedin.com/in/itsmskdev/",
         "https://www.instagram.com/suman_k_72/",
       ],
-      alumniOf: [
+      hasCredential: [
         {
-          "@type": "EducationalOrganization",
+          "@type": "EducationalOccupationalCredential",
+          credentialCategory: "degree",
           name: "Master of Computer Applications (MCA)",
+        },
+        {
+          "@type": "EducationalOccupationalCredential",
+          credentialCategory: "degree",
+          name: "Bachelor of Science in Computer Science (B.Sc CS)",
         },
       ],
       knowsAbout: [
@@ -129,6 +141,7 @@ const structuredData = {
       publisher: {
         "@id": "https://itsmsk.vercel.app/#person",
       },
+      inLanguage: "en-US",
     },
     {
       "@type": "ProfilePage",
@@ -139,6 +152,58 @@ const structuredData = {
         "@id": "https://itsmsk.vercel.app/#person",
       },
       mainEntity: {
+        "@id": "https://itsmsk.vercel.app/#person",
+      },
+      inLanguage: "en-US",
+      dateModified: "2026-09-17",
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://itsmsk.vercel.app/#farmora",
+      name: "Farmora",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      url: "https://farmora-farm-to-home.vercel.app/",
+      description:
+        "Full-stack MERN agricultural commerce platform connecting farmers directly with customers through a seamless shopping experience.",
+      author: {
+        "@id": "https://itsmsk.vercel.app/#person",
+      },
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://itsmsk.vercel.app/#cinedb",
+      name: "CineDB",
+      applicationCategory: "EntertainmentApplication",
+      operatingSystem: "Web",
+      url: "https://cine-dbase.vercel.app/",
+      description:
+        "React-based movie and TV discovery web application powered by the TMDB REST API.",
+      author: {
+        "@id": "https://itsmsk.vercel.app/#person",
+      },
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://itsmsk.vercel.app/#skyai",
+      name: "SKY AI",
+      applicationCategory: "UtilitiesApplication",
+      operatingSystem: "Web",
+      description:
+        "Voice and text conversational AI assistant built with React, Node.js, and Web Speech API.",
+      author: {
+        "@id": "https://itsmsk.vercel.app/#person",
+      },
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://itsmsk.vercel.app/#task-planner",
+      name: "Mobile Todo & Task Planner",
+      applicationCategory: "ProductivityApplication",
+      operatingSystem: "Android",
+      description:
+        "Kotlin-based mobile task management application with local data persistence using Room Database and Jetpack Compose.",
+      author: {
         "@id": "https://itsmsk.vercel.app/#person",
       },
     },
@@ -181,7 +246,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "format-detection", content: "telephone=no" },
 
       // Open Graph / Facebook / LinkedIn
-      { property: "og:type", content: "profile" },
+      { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Makoju Suman Kumar Portfolio" },
       {
         property: "og:title",
@@ -238,6 +303,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap",
       },
+      { rel: "shortcut icon", href: "/favicon.ico" },
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
       { rel: "icon", href: "/coding.png", type: "image/png" },
       { rel: "apple-touch-icon", href: "/coding.png" },
       { rel: "manifest", href: "/site.webmanifest" },
@@ -256,116 +323,106 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
-    <>
-      <HeadContent />
-      <QueryClientProvider client={queryClient}>
-        {/*
-         * Render Outlet client-side only (after mount) to guarantee that
-         * SSR and the client's initial hydration render match exactly.
-         * This completely prevents hydration mismatches.
-         */}
-        {mounted ? (
-          <Suspense fallback={null}>
-            <Outlet />
-          </Suspense>
-        ) : null}
-      </QueryClientProvider>
-      <noscript>
-        <div
-          style={{
-            padding: "40px 24px",
-            maxWidth: "840px",
-            margin: "0 auto",
-            fontFamily: "system-ui, -apple-system, sans-serif",
-            color: "#e2e8f0",
-            backgroundColor: "#0b0d13",
-            lineHeight: "1.6",
-          }}
-        >
-          <h1 style={{ fontSize: "2rem", color: "#f59e0b", marginBottom: "8px" }}>
-            Makoju Suman Kumar (MSK) — Full-Stack Engineer &amp; AI Developer
-          </h1>
-          <p style={{ fontSize: "1.1rem", color: "#94a3b8" }}>
-            Master of Computer Applications (MCA) student &amp; Full-Stack Software Engineer
-            based in Odisha, India. Specializing in high-performance web applications,
-            mobile engineering, and applied AI systems.
-          </p>
-          <h2 style={{ fontSize: "1.3rem", color: "#38bdf8", marginTop: "24px" }}>
-            Core Technology Stack
-          </h2>
-          <p>
-            React, TypeScript, JavaScript, Node.js, Express.js, Flutter, Kotlin, MongoDB,
-            MySQL, Tailwind CSS, OpenRouter AI, Agentic Workflows.
-          </p>
-          <h2 style={{ fontSize: "1.3rem", color: "#38bdf8", marginTop: "24px" }}>
-            Highlighted Projects
-          </h2>
-          <ul>
-            <li>
-              <strong>Farmora</strong>: MERN agricultural marketplace with real-time catalog
-              and authentication.
-            </li>
-            <li>
-              <strong>CineDB</strong>: Movie and TV exploration engine consuming TMDB API.
-            </li>
-            <li>
-              <strong>SKY AI</strong>: Conversational voice and text assistant powered by
-              speech synthesis and LLMs.
-            </li>
-            <li>
-              <strong>Mobile Task Planner</strong>: Cross-platform task manager built with
-              Flutter &amp; Kotlin.
-            </li>
-          </ul>
-          <h2 style={{ fontSize: "1.3rem", color: "#38bdf8", marginTop: "24px" }}>
-            Contact &amp; Connect
-          </h2>
-          <p>
-            Email:{" "}
-            <a href="mailto:ms.kumar.developer05@gmail.com" style={{ color: "#f59e0b" }}>
-              ms.kumar.developer05@gmail.com
-            </a>
-            <br />
-            GitHub:{" "}
-            <a
-              href="https://github.com/Msumankumar05"
-              target="_blank"
-              rel="noreferrer"
-              style={{ color: "#38bdf8" }}
-            >
-              github.com/Msumankumar05
-            </a>
-            <br />
-            LinkedIn:{" "}
-            <a
-              href="https://www.linkedin.com/in/itsmskdev/"
-              target="_blank"
-              rel="noreferrer"
-              style={{ color: "#38bdf8" }}
-            >
-              linkedin.com/in/itsmskdev
-            </a>
-            <br />
-            Instagram:{" "}
-            <a
-              href="https://www.instagram.com/suman_k_72/"
-              target="_blank"
-              rel="noreferrer"
-              style={{ color: "#38bdf8" }}
-            >
-              instagram.com/suman_k_72
-            </a>
-          </p>
-        </div>
-      </noscript>
-      <Scripts />
-    </>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <HeadContent />
+      </head>
+      <body suppressHydrationWarning>
+        <QueryClientProvider client={queryClient}>
+          <Outlet />
+        </QueryClientProvider>
+        <noscript>
+          <div
+            style={{
+              padding: "40px 24px",
+              maxWidth: "840px",
+              margin: "0 auto",
+              fontFamily: "system-ui, -apple-system, sans-serif",
+              color: "#e2e8f0",
+              backgroundColor: "#0b0d13",
+              lineHeight: "1.6",
+            }}
+          >
+            <h1 style={{ fontSize: "2rem", color: "#f59e0b", marginBottom: "8px" }}>
+              Makoju Suman Kumar (MSK) — Full-Stack Engineer &amp; AI Developer
+            </h1>
+            <p style={{ fontSize: "1.1rem", color: "#94a3b8" }}>
+              Master of Computer Applications (MCA) student &amp; Full-Stack Software Engineer
+              based in Odisha, India. Specializing in high-performance web applications,
+              mobile engineering, and applied AI systems.
+            </p>
+            <h2 style={{ fontSize: "1.3rem", color: "#38bdf8", marginTop: "24px" }}>
+              Core Technology Stack
+            </h2>
+            <p>
+              React, TypeScript, JavaScript, Node.js, Express.js, Flutter, Kotlin, MongoDB,
+              MySQL, Tailwind CSS, OpenRouter AI, Agentic Workflows.
+            </p>
+            <h2 style={{ fontSize: "1.3rem", color: "#38bdf8", marginTop: "24px" }}>
+              Highlighted Projects
+            </h2>
+            <ul>
+              <li>
+                <strong>Farmora</strong>: MERN agricultural marketplace with real-time catalog
+                and authentication.
+              </li>
+              <li>
+                <strong>CineDB</strong>: Movie and TV exploration engine consuming TMDB API.
+              </li>
+              <li>
+                <strong>SKY AI</strong>: Conversational voice and text assistant powered by
+                speech synthesis and LLMs.
+              </li>
+              <li>
+                <strong>Mobile Task Planner</strong>: Cross-platform task manager built with
+                Flutter &amp; Kotlin.
+              </li>
+            </ul>
+            <h2 style={{ fontSize: "1.3rem", color: "#38bdf8", marginTop: "24px" }}>
+              Contact &amp; Connect
+            </h2>
+            <p>
+              Email:{" "}
+              <a href="mailto:ms.kumar.developer05@gmail.com" style={{ color: "#f59e0b" }}>
+                ms.kumar.developer05@gmail.com
+              </a>
+              <br />
+              GitHub:{" "}
+              <a
+                href="https://github.com/Msumankumar05"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: "#38bdf8" }}
+              >
+                github.com/Msumankumar05
+              </a>
+              <br />
+              LinkedIn:{" "}
+              <a
+                href="https://www.linkedin.com/in/itsmskdev/"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: "#38bdf8" }}
+              >
+                linkedin.com/in/itsmskdev
+              </a>
+              <br />
+              Instagram:{" "}
+              <a
+                href="https://www.instagram.com/suman_k_72/"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: "#38bdf8" }}
+              >
+                instagram.com/suman_k_72
+              </a>
+            </p>
+          </div>
+        </noscript>
+        <Scripts />
+      </body>
+    </html>
   );
 }

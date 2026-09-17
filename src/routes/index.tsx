@@ -1161,7 +1161,7 @@ async function fetchTerminalAiResponse(
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 9000);
 
-      const originUrl = typeof window !== "undefined" ? window.location.origin : "https://msk-portfolio.vercel.app";
+      const originUrl = typeof window !== "undefined" ? window.location.origin : "https://itsmsk.vercel.app";
 
       const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
@@ -2659,7 +2659,7 @@ const SOCIAL_LINKS = [
     href: "https://www.linkedin.com/in/itsmskdev/",
   },
   { label: "Instagram", icon: Instagram, href: "https://www.instagram.com/suman_k_72/" },
-  { label: "Email", icon: Mail, href: "mailto: makojusumankumar@gmail.com" },
+  { label: "Email", icon: Mail, href: "mailto:ms.kumar.developer05@gmail.com" },
 ];
 
 function Hero() {
@@ -2828,7 +2828,9 @@ function Hero() {
             <h1
               className="font-display leading-[0.9] tracking-tight text-white select-none cursor-default"
               style={{ fontSize: "clamp(3.8rem, 9vw, 7.5rem)" }}
+              aria-label="Makoju Suman Kumar (MSK) — Full-Stack Engineer & AI Developer"
             >
+              <span className="sr-only">Makoju Suman Kumar (MSK) — Full-Stack Engineer &amp; AI Developer — </span>
               MSK
               <span
                 style={{
@@ -3272,33 +3274,50 @@ function WorkCard({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; to
       </div>
       {/* CTAs */}
       <div className="flex flex-wrap items-center gap-3">
-        <a
-          href="#"
-          className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${p.placeholder ? "pointer-events-none opacity-40" : ""
-            }`}
-          style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
-        >
-          Read case study{" "}
-          <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-        </a>
-        {p.liveUrl && (
+        {p.liveUrl ? (
           <a
             href={p.liveUrl}
             target="_blank"
-            rel="noreferrer"
-            className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
-              }`}
+            rel="noopener noreferrer"
+            aria-label={`Visit ${p.name} live demo`}
+            className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
+              p.placeholder ? "pointer-events-none opacity-40" : ""
+            }`}
+            style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
           >
-            <ExternalLink className="h-3 w-3" /> Live
+            Live Demo{" "}
+            <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
           </a>
-        )}
-        {p.githubUrl && (
+        ) : p.githubUrl ? (
           <a
             href={p.githubUrl}
             target="_blank"
-            rel="noreferrer"
-            className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
-              }`}
+            rel="noopener noreferrer"
+            aria-label={`View ${p.name} source code on GitHub`}
+            className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
+              p.placeholder ? "pointer-events-none opacity-40" : ""
+            }`}
+            style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
+          >
+            Source Code{" "}
+            <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </a>
+        ) : (
+          <span
+            className="inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] opacity-50 border border-white/15 text-white/60"
+          >
+            In Development
+          </span>
+        )}
+        {p.liveUrl && p.githubUrl && (
+          <a
+            href={p.githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`View ${p.name} repository on GitHub`}
+            className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
+              p.placeholder ? "pointer-events-none opacity-40" : ""
+            }`}
           >
             <Github className="h-3 w-3" /> GitHub
           </a>
@@ -3380,35 +3399,50 @@ function WorkFrame({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; t
 
           {/* CTAs */}
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a
-              href="#"
-              // target="_blank"
-              className={`group inline-flex items-center gap-2 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] transition ${p.placeholder ? "pointer-events-none opacity-40" : ""
-                }`}
-              style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
-            >
-              Read case study
-              <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-            </a>
-            {p.liveUrl && (
+            {p.liveUrl ? (
               <a
                 href={p.liveUrl}
                 target="_blank"
-                rel="noreferrer"
-                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
-                  }`}
+                rel="noopener noreferrer"
+                aria-label={`Visit ${p.name} live demo`}
+                className={`group inline-flex items-center gap-2 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
+                  p.placeholder ? "pointer-events-none opacity-40" : ""
+                }`}
+                style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
               >
-                <ExternalLink className="h-3 w-3" />
-                Live
+                Live Demo
+                <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </a>
-            )}
-            {p.githubUrl && (
+            ) : p.githubUrl ? (
               <a
                 href={p.githubUrl}
                 target="_blank"
-                rel="noreferrer"
-                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${p.placeholder ? "pointer-events-none opacity-40" : ""
-                  }`}
+                rel="noopener noreferrer"
+                aria-label={`View ${p.name} source code on GitHub`}
+                className={`group inline-flex items-center gap-2 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
+                  p.placeholder ? "pointer-events-none opacity-40" : ""
+                }`}
+                style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
+              >
+                Source Code
+                <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </a>
+            ) : (
+              <span
+                className="inline-flex items-center gap-2 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] opacity-50 border border-white/15 text-white/60"
+              >
+                In Development
+              </span>
+            )}
+            {p.liveUrl && p.githubUrl && (
+              <a
+                href={p.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`View ${p.name} repository on GitHub`}
+                className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
+                  p.placeholder ? "pointer-events-none opacity-40" : ""
+                }`}
               >
                 <Github className="h-3 w-3" />
                 GitHub
@@ -3605,13 +3639,15 @@ function Work() {
   }, [scrollYProgress, total]);
 
   return (
-    <section id="work">
+    <section id="work" aria-label="Featured Projects and Selected Work">
       {/* ── Mobile: vertical card list ── */}
       <div className="md:hidden px-5 py-20">
         <div className="flex items-center gap-3 mb-10 font-mono text-[10px] uppercase tracking-[0.3em]">
           <span className="text-[var(--pf-c1)]">03</span>
           <span className="h-px w-6 bg-white/20" />
-          <span className="text-white/50">Selected Work</span>
+          <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/70 m-0">
+            Selected Work &amp; Featured Projects
+          </h2>
         </div>
         <div className="space-y-6">
           {PROJECTS.map((p, i) => (
@@ -3636,7 +3672,9 @@ function Work() {
             <div className="flex items-center gap-3">
               <span className="text-[var(--pf-c1)]">03</span>
               <span className="h-px w-6 bg-white/20" />
-              <span>Selected Work — Horizontal Track</span>
+              <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/70 m-0">
+                Selected Work &amp; Featured Projects
+              </h2>
             </div>
             <div>
               <span className="text-white">{String(active + 1).padStart(2, "00")}</span>
@@ -4360,7 +4398,7 @@ function Footer() {
                   href: "https://www.linkedin.com/in/itsmskdev/",
                   icon: Linkedin,
                 },
-                { label: "Email", href: "mailto: makojusumankumar@gmail.com", icon: Mail },
+                { label: "Email", href: "mailto:ms.kumar.developer05@gmail.com", icon: Mail },
               ].map(({ label, href, icon: Icon }) => (  
                 <a
                   key={label}
@@ -4368,6 +4406,7 @@ function Footer() {
                   target="_blank"
                   rel="noreferrer"
                   title={label}
+                  aria-label={label}
                   className="flex h-8 w-8 items-center justify-center border border-white/10 bg-white/[0.02] text-white/60 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)]"
                 >
                   <Icon className="h-4 w-4" />
@@ -4417,6 +4456,7 @@ function BackToTop() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 16 }}
           href="#home"
+          aria-label="Back to top"
           className="fixed bottom-20 right-6 z-40 flex h-10 w-10 items-center justify-center border border-white/15 bg-black/60 text-white backdrop-blur transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)]"
         >
           <ArrowUp className="h-4 w-4" />
@@ -4541,10 +4581,6 @@ function Portfolio() {
   useLenis();
   const active = useActiveSection(mounted);
 
-  // Return null on the server so SSR produces no HTML, avoiding a
-  // Suspense-boundary hydration mismatch with the TanStack Start client router.
-  if (!mounted) return null;
-
   return (
     <div className="relative min-h-screen bg-[var(--pf-bg)] text-white overflow-x-clip">
       <CinematicLoader />
@@ -4568,7 +4604,7 @@ function Portfolio() {
 }
 
 export const Route = createFileRoute("/")({
-  ssr: false,
+  ssr: true,
   component: Portfolio,
   head: () => ({
     meta: [
@@ -4589,7 +4625,7 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:url", content: "https://itsmsk.vercel.app/" },
       { property: "og:image", content: "https://itsmsk.vercel.app/og-image.png" },
-      { property: "og:type", content: "profile" },
+      { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       {
         name: "twitter:title",
