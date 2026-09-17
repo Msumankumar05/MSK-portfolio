@@ -1,0 +1,9 @@
+# Allow all legitimate web crawlers and search engine bots
+User-agent: *
+Allow: /
+
+# Host
+Host: https://itsmsk.vercel.app
+
+# XML Sitemap location for search indexing
+Sitemap: https://itsmsk.vercel.app/sitemap.xml

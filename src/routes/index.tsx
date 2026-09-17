@@ -4572,16 +4572,38 @@ export const Route = createFileRoute("/")({
   component: Portfolio,
   head: () => ({
     meta: [
-      { title: "MSK — Full-Stack · Mobile · AI" },
+      { title: "Makoju Suman Kumar (MSK) — Full-Stack Engineer & AI Developer" },
       {
         name: "description",
         content:
-          "Makoju Suman Kumar — MCA student & full-stack engineer. Web, mobile & AI-powered products.",
+          "Portfolio of Makoju Suman Kumar (MSK) — MCA student & Full-Stack Software Engineer specializing in React, TypeScript, Node.js, Flutter, and applied AI systems.",
       },
-      { property: "og:title", content: "MSK — Full-Stack · Mobile · AI" },
-      { property: "og:description", content: "Portfolio of Makoju Suman Kumar." },
-      { property: "og:type", content: "website" },
+      {
+        property: "og:title",
+        content: "Makoju Suman Kumar (MSK) — Full-Stack Engineer & AI Developer",
+      },
+      {
+        property: "og:description",
+        content:
+          "Explore high-fidelity web, mobile, and AI solutions engineered by Makoju Suman Kumar.",
+      },
+      { property: "og:url", content: "https://itsmsk.vercel.app/" },
+      { property: "og:image", content: "https://itsmsk.vercel.app/og-image.png" },
+      { property: "og:type", content: "profile" },
       { name: "twitter:card", content: "summary_large_image" },
+      {
+        name: "twitter:title",
+        content: "Makoju Suman Kumar (MSK) — Full-Stack Engineer & AI Developer",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Portfolio of Makoju Suman Kumar (MSK) — Full-Stack Software Engineer specializing in React, TypeScript, Node.js, Flutter, and AI.",
+      },
+      { name: "twitter:image", content: "https://itsmsk.vercel.app/og-image.png" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://itsmsk.vercel.app/" },
     ],
   }),
 });
