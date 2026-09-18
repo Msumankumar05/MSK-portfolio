@@ -57,12 +57,14 @@ import { MatrixRain } from "../components/MatrixRain";
 import { ProjectModal, type ProjectDetail } from "../components/ProjectModal";
 import { DecryptedText } from "../components/DecryptedText";
 import { TiltCard } from "../components/TiltCard";
+import { EagleAnimation } from "../components/EagleAnimation";
 import {
   playClickSound,
   playHoverSound,
   playThemeSound,
   playTerminalBeep,
   playSuccessSound,
+  playEagleSound,
 } from "../lib/sound-fx";
 
 /* ---------- Data ---------- */
@@ -1304,6 +1306,7 @@ const COMMANDS = {
   history: { desc: "Command history", icon: "🔄" },
   version: { desc: "Terminal version", icon: "🎯" },
   theme: { desc: "Current theme info", icon: "🎨" },
+  eagle: { desc: "Launch soaring apex cyber eagle", icon: "🦅" },
 };
 
 const STORAGE_KEY_HISTORY = "msk_terminal_history";
@@ -1831,6 +1834,22 @@ function TerminalEmulator() {
         break;
       }
 
+      case "eagle":
+      case "fly":
+      case "soar": {
+        playEagleSound();
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("launch-eagle-flight"));
+        }
+        response = [
+          `▸ ${cmd}`,
+          "  🦅 APEX CYBER EAGLE ENGAGED",
+          "  Telemetry: Altitude 3,400m · Wingspan 2.4m · Mach 2.2",
+          "  Status: Ascending and soaring across the skies ✦",
+        ];
+        break;
+      }
+
       case "clear":
       case "cls":
         handleClear();
@@ -2085,6 +2104,22 @@ function TerminalEmulator() {
             title="Clear (Ctrl+L)"
           >
             <RotateCcw className="w-3 h-3" />
+          </button>
+
+          {/* Eagle Soar trigger */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new CustomEvent("launch-eagle-flight"));
+              }
+            }}
+            className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] text-[var(--pf-c1)]/75 hover:text-white bg-[var(--pf-c1)]/10 hover:bg-[var(--pf-c1)]/20 border border-[var(--pf-c1)]/20 transition"
+            title="Launch Apex Eagle Sky Soar (or type 'eagle')"
+          >
+            <span>🦅</span>
+            <span className="hidden sm:inline font-mono text-[8px] uppercase tracking-wider">soar</span>
           </button>
         </div>
       </div>
@@ -2402,6 +2437,11 @@ function HeroCard() {
       }}
       className="relative w-full max-w-[540px] select-none pf-hero-card-wrap"
     >
+      {/* Majestic Soaring Cyber Eagle at the top of the terminal */}
+      <div className="absolute -top-[76px] sm:-top-[90px] left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
+        <EagleAnimation isTerminalActive={tab === "terminal"} />
+      </div>
+
       {/* Outer glow */}
       <motion.div
         className="pointer-events-none absolute -inset-8 rounded-lg"

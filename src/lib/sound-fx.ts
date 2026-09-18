@@ -288,3 +288,82 @@ export function playMatrixSound() {
     // Ignore
   }
 }
+
+/**
+ * Majestic cyber eagle cry & aerodynamic whoosh
+ */
+export function playEagleSound() {
+  if (!soundEnabled) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const now = ctx.currentTime;
+
+    // Carrier oscillator for high-pitched raptor screech
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    // FM modulation for authentic avian raspy screamer vibrato
+    const modOsc = ctx.createOscillator();
+    const modGain = ctx.createGain();
+
+    modOsc.type = "sine";
+    modOsc.frequency.setValueAtTime(34, now);
+    modGain.gain.setValueAtTime(120, now);
+    modGain.gain.exponentialRampToValueAtTime(8, now + 0.55);
+
+    modOsc.connect(osc.frequency);
+
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(2400, now);
+    osc.frequency.linearRampToValueAtTime(3100, now + 0.12);
+    osc.frequency.exponentialRampToValueAtTime(1500, now + 0.55);
+
+    // Bandpass filter to shape into a piercing organic eagle cry
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(2600, now);
+    filter.Q.setValueAtTime(3.2, now);
+
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.04, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    // Aerodynamic wing whoosh underneath
+    const noiseBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.45), ctx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < noiseBuffer.length; i++) {
+      output[i] = Math.random() * 2 - 1;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuffer;
+
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = "lowpass";
+    noiseFilter.frequency.setValueAtTime(500, now);
+    noiseFilter.frequency.exponentialRampToValueAtTime(140, now + 0.45);
+
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.025, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+
+    modOsc.start(now);
+    osc.start(now);
+    noise.start(now);
+
+    modOsc.stop(now + 0.58);
+    osc.stop(now + 0.58);
+    noise.stop(now + 0.48);
+  } catch {
+    // Ignore audio errors
+  }
+}
