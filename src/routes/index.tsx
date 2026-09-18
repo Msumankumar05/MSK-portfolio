@@ -1835,6 +1835,7 @@ function TerminalEmulator() {
       }
 
       case "eagle":
+      case "falco":
       case "fly":
       case "soar": {
         playEagleSound();
@@ -1843,9 +1844,9 @@ function TerminalEmulator() {
         }
         response = [
           `▸ ${cmd}`,
-          "  🦅 APEX CYBER EAGLE ENGAGED",
-          "  Telemetry: Altitude 3,400m · Wingspan 2.4m · Mach 2.2",
-          "  Status: Ascending and soaring across the skies ✦",
+          "  🦅 FREE FIRE FALCO [SKYLINE SPREE] DEPLOYED",
+          "  Speed: 520 km/h · Skyline Spree: Active · Wings: Hellfire Blades 🔥",
+          "  Status: Ascending & high-speed aerial dive across the skies ✦",
         ];
         break;
       }
@@ -2437,8 +2438,8 @@ function HeroCard() {
       }}
       className="relative w-full max-w-[540px] select-none pf-hero-card-wrap"
     >
-      {/* Majestic Soaring Cyber Eagle at the top of the terminal */}
-      <div className="absolute -top-[76px] sm:-top-[90px] left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
+      {/* Free Fire Falco Soaring Pet at the top of the terminal */}
+      <div className="absolute -top-[84px] sm:-top-[100px] left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
         <EagleAnimation isTerminalActive={tab === "terminal"} />
       </div>
 
