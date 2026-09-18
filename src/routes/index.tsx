@@ -48,7 +48,25 @@ import {
   Play,
   X,
   Zap,
+  Search,
 } from "lucide-react";
+import { Toaster, toast } from "sonner";
+import { CustomCursor } from "../components/CustomCursor";
+import { CommandPalette } from "../components/CommandPalette";
+import { MatrixRain } from "../components/MatrixRain";
+import { ProjectModal, type ProjectDetail } from "../components/ProjectModal";
+import { DecryptedText } from "../components/DecryptedText";
+import { TiltCard } from "../components/TiltCard";
+import {
+  playClickSound,
+  playHoverSound,
+  playThemeSound,
+  playTerminalBeep,
+  playSuccessSound,
+  toggleSound,
+  isSoundEnabled,
+  subscribeSound,
+} from "../lib/sound-fx";
 
 /* ---------- Data ---------- */
 
@@ -949,38 +967,64 @@ function HUDChrome({ active }: { active: string }) {
   );
 }
 
-function Navbar({ active }: { active: string }) {
+function Navbar({
+  active,
+  onOpenCommandPalette,
+}: {
+  active: string;
+  onOpenCommandPalette: () => void;
+}) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [soundOn, setSoundOn] = useState(isSoundEnabled());
+
   useEffect(() => {
+    const unsub = subscribeSound(setSoundOn);
     const on = () => setScrolled(window.scrollY > 20);
     on();
     window.addEventListener("scroll", on);
-    return () => window.removeEventListener("scroll", on);
+    return () => {
+      window.removeEventListener("scroll", on);
+      unsub();
+    };
   }, []);
+
   // Close menu on any nav click
-  const handleNavClick = () => setMobileOpen(false);
+  const handleNavClick = () => {
+    playClickSound();
+    setMobileOpen(false);
+  };
+
   return (
     <header className="fixed inset-x-0 top-6 z-50 flex justify-center px-4">
       <nav
-        className={`flex items-center gap-1 rounded-full border border-white/10 bg-black/70 px-2 py-1.5 backdrop-blur-xl transition-shadow ${scrolled ? "shadow-[0_10px_40px_-15px_rgb(from var(--pf-c1) r g b / 0.35)]" : ""}`}
+        className={`flex items-center gap-1.5 rounded-full border border-white/10 bg-black/75 px-3 py-1.5 backdrop-blur-xl transition-shadow ${
+          scrolled
+            ? "shadow-[0_10px_40px_-15px_rgb(from var(--pf-c1) r g b / 0.35)]"
+            : ""
+        }`}
       >
         <a
           href="#home"
           onClick={handleNavClick}
-          className="flex items-center gap-2 rounded-full px-3 py-1"
+          className="flex items-center gap-2 rounded-full px-2.5 py-1 transition hover:opacity-80"
         >
           <span className="font-display text-lg italic text-white">MSK.</span>
         </a>
         <div className="mx-1 h-4 w-px bg-white/10" />
+
         {/* Desktop nav links */}
         <ul className="hidden items-center md:flex">
           {NAV.slice(1).map((item) => (
             <li key={item.id}>
               <a
                 href={`#${item.id}`}
-                className={`relative rounded-full px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors duration-200 ${active === item.id ? "text-white font-semibold" : "text-white/60 hover:text-white"
-                  }`}
+                onClick={() => playClickSound()}
+                className={`relative rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors duration-200 ${
+                  active === item.id
+                    ? "text-white font-semibold"
+                    : "text-white/60 hover:text-white"
+                }`}
               >
                 {active === item.id && (
                   <motion.span
@@ -995,18 +1039,59 @@ function Navbar({ active }: { active: string }) {
           ))}
         </ul>
 
+        {/* Spotlight Command Palette trigger */}
+        <button
+          onClick={() => {
+            playClickSound();
+            onOpenCommandPalette();
+          }}
+          className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-[0.15em] text-white/70 hover:border-[var(--pf-c1)] hover:text-white transition"
+          title="Open Spotlight Commands (Cmd+K / Ctrl+K)"
+        >
+          <Search className="h-3 w-3 text-[var(--pf-c1)]" />
+          <span className="hidden lg:inline text-[8px] text-white/40 font-semibold">⌘K</span>
+        </button>
+
+        {/* Audio FX Synthesizer Toggle */}
+        <button
+          onClick={() => {
+            const next = toggleSound();
+            toast(next ? "🔊 Cyber Audio FX Enabled" : "🔇 Audio FX Muted");
+          }}
+          className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-[0.15em] transition hover:border-[var(--pf-c1)]"
+          title={soundOn ? "Mute Cyber Audio FX" : "Enable Cyber Audio FX"}
+        >
+          {soundOn ? (
+            <div className="flex items-end gap-0.5 h-3">
+              <span className="w-0.5 bg-[var(--pf-c1)] animate-audio-wave-1 rounded-full" />
+              <span className="w-0.5 bg-[var(--pf-c2)] animate-audio-wave-2 rounded-full" />
+              <span className="w-0.5 bg-[var(--pf-c3)] animate-audio-wave-3 rounded-full" />
+            </div>
+          ) : (
+            <VolumeX className="h-3 w-3 text-white/40" />
+          )}
+          <span className="hidden sm:inline text-[8px] text-white/50">
+            {soundOn ? "SFX" : "MUTE"}
+          </span>
+        </button>
+
         <a
           href="/Resume.pdf"
           target="_blank"
           rel="noreferrer"
-          className="hidden md:flex ml-2 items-center gap-1.5 rounded-full bg-[var(--pf-c1)] px-4 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-black transition hover:bg-white"
+          onClick={() => playClickSound()}
+          className="hidden md:flex ml-1 items-center gap-1.5 rounded-full bg-[var(--pf-c1)] px-3.5 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-black transition hover:bg-white"
         >
           Resume <Download className="h-3 w-3" />
         </a>
+
         {/* Mobile hamburger */}
         <button
-          className="md:hidden ml-2 flex items-center justify-center rounded-full p-2 text-white/70 hover:text-white transition"
-          onClick={() => setMobileOpen((o) => !o)}
+          className="md:hidden ml-1 flex items-center justify-center rounded-full p-2 text-white/70 hover:text-white transition"
+          onClick={() => {
+            playClickSound();
+            setMobileOpen((o) => !o);
+          }}
           aria-label="Toggle menu"
         >
           {mobileOpen ? (
@@ -1034,6 +1119,7 @@ function Navbar({ active }: { active: string }) {
           )}
         </button>
       </nav>
+
       {/* Mobile dropdown menu */}
       <AnimatePresence>
         {mobileOpen && (
@@ -1042,7 +1128,7 @@ function Navbar({ active }: { active: string }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.97 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-16 left-4 right-4 rounded-2xl border border-white/10 bg-black/90 backdrop-blur-xl p-4 md:hidden"
+            className="absolute top-16 left-4 right-4 rounded-2xl border border-white/10 bg-black/95 backdrop-blur-2xl p-4 md:hidden z-50 shadow-2xl"
           >
             <ul className="flex flex-col gap-1">
               {NAV.map((item) => (
@@ -1050,10 +1136,11 @@ function Navbar({ active }: { active: string }) {
                   <a
                     href={`#${item.id}`}
                     onClick={handleNavClick}
-                    className={`block rounded-xl px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors ${active === item.id
-                      ? "bg-white/5 text-[var(--pf-c1)]"
-                      : "text-white/60 hover:bg-white/5 hover:text-white"
-                      }`}
+                    className={`block rounded-xl px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors ${
+                      active === item.id
+                        ? "bg-white/5 text-[var(--pf-c1)]"
+                        : "text-white/60 hover:bg-white/5 hover:text-white"
+                    }`}
                   >
                     <span className="text-[var(--pf-c1)]/40 mr-2">{item.num}</span>
                     {item.label}
@@ -1061,15 +1148,26 @@ function Navbar({ active }: { active: string }) {
                 </li>
               ))}
             </ul>
-            <a
-              href="/Resume.pdf"
-              target="_blank"
-              rel="noreferrer"
-              onClick={handleNavClick}
-              className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-[var(--pf-c1)] px-4 py-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-black transition hover:bg-white"
-            >
-              Resume <Download className="h-3 w-3" />
-            </a>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  setMobileOpen(false);
+                  onOpenCommandPalette();
+                }}
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3 py-2 font-mono text-[10px] uppercase tracking-wider text-white"
+              >
+                <Search className="h-3 w-3 text-[var(--pf-c1)]" /> Commands
+              </button>
+              <a
+                href="/Resume.pdf"
+                target="_blank"
+                rel="noreferrer"
+                onClick={handleNavClick}
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-[var(--pf-c1)] px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-wider text-black transition hover:bg-white"
+              >
+                Resume <Download className="h-3 w-3" />
+              </a>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -3210,10 +3308,25 @@ function Stack() {
 
 /* ---------- Work (pinned horizontal frames) ---------- */
 
-function WorkCard({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; total: number }) {
+function WorkCard({
+  p,
+  i,
+  total,
+  onOpenModal,
+}: {
+  p: (typeof PROJECTS)[number];
+  i: number;
+  total: number;
+  onOpenModal?: (p: (typeof PROJECTS)[number]) => void;
+}) {
   return (
+    <TiltCard
+      className="overflow-hidden"
+      glowColor={p.accent.startsWith("var") ? "var(--pf-c1)" : p.accent}
+      onClick={() => !p.placeholder && onOpenModal?.(p)}
+    >
     <div
-      className="relative flex flex-col gap-8 border border-white/10 bg-white/[0.02] p-6 md:p-8"
+      className="relative flex flex-col gap-8 border border-white/10 bg-white/[0.02] p-6 md:p-8 cursor-pointer"
       style={{
         background: `radial-gradient(ellipse at 50% 0%, ${p.accent}10, transparent 65%)`,
       }}
@@ -3280,6 +3393,7 @@ function WorkCard({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; to
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Visit ${p.name} live demo`}
+            onClick={(e) => { e.stopPropagation(); playClickSound(); }}
             className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
               p.placeholder ? "pointer-events-none opacity-40" : ""
             }`}
@@ -3294,6 +3408,7 @@ function WorkCard({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; to
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`View ${p.name} source code on GitHub`}
+            onClick={(e) => { e.stopPropagation(); playClickSound(); }}
             className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
               p.placeholder ? "pointer-events-none opacity-40" : ""
             }`}
@@ -3315,6 +3430,7 @@ function WorkCard({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; to
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`View ${p.name} repository on GitHub`}
+            onClick={(e) => { e.stopPropagation(); playClickSound(); }}
             className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
               p.placeholder ? "pointer-events-none opacity-40" : ""
             }`}
@@ -3322,12 +3438,31 @@ function WorkCard({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; to
             <Github className="h-3 w-3" /> GitHub
           </a>
         )}
+        {!p.placeholder && onOpenModal && (
+          <button
+            onClick={(e) => { e.stopPropagation(); playClickSound(); onOpenModal(p); }}
+            className="inline-flex items-center gap-2 border border-white/15 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/60 hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] transition"
+          >
+            <ExternalLink className="h-3 w-3" /> Details
+          </button>
+        )}
       </div>
     </div>
+    </TiltCard>
   );
 }
 
-function WorkFrame({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; total: number }) {
+function WorkFrame({
+  p,
+  i,
+  total,
+  onOpenModal,
+}: {
+  p: (typeof PROJECTS)[number];
+  i: number;
+  total: number;
+  onOpenModal?: (p: (typeof PROJECTS)[number]) => void;
+}) {
   return (
     <div
       className="relative flex h-screen w-screen shrink-0 items-center justify-center px-6 md:px-24"
@@ -3447,6 +3582,14 @@ function WorkFrame({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; t
                 <Github className="h-3 w-3" />
                 GitHub
               </a>
+            )}
+            {!p.placeholder && onOpenModal && (
+              <button
+                onClick={() => { playClickSound(); onOpenModal(p); }}
+                className="group inline-flex items-center gap-2 border border-white/15 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/70 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)]"
+              >
+                <ExternalLink className="h-3 w-3" /> Details
+              </button>
             )}
           </div>
         </div>
@@ -3624,7 +3767,7 @@ function WorkFrame({ p, i, total }: { p: (typeof PROJECTS)[number]; i: number; t
   );
 }
 
-function Work() {
+function Work({ onOpenModal }: { onOpenModal?: (p: (typeof PROJECTS)[number]) => void }) {
   const wrap = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: wrap, offset: ["start start", "end end"] });
   const total = PROJECTS.length;
@@ -3658,7 +3801,7 @@ function Work() {
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, delay: i * 0.05 }}
             >
-              <WorkCard p={p} i={i} total={total} />
+              <WorkCard p={p} i={i} total={total} onOpenModal={onOpenModal} />
             </motion.div>
           ))}
         </div>
@@ -3696,7 +3839,7 @@ function Work() {
           </div>
           <motion.div style={{ x: smoothX }} className="flex h-full will-change-transform">
             {PROJECTS.map((p, i) => (
-              <WorkFrame key={p.name + i} p={p} i={i} total={total} />
+              <WorkFrame key={p.name + i} p={p} i={i} total={total} onOpenModal={onOpenModal} />
             ))}
           </motion.div>
           <div className="absolute inset-x-6 bottom-14 z-20 flex items-center gap-3 md:inset-x-24">
@@ -4567,6 +4710,9 @@ function CinematicLoader() {
 
 function Portfolio() {
   const [mounted, setMounted] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [matrixMode, setMatrixMode] = useState(false);
+  const [activeProject, setActiveProject] = useState<(typeof PROJECTS)[number] | null>(null);
 
   useEffect(() => {
     try {
@@ -4578,27 +4724,94 @@ function Portfolio() {
     setMounted(true);
   }, []);
 
+  // Global Cmd+K / Ctrl+K shortcut for command palette
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   useLenis();
   const active = useActiveSection(mounted);
 
+  const handleSelectTheme = (themeId: string) => {
+    document.documentElement.setAttribute("data-pf-theme", themeId);
+    try { localStorage.setItem("pf-theme", themeId); } catch (_) { }
+    playThemeSound();
+  };
+
+  const handleOpenProjectModal = (projectName: string) => {
+    const proj = PROJECTS.find(
+      (p) => p.name === projectName || p.name.toLowerCase() === projectName.toLowerCase()
+    );
+    if (proj) setActiveProject(proj);
+  };
+
   return (
     <div className="relative min-h-screen bg-[var(--pf-bg)] text-white overflow-x-clip">
+      <CustomCursor />
       <CinematicLoader />
       <Starfield />
       <ScrollProgress />
-      <Navbar active={active} />
+      <Navbar
+        active={active}
+        onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+      />
       <HUDChrome active={active} />
       <main>
         <Hero />
         <About />
         <Stack />
-        <Work />
+        <Work onOpenModal={setActiveProject} />
         <Journey />
         <Arena />
         <Contact />
       </main>
       <Footer />
       <BackToTop />
+
+      {/* ── Overlay Layers ── */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onSelectTheme={handleSelectTheme}
+        onTriggerMatrix={() => {
+          setCommandPaletteOpen(false);
+          setMatrixMode(true);
+        }}
+        onOpenProjectModal={(name) => {
+          setCommandPaletteOpen(false);
+          handleOpenProjectModal(name);
+        }}
+      />
+
+      <AnimatePresence>
+        {matrixMode && <MatrixRain onClose={() => setMatrixMode(false)} />}
+      </AnimatePresence>
+
+      <ProjectModal
+        project={activeProject}
+        onClose={() => setActiveProject(null)}
+      />
+
+      <Toaster
+        position="bottom-right"
+        theme="dark"
+        toastOptions={{
+          style: {
+            background: "var(--pf-card)",
+            border: "1px solid rgb(255 255 255 / 0.12)",
+            color: "#fff",
+            fontFamily: "var(--font-mono)",
+            fontSize: "11px",
+          },
+        }}
+      />
     </div>
   );
 }

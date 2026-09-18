@@ -859,3 +859,70 @@ body.pf-theme-morph *::after {
   color: #ffffff;
   box-shadow: 0 0 12px -2px rgb(from var(--pf-c1) r g b / 0.4);
 }
+
+/* ============================================================
+   🔊  Audio Equalizer Wave Animations
+   ============================================================ */
+
+@keyframes pf-audio-wave {
+  0%, 100% {
+    height: 3px;
+  }
+  50% {
+    height: 12px;
+  }
+}
+
+.animate-audio-wave-1 {
+  animation: pf-audio-wave 0.7s ease-in-out infinite;
+}
+.animate-audio-wave-2 {
+  animation: pf-audio-wave 0.7s ease-in-out infinite 0.15s;
+}
+.animate-audio-wave-3 {
+  animation: pf-audio-wave 0.7s ease-in-out infinite 0.3s;
+}
+.animate-audio-wave-4 {
+  animation: pf-audio-wave 0.7s ease-in-out infinite 0.45s;
+}
+
+/* Radar Ping */
+@keyframes pf-radar {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.animate-radar-ping {
+  animation: pf-radar 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Dynamic Interactive Spotlight Grid */
+.pf-interactive-spotlight {
+  position: relative;
+}
+
+.pf-interactive-spotlight::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: radial-gradient(
+    400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgb(from var(--pf-c1) r g b / 0.18),
+    transparent 40%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pf-interactive-spotlight:hover::before {
+  opacity: 1;
+}
