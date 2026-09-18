@@ -2,15 +2,29 @@
 // Pure client-side synthesis with zero external audio assets
 
 let audioCtx: AudioContext | null = null;
-let soundEnabled = false;
+let soundEnabled = true;
 
-// Initialize from localStorage if in browser
+// Default to enabled, allow user override from Command Palette
 if (typeof window !== "undefined") {
   try {
-    soundEnabled = localStorage.getItem("pf-sound-enabled") === "true";
+    const saved = localStorage.getItem("pf-sound-enabled-v2");
+    if (saved !== null) {
+      soundEnabled = saved === "true";
+    }
   } catch {
-    soundEnabled = false;
+    soundEnabled = true;
   }
+
+  // Pre-unlock AudioContext on first gesture so synthesized sounds play cleanly
+  const unlockAudio = () => {
+    const ctx = getAudioContext();
+    if (ctx && ctx.state === "suspended") {
+      ctx.resume().catch(() => {});
+    }
+  };
+  window.addEventListener("pointerdown", unlockAudio, { once: true, passive: true });
+  window.addEventListener("keydown", unlockAudio, { once: true, passive: true });
+  window.addEventListener("touchstart", unlockAudio, { once: true, passive: true });
 }
 
 const listeners = new Set<(enabled: boolean) => void>();
@@ -22,7 +36,7 @@ export function isSoundEnabled(): boolean {
 export function toggleSound(): boolean {
   soundEnabled = !soundEnabled;
   try {
-    localStorage.setItem("pf-sound-enabled", String(soundEnabled));
+    localStorage.setItem("pf-sound-enabled-v2", String(soundEnabled));
   } catch {
     // Ignore localStorage errors
   }

@@ -63,9 +63,6 @@ import {
   playThemeSound,
   playTerminalBeep,
   playSuccessSound,
-  toggleSound,
-  isSoundEnabled,
-  subscribeSound,
 } from "../lib/sound-fx";
 
 /* ---------- Data ---------- */
@@ -976,16 +973,13 @@ function Navbar({
 }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [soundOn, setSoundOn] = useState(isSoundEnabled());
 
   useEffect(() => {
-    const unsub = subscribeSound(setSoundOn);
     const on = () => setScrolled(window.scrollY > 20);
     on();
     window.addEventListener("scroll", on);
     return () => {
       window.removeEventListener("scroll", on);
-      unsub();
     };
   }, []);
 
@@ -1052,28 +1046,6 @@ function Navbar({
           <span className="hidden lg:inline text-[8px] text-white/40 font-semibold">⌘K</span>
         </button>
 
-        {/* Audio FX Synthesizer Toggle */}
-        <button
-          onClick={() => {
-            const next = toggleSound();
-            toast(next ? "🔊 Cyber Audio FX Enabled" : "🔇 Audio FX Muted");
-          }}
-          className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-[0.15em] transition hover:border-[var(--pf-c1)]"
-          title={soundOn ? "Mute Cyber Audio FX" : "Enable Cyber Audio FX"}
-        >
-          {soundOn ? (
-            <div className="flex items-end gap-0.5 h-3">
-              <span className="w-0.5 bg-[var(--pf-c1)] animate-audio-wave-1 rounded-full" />
-              <span className="w-0.5 bg-[var(--pf-c2)] animate-audio-wave-2 rounded-full" />
-              <span className="w-0.5 bg-[var(--pf-c3)] animate-audio-wave-3 rounded-full" />
-            </div>
-          ) : (
-            <VolumeX className="h-3 w-3 text-white/40" />
-          )}
-          <span className="hidden sm:inline text-[8px] text-white/50">
-            {soundOn ? "SFX" : "MUTE"}
-          </span>
-        </button>
 
         <a
           href="/Resume.pdf"
