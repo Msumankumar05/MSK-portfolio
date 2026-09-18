@@ -57,15 +57,6 @@ import { MatrixRain } from "../components/MatrixRain";
 import { ProjectModal, type ProjectDetail } from "../components/ProjectModal";
 import { DecryptedText } from "../components/DecryptedText";
 import { TiltCard } from "../components/TiltCard";
-import { EagleAnimation } from "../components/EagleAnimation";
-import {
-  playClickSound,
-  playHoverSound,
-  playThemeSound,
-  playTerminalBeep,
-  playSuccessSound,
-  playEagleSound,
-} from "../lib/sound-fx";
 
 /* ---------- Data ---------- */
 
@@ -386,6 +377,143 @@ function Magnetic({
     >
       {children}
     </motion.div>
+  );
+}
+
+/* ---------- Pro Scroll Animation Variants ---------- */
+
+const scrollRevealVariants = {
+  hidden: { opacity: 0, y: 60, filter: "blur(8px)" },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.8,
+      delay: i * 0.12,
+      ease: [0.25, 0.4, 0.25, 1],
+    },
+  }),
+};
+
+const slideFromLeftVariants = {
+  hidden: { opacity: 0, x: -80, filter: "blur(6px)" },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    x: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.9,
+      delay: i * 0.1,
+      ease: [0.25, 0.4, 0.25, 1],
+    },
+  }),
+};
+
+const slideFromRightVariants = {
+  hidden: { opacity: 0, x: 80, filter: "blur(6px)" },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    x: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.9,
+      delay: i * 0.1,
+      ease: [0.25, 0.4, 0.25, 1],
+    },
+  }),
+};
+
+const scaleUpVariants = {
+  hidden: { opacity: 0, scale: 0.85, filter: "blur(10px)" },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.9,
+      ease: [0.25, 0.4, 0.25, 1],
+    },
+  },
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.15,
+    },
+  },
+};
+
+const staggerItem = {
+  hidden: { opacity: 0, y: 30, filter: "blur(4px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.6,
+      ease: [0.25, 0.4, 0.25, 1],
+    },
+  },
+};
+
+/** Parallax wrapper — shifts content vertically based on scroll progress */
+function ParallaxSection({ children, offset = 60, className = "" }: { children: ReactNode; offset?: number; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], [offset, -offset]);
+  const smoothY = useSpring(y, { stiffness: 100, damping: 30, mass: 0.5 });
+  return (
+    <motion.div ref={ref} style={{ y: smoothY }} className={`transform-gpu will-change-transform ${className}`}>
+      {children}
+    </motion.div>
+  );
+}
+
+/** Horizontal reveal line that animates width on scroll */
+function ScrollRevealLine({ className = "" }: { className?: string }) {
+  return (
+    <motion.div
+      initial={{ scaleX: 0 }}
+      whileInView={{ scaleX: 1 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 1.2, ease: [0.25, 0.4, 0.25, 1] }}
+      className={`h-px origin-left bg-gradient-to-r from-[var(--pf-c1)]/60 via-[var(--pf-c1)]/30 to-transparent ${className}`}
+    />
+  );
+}
+
+/** Section divider with animated entrance */
+function AnimatedDivider() {
+  return (
+    <div className="relative mx-auto my-24 flex max-w-6xl items-center justify-center gap-4 px-6 md:px-24">
+      <motion.div
+        initial={{ scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 1, ease: [0.25, 0.4, 0.25, 1] }}
+        className="h-px flex-1 origin-right bg-gradient-to-l from-[var(--pf-c1)]/40 to-transparent"
+      />
+      <motion.div
+        initial={{ scale: 0, rotate: -180 }}
+        whileInView={{ scale: 1, rotate: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.8, delay: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
+        className="flex h-8 w-8 items-center justify-center border border-[var(--pf-c1)]/30 bg-[var(--pf-bg)]"
+      >
+        <span className="text-[10px] text-[var(--pf-c1)]/60">✦</span>
+      </motion.div>
+      <motion.div
+        initial={{ scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 1, ease: [0.25, 0.4, 0.25, 1] }}
+        className="h-px flex-1 origin-left bg-gradient-to-r from-[var(--pf-c1)]/40 to-transparent"
+      />
+    </div>
   );
 }
 
@@ -987,7 +1115,6 @@ function Navbar({
 
   // Close menu on any nav click
   const handleNavClick = () => {
-    playClickSound();
     setMobileOpen(false);
   };
 
@@ -1015,7 +1142,6 @@ function Navbar({
             <li key={item.id}>
               <a
                 href={`#${item.id}`}
-                onClick={() => playClickSound()}
                 className={`relative rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors duration-200 ${
                   active === item.id
                     ? "text-white font-semibold"
@@ -1038,7 +1164,6 @@ function Navbar({
         {/* Spotlight Command Palette trigger */}
         <button
           onClick={() => {
-            playClickSound();
             onOpenCommandPalette();
           }}
           className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-[0.15em] text-white/70 hover:border-[var(--pf-c1)] hover:text-white transition"
@@ -1053,7 +1178,6 @@ function Navbar({
           href="/Resume.pdf"
           target="_blank"
           rel="noreferrer"
-          onClick={() => playClickSound()}
           className="hidden md:flex ml-1 items-center gap-1.5 rounded-full bg-[var(--pf-c1)] px-3.5 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-black transition hover:bg-white"
         >
           Resume <Download className="h-3 w-3" />
@@ -1063,7 +1187,6 @@ function Navbar({
         <button
           className="md:hidden ml-1 flex items-center justify-center rounded-full p-2 text-white/70 hover:text-white transition"
           onClick={() => {
-            playClickSound();
             setMobileOpen((o) => !o);
           }}
           aria-label="Toggle menu"
@@ -1306,7 +1429,6 @@ const COMMANDS = {
   history: { desc: "Command history", icon: "🔄" },
   version: { desc: "Terminal version", icon: "🎯" },
   theme: { desc: "Current theme info", icon: "🎨" },
-  eagle: { desc: "Launch soaring apex cyber eagle", icon: "🦅" },
 };
 
 const STORAGE_KEY_HISTORY = "msk_terminal_history";
@@ -1834,23 +1956,6 @@ function TerminalEmulator() {
         break;
       }
 
-      case "eagle":
-      case "falco":
-      case "fly":
-      case "soar": {
-        playEagleSound();
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("launch-eagle-flight"));
-        }
-        response = [
-          `▸ ${cmd}`,
-          "  🦅 FREE FIRE FALCO [SKYLINE SPREE] DEPLOYED",
-          "  Speed: 520 km/h · Skyline Spree: Active · Wings: Hellfire Blades 🔥",
-          "  Status: Ascending & high-speed aerial dive across the skies ✦",
-        ];
-        break;
-      }
-
       case "clear":
       case "cls":
         handleClear();
@@ -2105,22 +2210,6 @@ function TerminalEmulator() {
             title="Clear (Ctrl+L)"
           >
             <RotateCcw className="w-3 h-3" />
-          </button>
-
-          {/* Eagle Soar trigger */}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (typeof window !== "undefined") {
-                window.dispatchEvent(new CustomEvent("launch-eagle-flight"));
-              }
-            }}
-            className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] text-[var(--pf-c1)]/75 hover:text-white bg-[var(--pf-c1)]/10 hover:bg-[var(--pf-c1)]/20 border border-[var(--pf-c1)]/20 transition"
-            title="Launch Apex Eagle Sky Soar (or type 'eagle')"
-          >
-            <span>🦅</span>
-            <span className="hidden sm:inline font-mono text-[8px] uppercase tracking-wider">soar</span>
           </button>
         </div>
       </div>
@@ -2438,11 +2527,6 @@ function HeroCard() {
       }}
       className="relative w-full max-w-[540px] select-none pf-hero-card-wrap"
     >
-      {/* Free Fire Falco Soaring Pet at the top of the terminal */}
-      <div className="absolute -top-[122px] sm:-top-[152px] md:-top-[168px] left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
-        <EagleAnimation isTerminalActive={tab === "terminal"} />
-      </div>
-
       {/* Outer glow */}
       <motion.div
         className="pointer-events-none absolute -inset-8 rounded-lg"
@@ -3406,7 +3490,7 @@ function WorkCard({
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Visit ${p.name} live demo`}
-            onClick={(e) => { e.stopPropagation(); playClickSound(); }}
+            onClick={(e) => { e.stopPropagation(); }}
             className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
               p.placeholder ? "pointer-events-none opacity-40" : ""
             }`}
@@ -3421,7 +3505,7 @@ function WorkCard({
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`View ${p.name} source code on GitHub`}
-            onClick={(e) => { e.stopPropagation(); playClickSound(); }}
+            onClick={(e) => { e.stopPropagation(); }}
             className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
               p.placeholder ? "pointer-events-none opacity-40" : ""
             }`}
@@ -3443,7 +3527,7 @@ function WorkCard({
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`View ${p.name} repository on GitHub`}
-            onClick={(e) => { e.stopPropagation(); playClickSound(); }}
+            onClick={(e) => { e.stopPropagation(); }}
             className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
               p.placeholder ? "pointer-events-none opacity-40" : ""
             }`}
@@ -3453,7 +3537,7 @@ function WorkCard({
         )}
         {!p.placeholder && onOpenModal && (
           <button
-            onClick={(e) => { e.stopPropagation(); playClickSound(); onOpenModal(p); }}
+            onClick={(e) => { e.stopPropagation(); onOpenModal(p); }}
             className="inline-flex items-center gap-2 border border-white/15 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/60 hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] transition"
           >
             <ExternalLink className="h-3 w-3" /> Details
@@ -3598,7 +3682,7 @@ function WorkFrame({
             )}
             {!p.placeholder && onOpenModal && (
               <button
-                onClick={() => { playClickSound(); onOpenModal(p); }}
+                onClick={() => { onOpenModal(p); }}
                 className="group inline-flex items-center gap-2 border border-white/15 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/70 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)]"
               >
                 <ExternalLink className="h-3 w-3" /> Details
@@ -4755,7 +4839,6 @@ function Portfolio() {
   const handleSelectTheme = (themeId: string) => {
     document.documentElement.setAttribute("data-pf-theme", themeId);
     try { localStorage.setItem("pf-theme", themeId); } catch (_) { }
-    playThemeSound();
   };
 
   const handleOpenProjectModal = (projectName: string) => {
