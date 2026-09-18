@@ -2439,7 +2439,7 @@ function HeroCard() {
       className="relative w-full max-w-[540px] select-none pf-hero-card-wrap"
     >
       {/* Free Fire Falco Soaring Pet at the top of the terminal */}
-      <div className="absolute -top-[84px] sm:-top-[100px] left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
+      <div className="absolute -top-[122px] sm:-top-[152px] md:-top-[168px] left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
         <EagleAnimation isTerminalActive={tab === "terminal"} />
       </div>
 
