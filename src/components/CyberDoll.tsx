@@ -132,13 +132,13 @@ export function CyberDoll({ isTerminalActive = false, className = "" }: CyberDol
             animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: 8, scale: 0.9, filter: "blur(4px)" }}
             transition={{ type: "spring", stiffness: 380, damping: 26 }}
-            className="absolute -top-[70px] z-50 flex items-start gap-2 rounded-2xl border border-white/10 bg-black/90 px-3.5 py-2 shadow-[0_10px_40px_rgba(0,0,0,0.8)] backdrop-blur-2xl max-w-[260px] pointer-events-none"
+            className="absolute -top-[64px] sm:-top-[70px] z-50 flex items-start gap-2 rounded-2xl border border-white/10 bg-black/90 px-3 py-1.5 sm:px-3.5 sm:py-2 shadow-[0_10px_40px_rgba(0,0,0,0.8)] backdrop-blur-2xl max-w-[220px] sm:max-w-[260px] pointer-events-none"
             style={{
               boxShadow:
                 "0 0 20px rgba(var(--pf-c1-raw, 99,102,241),0.18), 0 10px 30px rgba(0,0,0,0.7)",
             }}
           >
-            <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-lg bg-[var(--pf-c1)]/20 text-[var(--pf-c1)] border border-[var(--pf-c1)]/30">
+            <div className="mt-0.5 flex h-4 w-4 sm:h-5 sm:w-5 shrink-0 items-center justify-center rounded-lg bg-[var(--pf-c1)]/20 text-[var(--pf-c1)] border border-[var(--pf-c1)]/30">
               {expression === "stars" ? (
                 <Zap className="h-3 w-3" />
               ) : isTerminalActive ? (
@@ -149,7 +149,7 @@ export function CyberDoll({ isTerminalActive = false, className = "" }: CyberDol
                 <MessageSquare className="h-3 w-3" />
               )}
             </div>
-            <p className="font-mono text-[10px] leading-snug text-white/90 tracking-wide">
+            <p className="font-mono text-[9px] sm:text-[10px] leading-snug text-white/90 tracking-wide">
               {DOLL_QUOTES[quoteIndex]}
             </p>
             {/* Bubble pointer arrow */}
@@ -213,12 +213,10 @@ export function CyberDoll({ isTerminalActive = false, className = "" }: CyberDol
 
         {/* ── Pro SVG Doll ── */}
         <svg
-          width="140"
-          height="170"
           viewBox="0 0 140 170"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="relative z-10 drop-shadow-[0_12px_30px_rgba(0,0,0,0.7)] overflow-visible"
+          className="relative z-10 drop-shadow-[0_12px_30px_rgba(0,0,0,0.7)] overflow-visible w-[118px] h-[143px] sm:w-[140px] sm:h-[170px]"
         >
           <defs>
             {/* ── Filters ── */}

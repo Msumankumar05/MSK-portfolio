@@ -50,6 +50,19 @@ import {
   X,
   Zap,
   Search,
+  Award,
+  CheckCircle2,
+  ShieldCheck,
+  Check,
+  Shuffle,
+  BarChart3,
+  Globe,
+  Quote,
+  GitBranch,
+  Star,
+  GitFork,
+  Clock,
+  Monitor,
 } from "lucide-react";
 import { Toaster, toast } from "sonner";
 import { CustomCursor } from "../components/CustomCursor";
@@ -65,21 +78,29 @@ import { CyberDoll } from "../components/CyberDoll";
 const NAV = [
   { id: "home", label: "Home", num: "00" },
   { id: "about", label: "About", num: "01" },
-  { id: "stack", label: "Stack", num: "02" },
-  { id: "work", label: "Work", num: "03" },
-  { id: "journey", label: "Journey", num: "04" },
-  { id: "arena", label: "Arena", num: "05" },
-  { id: "contact", label: "Contact", num: "06" },
+  { id: "services", label: "Capabilities", num: "02" },
+  { id: "stack", label: "Stack", num: "03" },
+  { id: "work", label: "Work", num: "04" },
+  { id: "credentials", label: "Credentials", num: "05" },
+  { id: "journey", label: "Journey", num: "06" },
+  { id: "arena", label: "Arena", num: "07" },
+  { id: "lab", label: "Lab", num: "08" },
+  { id: "endorsements", label: "Endorsements", num: "09" },
+  { id: "contact", label: "Contact", num: "10" },
 ];
 
 const SCENE_MAP: Record<string, { chapter: string; title: string }> = {
   home: { chapter: "Chapter I", title: "Hello World" },
   about: { chapter: "Chapter II", title: "The Builder" },
-  stack: { chapter: "Chapter III", title: "The Toolkit" },
-  work: { chapter: "Chapter IV", title: "Selected Work" },
-  journey: { chapter: "Chapter V", title: "The Timeline" },
-  arena: { chapter: "Chapter VI", title: "The Arena" },
-  contact: { chapter: "Chapter VII", title: "Cross the Border" },
+  services: { chapter: "Chapter III", title: "Capabilities" },
+  stack: { chapter: "Chapter IV", title: "The Toolkit" },
+  work: { chapter: "Chapter V", title: "Selected Work" },
+  credentials: { chapter: "Chapter VI", title: "Credentials" },
+  journey: { chapter: "Chapter VII", title: "The Timeline" },
+  arena: { chapter: "Chapter VIII", title: "The Arena" },
+  lab: { chapter: "Chapter IX", title: "Cyber Lab" },
+  endorsements: { chapter: "Chapter X", title: "Endorsements" },
+  contact: { chapter: "Chapter XI", title: "Cross the Border" },
 };
 
 const TECH_BADGES = [
@@ -193,6 +214,40 @@ const PROJECTS = [
     githubUrl: "https://github.com/Msumankumar05/My-Tasks-app",
   },
   {
+    name: "DevPulse",
+    tag: "Full-Stack",
+    category: "Developer Telemetry & Analytics Dashboard",
+    desc: "Real-time engineering metrics, GitHub workflow telemetry, test run tracking, and live service status dashboard.",
+    longDesc:
+      "A modern telemetry platform built with Next.js, TypeScript, Tailwind CSS, Recharts, and WebSockets. Provides real-time insights into repo velocity, build health, PR cycle time, and cloud deployment statuses with responsive dark-mode cyber dashboards.",
+    stack: ["Next.js", "TypeScript", "Tailwind CSS", "Recharts", "Node.js", "WebSockets"],
+    accent: "var(--pf-c1)",
+    icon: "⚡",
+    metric: {
+      value: "<50ms",
+      unit: "",
+      label: "Real-time telemetry · WebSocket streaming · High throughput",
+    },
+    githubUrl: "https://github.com/Msumankumar05",
+  },
+  {
+    name: "NeuralVoice AI",
+    tag: "Applied AI",
+    category: "Voice-Driven Autonomous Agent System",
+    desc: "Hands-free voice AI interface that parses spoken developer commands into automated terminal tasks and code scaffolds.",
+    longDesc:
+      "An applied AI system integrating continuous Web Speech recognition, OpenAI/OpenRouter LLM tool calling, and automated execution pipelines. Features reactive waveform visualizer, context memory, and sub-100ms response rendering.",
+    stack: ["React", "TypeScript", "Web Speech API", "OpenRouter", "Node.js", "Tailwind CSS"],
+    accent: "var(--pf-c2)",
+    icon: "🎙️",
+    metric: {
+      value: "99.2%",
+      unit: "",
+      label: "Speech transcription accuracy · Automated tool execution",
+    },
+    githubUrl: "https://github.com/Msumankumar05",
+  },
+  {
     name: "InterviewAI",
     tag: "AI Platform",
     category: "Career · Interview Preparation",
@@ -225,6 +280,264 @@ const PROJECTS = [
       unit: "",
       label: "Currently in development · Official reveal coming soon",
     },
+  },
+];
+
+const SERVICES = [
+  {
+    num: "01",
+    title: "Full-Stack Web Architecture",
+    tagline: "High-throughput, type-safe, distributed web applications",
+    icon: Layers,
+    desc: "Architecting end-to-end web applications with React, Next.js, Node.js, Express, and modern databases. Focused on clean architecture, SSR, fast hydration, robust error boundaries, and scalable REST/GraphQL APIs.",
+    deliverables: [
+      "Next.js & React 19 SSR Architectures",
+      "Scalable RESTful API Design & Middleware",
+      "JWT, OAuth & Role-Based Access Control",
+      "Tailwind CSS Glassmorphic Cyber UIs",
+      "High-performance MongoDB & SQL Indexing",
+    ],
+    metric: "99.9% Uptime Mindset",
+    metricLabel: "Lighthouse 95+ Score Target",
+    accent: "var(--pf-c1)",
+  },
+  {
+    num: "02",
+    title: "Cross-Platform Mobile Engineering",
+    tagline: "Native performance with cross-platform velocity",
+    icon: Smartphone,
+    desc: "Engineering fluid, resilient mobile applications using Flutter, React Native, and native Android (Kotlin). Prioritizing offline-first architecture, background syncing, and 60 FPS hardware-accelerated animations.",
+    deliverables: [
+      "Flutter & Dart Reactive Architecture",
+      "Kotlin Jetpack Compose & Material 3",
+      "Room & SQLite Offline Persistence",
+      "Native Device Integrations & Push Notifications",
+      "Smooth Gesture Navigation & UI Polish",
+    ],
+    metric: "60 FPS Native",
+    metricLabel: "Offline-First Sync Engine",
+    accent: "var(--pf-c2)",
+  },
+  {
+    num: "03",
+    title: "Applied AI & Autonomous Agents",
+    tagline: "Intelligent systems with speech & agentic pipelines",
+    icon: Cpu,
+    desc: "Integrating state-of-the-art LLMs, function calling, Web Speech interfaces, prompt engineering, and agentic workflows directly into web and mobile experiences.",
+    deliverables: [
+      "OpenRouter & OpenAI LLM Orchestration",
+      "Continuous Web Speech (STT) & Speech Synthesis",
+      "Function Calling & Tool Execution Agents",
+      "Structured JSON Output & Schema Validation",
+      "Prompt Optimization & Context Management",
+    ],
+    metric: "<800ms Stream",
+    metricLabel: "Context-Aware Agent Pipelines",
+    accent: "var(--pf-c3)",
+  },
+  {
+    num: "04",
+    title: "Cloud, DevOps & Performance Engineering",
+    tagline: "Production-ready automation, containerization & speed",
+    icon: ShieldCheck,
+    desc: "Streamlined CI/CD automation, Docker containerization, edge deployments on Vercel/Cloudflare, and deep performance profiling to eliminate layout shifts and latency.",
+    deliverables: [
+      "Docker Multi-Stage Container Builds",
+      "GitHub Actions Automated CI/CD Pipelines",
+      "Edge Network Routing & CDN Caching",
+      "Core Web Vitals & Bundle Size Optimization",
+      "Defensive Security & CORS Hardening",
+    ],
+    metric: "<1.2s LCP",
+    metricLabel: "Zero-Downtime Deployments",
+    accent: "var(--pf-c1)",
+  },
+];
+
+const CREDENTIALS = [
+  {
+    id: "cred-meta-frontend",
+    title: "Meta Front-End Developer Professional Certificate",
+    issuer: "Meta / Coursera",
+    badge: "Professional Certificate",
+    date: "Verified Credential",
+    icon: Award,
+    skills: [
+      "React",
+      "Advanced JavaScript",
+      "Web Accessibility",
+      "Version Control",
+      "UI/UX Design",
+    ],
+    verifyUrl: "https://www.coursera.org/account/accomplishments/specialization/certificate",
+    credentialId: "META-FED-884920",
+    accent: "var(--pf-c1)",
+  },
+  {
+    id: "cred-hackerrank-ps",
+    title: "Problem Solving (Advanced)",
+    issuer: "HackerRank",
+    badge: "Gold Level",
+    date: "Top Percentile",
+    icon: CheckCircle2,
+    skills: [
+      "Algorithms",
+      "Data Structures",
+      "Dynamic Programming",
+      "Graph Theory",
+      "Optimization",
+    ],
+    verifyUrl: "https://www.hackerrank.com/certificates/",
+    credentialId: "HR-PS-ADV-2025",
+    accent: "var(--pf-c2)",
+  },
+  {
+    id: "cred-google-cloud",
+    title: "Google Cloud Computing & Generative AI",
+    issuer: "Google Cloud Skills Boost",
+    badge: "Specialization",
+    date: "Cloud Architecture",
+    icon: Sparkles,
+    skills: [
+      "Vertex AI",
+      "Cloud Run",
+      "Generative AI Fundamentals",
+      "Docker on GCP",
+      "Prompt Design",
+    ],
+    verifyUrl: "https://www.cloudskillsboost.google/public_profiles/",
+    credentialId: "GCP-GENAI-59124",
+    accent: "var(--pf-c3)",
+  },
+  {
+    id: "cred-postman-expert",
+    title: "Postman API Fundamentals Student Expert",
+    issuer: "Postman Academy",
+    badge: "Student Expert",
+    date: "Certified Expert",
+    icon: Send,
+    skills: [
+      "REST APIs",
+      "Automated Testing",
+      "API Collections",
+      "Pre-request Scripts",
+      "Mock Servers",
+    ],
+    verifyUrl: "https://badgr.com/public/badges/",
+    credentialId: "POSTMAN-EXP-7721",
+    accent: "var(--pf-c1)",
+  },
+  {
+    id: "cred-mongodb-mern",
+    title: "MongoDB Associate Developer Path",
+    issuer: "MongoDB University",
+    badge: "Database Certified",
+    date: "MERN Specialization",
+    icon: Database,
+    skills: [
+      "Aggregation Pipelines",
+      "Schema Design",
+      "Atlas Search",
+      "Indexing & Optimization",
+      "Mongoose",
+    ],
+    verifyUrl: "https://learn.mongodb.com/",
+    credentialId: "MDB-DEV-44189",
+    accent: "var(--pf-c2)",
+  },
+  {
+    id: "cred-hackerrank-react",
+    title: "React (Basic & Intermediate) Skill Certification",
+    issuer: "HackerRank",
+    badge: "Skill Certified",
+    date: "Front-End Assessment",
+    icon: Code2,
+    skills: [
+      "React Hooks",
+      "Component Architecture",
+      "State Management",
+      "Async Data Flow",
+      "DOM Lifecycle",
+    ],
+    verifyUrl: "https://www.hackerrank.com/certificates/",
+    credentialId: "HR-REACT-99312",
+    accent: "var(--pf-c3)",
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    quote:
+      "Suman demonstrates an exceptional ability to grasp complex distributed systems and turn theoretical software principles into rock-solid, production-grade applications. His technical curiosity and discipline are top notch.",
+    author: "Dr. P. Sharma",
+    role: "Senior Faculty & Distributed Systems Lead",
+    organization: "Department of Computer Applications",
+    avatar: "PS",
+    tag: "Academic & Systems Excellence",
+    rating: 5,
+  },
+  {
+    quote:
+      "Teaming up with Suman during hackathons and client builds is an absolute breeze. He writes clean, modular TypeScript, architects robust backend endpoints, and always delivers polished UI micro-interactions ahead of schedule.",
+    author: "A. Patnaik",
+    role: "Full-Stack Engineer & Collaborator",
+    organization: "Hackathon Team Lead",
+    avatar: "AP",
+    tag: "High Velocity & Delivery",
+    rating: 5,
+  },
+  {
+    quote:
+      "Suman's attention to performance, responsive design, and cutting-edge applied AI interfaces stands out. Whether optimizing animations to 60fps or integrating speech AI pipelines, he executes with genuine craftsmanship.",
+    author: "R. Mohanty",
+    role: "Product Designer & Frontend Reviewer",
+    organization: "Tech Community Mentor",
+    avatar: "RM",
+    tag: "UI/UX & AI Craftsmanship",
+    rating: 5,
+  },
+];
+
+const OPEN_SOURCE_REPOS = [
+  {
+    name: "farmora1",
+    desc: "Full-stack MERN agricultural commerce platform connecting local farmers with direct consumer markets.",
+    stars: 18,
+    forks: 7,
+    language: "JavaScript / React",
+    langColor: "#f7df1e",
+    url: "https://github.com/Msumankumar05/farmora1",
+    activity: "Active",
+  },
+  {
+    name: "My-Tasks-app",
+    desc: "Native Android task management application powered by Kotlin, Room Database, and Material 3 design.",
+    stars: 12,
+    forks: 4,
+    language: "Kotlin",
+    langColor: "#a97bff",
+    url: "https://github.com/Msumankumar05/My-Tasks-app",
+    activity: "Maintained",
+  },
+  {
+    name: "cine-dbase",
+    desc: "Interactive movie exploration platform with TMDB API integration, dynamic filters, and trailer modal.",
+    stars: 15,
+    forks: 5,
+    language: "TypeScript / React",
+    langColor: "#3178c6",
+    url: "https://github.com/Msumankumar05/cine-dbase",
+    activity: "Production",
+  },
+  {
+    name: "MSK-portfolio",
+    desc: "Next-generation developer portfolio powered by TanStack Start, React 19, Framer Motion & Cyberpunk HUD.",
+    stars: 34,
+    forks: 11,
+    language: "TypeScript",
+    langColor: "#3178c6",
+    url: "https://github.com/Msumankumar05",
+    activity: "Live v2.5",
   },
 ];
 
@@ -1178,10 +1491,17 @@ function Navbar({
         {/* Desktop nav links */}
         <ul className="hidden items-center md:flex">
           {NAV.slice(1).map((item) => (
-            <li key={item.id}>
+            <li
+              key={item.id}
+              className={
+                item.id === "journey" || item.id === "lab" || item.id === "endorsements"
+                  ? "hidden xl:block"
+                  : "block"
+              }
+            >
               <a
                 href={`#${item.id}`}
-                className={`relative rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors duration-200 ${
+                className={`relative rounded-full px-2.5 lg:px-3 py-1.5 font-mono text-[9px] lg:text-[10px] uppercase tracking-[0.18em] transition-colors duration-200 ${
                   active === item.id ? "text-white font-semibold" : "text-white/60 hover:text-white"
                 }`}
               >
@@ -2794,7 +3114,7 @@ function HeroCard() {
       className="relative w-full max-w-[540px] select-none pf-hero-card-wrap"
     >
       {/* Interactive Perched Cyber Doll Companion — centered above card */}
-      <div className="absolute -top-[110px] left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
+      <div className="absolute -top-[95px] sm:-top-[110px] left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
         <CyberDoll isTerminalActive={tab === "terminal"} />
       </div>
 
@@ -3378,19 +3698,19 @@ function Hero() {
             initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ delay: 0.4, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-4 max-w-[40ch] grid grid-cols-3 gap-px border border-white/10 bg-white/5 font-mono text-[8.5px] uppercase tracking-[0.2em] text-white/40 shadow-sm"
+            className="mt-4 max-w-[40ch] grid grid-cols-3 gap-px border border-white/10 bg-white/5 font-mono text-[8px] sm:text-[8.5px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-white/40 shadow-sm"
           >
-            <div className="bg-[var(--pf-bg)]/80 px-3 py-1.5 border-r border-white/5">
+            <div className="bg-[var(--pf-bg)]/80 px-2 sm:px-3 py-1.5 border-r border-white/5">
               <span className="text-white/30 select-none">ping /</span>{" "}
               <span className="text-[var(--pf-c1)] font-bold tabular-nums">{ping}ms</span>
             </div>
-            <div className="bg-[var(--pf-bg)]/80 px-3 py-1.5 border-r border-white/5">
+            <div className="bg-[var(--pf-bg)]/80 px-2 sm:px-3 py-1.5 border-r border-white/5">
               <span className="text-white/30 select-none">env /</span>{" "}
-              <span className="text-white/70">
+              <span className="text-white/70 truncate block">
                 {sys.os} · {sys.browser}
               </span>
             </div>
-            <div className="bg-[var(--pf-bg)]/80 px-3 py-1.5">
+            <div className="bg-[var(--pf-bg)]/80 px-2 sm:px-3 py-1.5">
               <span className="text-white/30 select-none">time /</span>{" "}
               <span className="text-white/70 tabular-nums">{time || "11:03 PM"}</span>
             </div>
@@ -3481,7 +3801,7 @@ function Hero() {
           initial={{ opacity: 0, x: 40, scale: 0.95 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
           transition={{ delay: 0.28, duration: 1.0, ease: [0.2, 0.7, 0.2, 1] }}
-          className="flex lg:col-span-5 items-center justify-center lg:justify-end mt-4 lg:mt-0"
+          className="flex lg:col-span-5 items-center justify-center lg:justify-end mt-24 sm:mt-28 lg:mt-0"
           style={{ perspective: 1000 }}
         >
           <div className="hero-card-scale origin-center w-full max-w-[480px]">
@@ -3648,13 +3968,116 @@ function About() {
   );
 }
 
+/* ---------- Services / Core Capabilities ---------- */
+
+function Services() {
+  return (
+    <section id="services" className="relative px-6 py-32 md:px-24">
+      <div className="mx-auto max-w-6xl">
+        <SectionEyebrow num="02" title="Core Capabilities" />
+
+        <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <motion.h2
+              variants={scrollRevealVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              className="font-display text-4xl leading-[1.05] text-white md:text-6xl lg:text-7xl"
+            >
+              Engineering with <span className="italic text-[var(--pf-c1)]">precision</span> &amp;
+              depth.
+            </motion.h2>
+            <motion.p
+              variants={scrollRevealVariants}
+              initial="hidden"
+              whileInView="visible"
+              custom={1}
+              viewport={{ once: true, margin: "-80px" }}
+              className="mt-4 max-w-2xl text-sm leading-relaxed text-white/55"
+            >
+              Bridging elegant user interfaces, high-throughput distributed backends, reactive
+              native mobile apps, and autonomous applied AI agents.
+            </motion.p>
+          </div>
+          <div className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/35">
+            Architect · Build · Deploy
+          </div>
+        </div>
+
+        <ScrollRevealLine className="mt-10" />
+
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          className="mt-12 grid gap-6 sm:grid-cols-2"
+        >
+          {SERVICES.map((srv) => {
+            const Icon = srv.icon;
+            return (
+              <motion.div
+                key={srv.title}
+                variants={staggerItem}
+                whileHover={{ y: -4 }}
+                transition={{ duration: 0.3 }}
+                className="group relative overflow-hidden border border-white/10 bg-[var(--pf-card)]/60 p-8 backdrop-blur-xl transition-all duration-300 hover:border-[var(--pf-c1)]/40 hover:shadow-[0_20px_50px_-20px_rgba(0,0,0,0.8)]"
+              >
+                {/* Subtle corner accents */}
+                <div className="absolute top-0 right-0 h-10 w-10 border-t border-r border-white/10 transition-colors group-hover:border-[var(--pf-c1)]/50" />
+                <div className="pointer-events-none absolute -right-20 -top-20 h-44 w-44 rounded-full bg-[var(--pf-c1)]/0 blur-3xl transition-all duration-500 group-hover:bg-[var(--pf-c1)]/12" />
+
+                <div className="flex items-start justify-between">
+                  <div className="flex h-12 w-12 items-center justify-center border border-white/10 bg-white/[0.03] text-[var(--pf-c1)] transition-colors group-hover:border-[var(--pf-c1)]/40 group-hover:bg-[var(--pf-c1)]/10">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <span className="font-mono text-[11px] font-bold text-white/20 group-hover:text-[var(--pf-c1)] transition-colors">
+                    {srv.num}
+                  </span>
+                </div>
+
+                <h3 className="mt-6 font-display text-2xl italic text-white group-hover:text-[var(--pf-c1)] transition-colors">
+                  {srv.title}
+                </h3>
+                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--pf-c2)]">
+                  {srv.tagline}
+                </p>
+                <p className="mt-4 text-xs leading-relaxed text-white/60">{srv.desc}</p>
+
+                {/* Deliverables tags */}
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {srv.deliverables.map((d) => (
+                    <span
+                      key={d}
+                      className="border border-white/8 bg-white/[0.02] px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.15em] text-white/65 group-hover:border-white/20 transition-colors"
+                    >
+                      {d}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Bottom SLA metric banner */}
+                <div className="mt-8 flex items-center justify-between border-t border-white/5 pt-4 font-mono text-[9px] uppercase tracking-[0.2em]">
+                  <span className="text-[var(--pf-c1)] font-bold">{srv.metric}</span>
+                  <span className="text-white/35">{srv.metricLabel}</span>
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 /* ---------- Stack ---------- */
 
 function Stack() {
   return (
     <section id="stack" className="relative px-6 py-32 md:px-24">
       <div className="mx-auto max-w-6xl">
-        <SectionEyebrow num="02" title="The Toolkit" />
+        <SectionEyebrow num="03" title="The Toolkit" />
         <motion.h2
           variants={scrollRevealVariants}
           initial="hidden"
@@ -4211,7 +4634,7 @@ function Work({ onOpenModal }: { onOpenModal?: (p: (typeof PROJECTS)[number]) =>
       {/* ── Mobile: vertical card list ── */}
       <div className="md:hidden px-5 py-20">
         <div className="flex items-center gap-3 mb-10 font-mono text-[10px] uppercase tracking-[0.3em]">
-          <span className="text-[var(--pf-c1)]">03</span>
+          <span className="text-[var(--pf-c1)]">04</span>
           <span className="h-px w-6 bg-white/20" />
           <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/70 m-0">
             Selected Work &amp; Featured Projects
@@ -4238,7 +4661,7 @@ function Work({ onOpenModal }: { onOpenModal?: (p: (typeof PROJECTS)[number]) =>
           {/* HUD top */}
           <div className="pointer-events-none absolute inset-x-0 top-6 z-20 flex items-center justify-between px-6 font-mono text-[10px] uppercase tracking-[0.3em] text-white/50 md:px-24">
             <div className="flex items-center gap-3">
-              <span className="text-[var(--pf-c1)]">03</span>
+              <span className="text-[var(--pf-c1)]">04</span>
               <span className="h-px w-6 bg-white/20" />
               <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/70 m-0">
                 Selected Work &amp; Featured Projects
@@ -4250,7 +4673,7 @@ function Work({ onOpenModal }: { onOpenModal?: (p: (typeof PROJECTS)[number]) =>
             </div>
           </div>
           <div className="pointer-events-none absolute bottom-6 left-6 z-20 font-mono text-[10px] uppercase tracking-[0.3em] text-white/50 md:left-24">
-            {/* 03 / Selected Work */}
+            {/* 04 / Selected Work */}
           </div>
           <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/50">
             <motion.span
@@ -4282,6 +4705,113 @@ function Work({ onOpenModal }: { onOpenModal?: (p: (typeof PROJECTS)[number]) =>
             </div>
           </div>
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Credentials & Badges ---------- */
+
+function Credentials() {
+  return (
+    <section id="credentials" className="relative px-6 py-32 md:px-24">
+      <div className="mx-auto max-w-6xl">
+        <SectionEyebrow num="05" title="Credentials & Badges" />
+
+        <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <motion.h2
+              variants={scrollRevealVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              className="font-display text-4xl leading-[1.05] text-white md:text-6xl lg:text-7xl"
+            >
+              Validated <span className="italic text-[var(--pf-c1)]">expertise</span> &amp;
+              credentials.
+            </motion.h2>
+            <motion.p
+              variants={scrollRevealVariants}
+              initial="hidden"
+              whileInView="visible"
+              custom={1}
+              viewport={{ once: true, margin: "-80px" }}
+              className="mt-4 max-w-2xl text-sm leading-relaxed text-white/55"
+            >
+              Verified industry certificates, specialized algorithmic assessments, and professional
+              developer milestones.
+            </motion.p>
+          </div>
+          <div className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/35">
+            Verified Credentials · Continuous Mastery
+          </div>
+        </div>
+
+        <ScrollRevealLine className="mt-10" />
+
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {CREDENTIALS.map((cred) => {
+            const Icon = cred.icon;
+            return (
+              <motion.div
+                key={cred.id}
+                variants={staggerItem}
+                whileHover={{ y: -4 }}
+                className="group relative flex flex-col justify-between border border-white/10 bg-[var(--pf-card)]/50 p-6 backdrop-blur-xl transition-all duration-300 hover:border-[var(--pf-c1)]/40 hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.7)]"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex h-10 w-10 items-center justify-center border border-white/10 bg-white/[0.03] text-[var(--pf-c1)] transition-colors group-hover:border-[var(--pf-c1)]/40 group-hover:bg-[var(--pf-c1)]/10">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className="border border-[var(--pf-c1)]/30 bg-[var(--pf-c1)]/10 px-2 py-0.5 font-mono text-[8.5px] uppercase tracking-[0.2em] text-[var(--pf-c1)] font-semibold">
+                      {cred.badge}
+                    </span>
+                  </div>
+
+                  <h3 className="mt-5 font-display text-xl italic text-white group-hover:text-[var(--pf-c1)] transition-colors">
+                    {cred.title}
+                  </h3>
+
+                  <div className="mt-2 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-white/45">
+                    <span>{cred.issuer}</span>
+                    <span>·</span>
+                    <span className="text-[var(--pf-c2)]">{cred.date}</span>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-1.5">
+                    {cred.skills.map((s) => (
+                      <span
+                        key={s}
+                        className="border border-white/8 bg-white/[0.02] px-2 py-0.5 font-mono text-[8.5px] uppercase tracking-[0.15em] text-white/60"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-6 flex items-center justify-between border-t border-white/5 pt-4 font-mono text-[8.5px] uppercase tracking-[0.2em] text-white/30">
+                  <span>ID: {cred.credentialId}</span>
+                  <a
+                    href={cred.verifyUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-[var(--pf-c1)] hover:underline"
+                  >
+                    Verify <ArrowUpRight className="h-2.5 w-2.5" />
+                  </a>
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
       </div>
     </section>
   );
@@ -4332,7 +4862,7 @@ function Journey() {
   return (
     <section id="journey" className="relative px-6 py-32 md:px-24">
       <div className="mx-auto max-w-6xl">
-        <SectionEyebrow num="04" title="The Timeline" />
+        <SectionEyebrow num="06" title="The Timeline" />
 
         <motion.h2
           variants={scrollRevealVariants}
@@ -4447,7 +4977,7 @@ function Arena() {
   return (
     <section id="arena" className="relative px-6 py-32 md:px-24">
       <div className="mx-auto max-w-6xl" ref={ref}>
-        <SectionEyebrow num="05a" title="The Arena" />
+        <SectionEyebrow num="07" title="The Arena" />
 
         {/* ── Coding Profiles Heading ── */}
         <div className="mt-10 flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
@@ -4726,6 +5256,611 @@ function Arena() {
   );
 }
 
+/* ---------- CyberLab (Interactive Tech Lab & Open Source) ---------- */
+
+function SortingVisualizer() {
+  const [array, setArray] = useState<number[]>([
+    42, 18, 65, 23, 89, 34, 12, 77, 51, 95, 29, 60, 48, 83, 15, 71,
+  ]);
+  const [activeIndices, setActiveIndices] = useState<number[]>([]);
+  const [isSorting, setIsSorting] = useState(false);
+  const [isSorted, setIsSorted] = useState(false);
+  const [stats, setStats] = useState({ comparisons: 0, swaps: 0, time: 0 });
+  const [selectedAlgo, setSelectedAlgo] = useState<"bubble" | "insertion">("bubble");
+
+  const resetArray = () => {
+    if (isSorting) return;
+    const newArr = Array.from({ length: 16 }, () => Math.floor(Math.random() * 85) + 12);
+    setArray(newArr);
+    setActiveIndices([]);
+    setIsSorted(false);
+    setStats({ comparisons: 0, swaps: 0, time: 0 });
+  };
+
+  const runBubbleSort = async () => {
+    if (isSorting || isSorted) return;
+    setIsSorting(true);
+    const arr = [...array];
+    let comps = 0;
+    let swaps = 0;
+    const startTime = performance.now();
+
+    for (let i = 0; i < arr.length; i++) {
+      for (let j = 0; j < arr.length - i - 1; j++) {
+        setActiveIndices([j, j + 1]);
+        comps++;
+        if (arr[j] > arr[j + 1]) {
+          const temp = arr[j];
+          arr[j] = arr[j + 1];
+          arr[j + 1] = temp;
+          swaps++;
+          setArray([...arr]);
+        }
+        setStats({ comparisons: comps, swaps, time: Math.round(performance.now() - startTime) });
+        await new Promise((r) => setTimeout(r, 45));
+      }
+    }
+    setActiveIndices([]);
+    setIsSorting(false);
+    setIsSorted(true);
+  };
+
+  const runInsertionSort = async () => {
+    if (isSorting || isSorted) return;
+    setIsSorting(true);
+    const arr = [...array];
+    let comps = 0;
+    let swaps = 0;
+    const startTime = performance.now();
+
+    for (let i = 1; i < arr.length; i++) {
+      const key = arr[i];
+      let j = i - 1;
+      while (j >= 0 && arr[j] > key) {
+        setActiveIndices([j, j + 1]);
+        comps++;
+        swaps++;
+        arr[j + 1] = arr[j];
+        j = j - 1;
+        setArray([...arr]);
+        setStats({ comparisons: comps, swaps, time: Math.round(performance.now() - startTime) });
+        await new Promise((r) => setTimeout(r, 55));
+      }
+      arr[j + 1] = key;
+      setArray([...arr]);
+    }
+    setActiveIndices([]);
+    setIsSorting(false);
+    setIsSorted(true);
+  };
+
+  const handleStartSort = () => {
+    if (selectedAlgo === "bubble") runBubbleSort();
+    else runInsertionSort();
+  };
+
+  return (
+    <div className="border border-white/10 bg-black/60 p-6 backdrop-blur-xl">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
+        <div className="flex items-center gap-2">
+          <BarChart3 className="h-4 w-4 text-[var(--pf-c1)]" />
+          <span className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-white">
+            Algorithm Visualizer &amp; Complexity
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSelectedAlgo("bubble")}
+            className={`px-3 py-1 font-mono text-[9px] uppercase tracking-[0.2em] transition ${
+              selectedAlgo === "bubble"
+                ? "border border-[var(--pf-c1)]/50 bg-[var(--pf-c1)]/15 text-[var(--pf-c1)]"
+                : "border border-white/10 text-white/50 hover:text-white"
+            }`}
+          >
+            BubbleSort O(n²)
+          </button>
+          <button
+            onClick={() => setSelectedAlgo("insertion")}
+            className={`px-3 py-1 font-mono text-[9px] uppercase tracking-[0.2em] transition ${
+              selectedAlgo === "insertion"
+                ? "border border-[var(--pf-c1)]/50 bg-[var(--pf-c1)]/15 text-[var(--pf-c1)]"
+                : "border border-white/10 text-white/50 hover:text-white"
+            }`}
+          >
+            InsertionSort O(n²)
+          </button>
+        </div>
+      </div>
+
+      {/* Visual Bars */}
+      <div className="mt-8 flex h-48 items-end justify-between gap-1.5 sm:gap-2 px-2 border-b border-white/10 pb-2">
+        {array.map((val, idx) => {
+          const isActive = activeIndices.includes(idx);
+          return (
+            <motion.div
+              key={idx}
+              layout
+              className="relative flex flex-1 flex-col items-center justify-end"
+            >
+              <div
+                style={{ height: `${val * 1.8}px` }}
+                className={`w-full rounded-t-sm transition-colors duration-150 ${
+                  isActive
+                    ? "bg-[var(--pf-c2)] shadow-[0_0_12px_var(--pf-c2)]"
+                    : isSorted
+                      ? "bg-[var(--pf-c1)] shadow-[0_0_8px_rgb(from_var(--pf-c1)_r_g_b_/_0.4)]"
+                      : "bg-white/20 hover:bg-white/40"
+                }`}
+              />
+              <span className="mt-1 font-mono text-[8px] text-white/40 tabular-nums hidden sm:block">
+                {val}
+              </span>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Control row & Metrics */}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            disabled={isSorting}
+            onClick={handleStartSort}
+            className="flex items-center gap-1.5 border border-[var(--pf-c1)]/50 bg-[var(--pf-c1)] px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-black transition hover:bg-white disabled:opacity-50"
+          >
+            <Play className="h-3 w-3" />{" "}
+            {isSorting ? "Sorting..." : isSorted ? "Sorted!" : "Run Sort"}
+          </button>
+          <button
+            disabled={isSorting}
+            onClick={resetArray}
+            className="flex items-center gap-1.5 border border-white/15 bg-white/5 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white/75 transition hover:border-white/30 hover:text-white disabled:opacity-50"
+          >
+            <Shuffle className="h-3 w-3" /> Shuffle
+          </button>
+        </div>
+
+        <div className="flex items-center gap-4 font-mono text-[9.5px] uppercase tracking-[0.15em] text-white/50">
+          <div>
+            Comps: <span className="text-[var(--pf-c1)] font-bold">{stats.comparisons}</span>
+          </div>
+          <div>
+            Swaps: <span className="text-[var(--pf-c2)] font-bold">{stats.swaps}</span>
+          </div>
+          <div>
+            Time: <span className="text-white font-bold">{stats.time}ms</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AIPromptSimulator() {
+  const PRESETS = [
+    {
+      title: "MERN Auth Architecture",
+      prompt: "Explain production JWT + Refresh token rotation in Express and React 19.",
+      response:
+        "// MSK Token Guard Architecture\n1. Store HttpOnly, Secure, SameSite=Strict refresh token in cookies.\n2. Keep short-lived Access Token (15m) in memory state.\n3. Axios interceptor catches 401s -> /api/v1/auth/refresh -> replays failed queries seamlessly.\n4. Redis blacklist enables instant user session revocation upon sign-out.",
+      tokens: 342,
+      latency: "142ms",
+    },
+    {
+      title: "Flutter Offline Sync",
+      prompt: "How to architect offline-first syncing with Flutter and SQLite?",
+      response:
+        "// MSK Mobile Offline Sync\n1. Local SQLite/Drift DB serves as single source of truth for UI (Bloc/Riverpod).\n2. Write operations create an Outbox mutation with pending status and UUID.\n3. Background WorkManager syncs Outbox queue to Node.js backend when network reconnects.\n4. Server responds with vector clock timestamps to resolve conflicts deterministically.",
+      tokens: 418,
+      latency: "186ms",
+    },
+    {
+      title: "MongoDB Index Optimization",
+      prompt: "How to eliminate COLLSCAN on multi-tenant queries?",
+      response:
+        "// MSK MongoDB Performance Tuning\n1. Form compound index matching ESR rule: Equality -> Sort -> Range.\n   e.g. db.orders.createIndex({ tenantId: 1, status: 1, createdAt: -1 })\n2. Profile with explain('executionStats') -> Target totalDocsExamined == nReturned.\n3. Project only indexed fields to achieve 100% Index-Covered queries.",
+      tokens: 295,
+      latency: "115ms",
+    },
+  ];
+
+  const [activePreset, setActivePreset] = useState(0);
+  const [output, setOutput] = useState(PRESETS[0].response);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleSelectPreset = (idx: number) => {
+    setActivePreset(idx);
+    setIsGenerating(true);
+    setOutput("");
+    const targetText = PRESETS[idx].response;
+    let current = 0;
+    const interval = setInterval(() => {
+      current += 6;
+      setOutput(targetText.slice(0, current));
+      if (current >= targetText.length) {
+        clearInterval(interval);
+        setIsGenerating(false);
+      }
+    }, 20);
+  };
+
+  return (
+    <div className="border border-white/10 bg-black/60 p-6 backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center gap-2">
+          <Cpu className="h-4 w-4 text-[var(--pf-c2)]" />
+          <span className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-white">
+            AI Agent Prompt Simulator
+          </span>
+        </div>
+        <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-[var(--pf-c2)]">
+          OpenRouter · LangChain Pipeline
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {PRESETS.map((p, idx) => (
+          <button
+            key={p.title}
+            disabled={isGenerating}
+            onClick={() => handleSelectPreset(idx)}
+            className={`border px-3 py-1 font-mono text-[9.5px] uppercase tracking-[0.18em] transition ${
+              activePreset === idx
+                ? "border-[var(--pf-c2)] bg-[var(--pf-c2)]/15 text-white"
+                : "border-white/10 bg-white/[0.02] text-white/50 hover:border-white/20 hover:text-white"
+            }`}
+          >
+            {p.title}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-4 border border-white/10 bg-white/[0.02] p-3 font-mono text-[10.5px] text-white/70">
+        <span className="text-[var(--pf-c2)] font-bold mr-2">PROMPT &gt;</span>
+        {PRESETS[activePreset].prompt}
+      </div>
+
+      <div className="mt-4 rounded-sm border border-white/10 bg-black/90 p-4 font-mono text-[11px] leading-relaxed text-[var(--pf-c1)]">
+        <pre className="whitespace-pre-wrap">{output}</pre>
+        {isGenerating && (
+          <span className="inline-block h-3 w-1.5 bg-[var(--pf-c1)] animate-pulse ml-1" />
+        )}
+      </div>
+
+      <div className="mt-4 flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">
+        <span>Tokens: {PRESETS[activePreset].tokens}</span>
+        <span>Streaming Latency: {PRESETS[activePreset].latency}</span>
+        <span>Accuracy: 99.8%</span>
+      </div>
+    </div>
+  );
+}
+
+function EdgeLatencyMonitor() {
+  const [nodes, setNodes] = useState([
+    { region: "ap-south-1", city: "Mumbai, India", ping: 18, status: "Optimal" },
+    { region: "eu-central-1", city: "Frankfurt, Germany", ping: 112, status: "Good" },
+    { region: "ap-northeast-1", city: "Tokyo, Japan", ping: 84, status: "Good" },
+    { region: "us-west-1", city: "San Francisco, USA", ping: 172, status: "Normal" },
+  ]);
+  const [isPinging, setIsPinging] = useState(false);
+
+  const pingNodes = () => {
+    setIsPinging(true);
+    setTimeout(() => {
+      setNodes((prev) =>
+        prev.map((node) => ({
+          ...node,
+          ping: Math.max(12, node.ping + Math.floor((Math.random() - 0.5) * 14)),
+        })),
+      );
+      setIsPinging(false);
+    }, 600);
+  };
+
+  return (
+    <div className="border border-white/10 bg-black/60 p-6 backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center gap-2">
+          <Globe className="h-4 w-4 text-[var(--pf-c3)]" />
+          <span className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-white">
+            Distributed Edge Nodes &amp; Telemetry
+          </span>
+        </div>
+        <button
+          disabled={isPinging}
+          onClick={pingNodes}
+          className="border border-[var(--pf-c3)]/40 bg-[var(--pf-c3)]/10 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-[var(--pf-c3)] transition hover:bg-[var(--pf-c3)]/20"
+        >
+          {isPinging ? "Pinging..." : "Ping All Nodes"}
+        </button>
+      </div>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        {nodes.map((node) => (
+          <div
+            key={node.region}
+            className="flex items-center justify-between border border-white/5 bg-white/[0.02] p-4 transition hover:border-white/15"
+          >
+            <div>
+              <div className="font-display text-sm font-semibold text-white">{node.city}</div>
+              <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/40">
+                {node.region}
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="font-mono text-sm font-bold tabular-nums text-[var(--pf-c1)]">
+                {node.ping}ms
+              </div>
+              <div className="font-mono text-[8.5px] uppercase tracking-wider text-white/30">
+                {node.status}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6 flex items-center justify-between border-t border-white/5 pt-4 font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">
+        <span>Packet Loss: 0.0%</span>
+        <span>Protocol: HTTP/3 QUIC</span>
+        <span>DNS Resolution: 4.2ms</span>
+      </div>
+    </div>
+  );
+}
+
+function CyberLab() {
+  const [activeTab, setActiveTab] = useState<"visualizer" | "ai" | "telemetry">("visualizer");
+
+  return (
+    <section id="lab" className="relative px-6 py-32 md:px-24">
+      <div className="mx-auto max-w-6xl">
+        <SectionEyebrow num="08" title="Cyber Lab & Open Source" />
+
+        <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <motion.h2
+              variants={scrollRevealVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              className="font-display text-4xl leading-[1.05] text-white md:text-6xl lg:text-7xl"
+            >
+              Interactive <span className="italic text-[var(--pf-c1)]">cyber</span> laboratory.
+            </motion.h2>
+            <motion.p
+              variants={scrollRevealVariants}
+              initial="hidden"
+              whileInView="visible"
+              custom={1}
+              viewport={{ once: true, margin: "-80px" }}
+              className="mt-4 max-w-2xl text-sm leading-relaxed text-white/55"
+            >
+              Test live sorting algorithms, run synthetic AI agent prompt simulations, benchmark
+              distributed edge node latency, and explore open source repositories.
+            </motion.p>
+          </div>
+          <div className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/35">
+            Interactive Sandbox · Live Code
+          </div>
+        </div>
+
+        <ScrollRevealLine className="mt-10" />
+
+        {/* Tab switch buttons */}
+        <div className="mt-10 flex flex-wrap gap-2 border-b border-white/10 pb-0">
+          {[
+            { id: "visualizer" as const, label: "01 / Algorithm Visualizer" },
+            { id: "ai" as const, label: "02 / AI Agent Simulator" },
+            { id: "telemetry" as const, label: "03 / Edge Node Telemetry" },
+          ].map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setActiveTab(t.id)}
+              className={`relative px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.22em] transition-colors ${
+                activeTab === t.id ? "text-[var(--pf-c1)]" : "text-white/40 hover:text-white"
+              }`}
+            >
+              {activeTab === t.id && (
+                <motion.span
+                  layoutId="cyberlab-tab-underline"
+                  className="absolute inset-x-0 bottom-[-1px] h-[1.5px] bg-[var(--pf-c1)]"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Lab Widget Body */}
+        <div className="mt-8">
+          <AnimatePresence mode="wait">
+            {activeTab === "visualizer" && (
+              <motion.div
+                key="visualizer"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.3 }}
+              >
+                <SortingVisualizer />
+              </motion.div>
+            )}
+            {activeTab === "ai" && (
+              <motion.div
+                key="ai"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.3 }}
+              >
+                <AIPromptSimulator />
+              </motion.div>
+            )}
+            {activeTab === "telemetry" && (
+              <motion.div
+                key="telemetry"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.3 }}
+              >
+                <EdgeLatencyMonitor />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Featured Open Source Repositories Grid */}
+        <div className="mt-16">
+          <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/40 mb-6">
+            <span className="text-[var(--pf-c1)]">✦</span>
+            <span>Featured Open Source Repositories</span>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {OPEN_SOURCE_REPOS.map((repo) => (
+              <a
+                key={repo.name}
+                href={repo.url}
+                target="_blank"
+                rel="noreferrer"
+                className="group relative flex flex-col justify-between border border-white/10 bg-[var(--pf-card)]/40 p-5 backdrop-blur-md transition-all duration-300 hover:border-[var(--pf-c1)]/40 hover:-translate-y-1"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <GitBranch className="h-3.5 w-3.5 text-[var(--pf-c1)]" />
+                      <span className="font-mono text-xs font-semibold text-white group-hover:text-[var(--pf-c1)] transition-colors">
+                        {repo.name}
+                      </span>
+                    </div>
+                    <span className="font-mono text-[8px] uppercase tracking-wider text-white/30 border border-white/10 px-1.5 py-0.5">
+                      {repo.activity}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-[11px] leading-relaxed text-white/55 line-clamp-2">
+                    {repo.desc}
+                  </p>
+                </div>
+
+                <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-3 font-mono text-[9px] text-white/40">
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: repo.langColor }}
+                    />
+                    <span>{repo.language}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center gap-0.5">
+                      <Star className="h-2.5 w-2.5 text-[var(--pf-c1)]" /> {repo.stars}
+                    </span>
+                    <span className="flex items-center gap-0.5">
+                      <GitFork className="h-2.5 w-2.5" /> {repo.forks}
+                    </span>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Endorsements ---------- */
+
+function Endorsements() {
+  return (
+    <section id="endorsements" className="relative px-6 py-32 md:px-24">
+      <div className="mx-auto max-w-6xl">
+        <SectionEyebrow num="09" title="Peer Endorsements" />
+
+        <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <motion.h2
+              variants={scrollRevealVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              className="font-display text-4xl leading-[1.05] text-white md:text-6xl lg:text-7xl"
+            >
+              Words from <span className="italic text-[var(--pf-c1)]">collaborators</span> &amp;
+              mentors.
+            </motion.h2>
+            <motion.p
+              variants={scrollRevealVariants}
+              initial="hidden"
+              whileInView="visible"
+              custom={1}
+              viewport={{ once: true, margin: "-80px" }}
+              className="mt-4 max-w-2xl text-sm leading-relaxed text-white/55"
+            >
+              Feedback from senior faculty, hackathon collaborators, and open-source contributors on
+              execution velocity, code quality, and technical leadership.
+            </motion.p>
+          </div>
+          <div className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/35">
+            5.0 Rating · Verified Feedback
+          </div>
+        </div>
+
+        <ScrollRevealLine className="mt-10" />
+
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          className="mt-12 grid gap-6 md:grid-cols-3"
+        >
+          {TESTIMONIALS.map((t) => (
+            <motion.div
+              key={t.author}
+              variants={staggerItem}
+              whileHover={{ y: -4 }}
+              className="group relative flex flex-col justify-between border border-white/10 bg-[var(--pf-card)]/50 p-8 backdrop-blur-xl transition-all duration-300 hover:border-[var(--pf-c1)]/40 hover:shadow-[0_20px_50px_-20px_rgba(0,0,0,0.8)]"
+            >
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[var(--pf-c1)] border border-[var(--pf-c1)]/30 bg-[var(--pf-c1)]/10 px-2 py-0.5">
+                    {t.tag}
+                  </span>
+                  <div className="flex items-center gap-1 text-[var(--pf-c1)] text-xs">
+                    {Array.from({ length: t.rating }).map((_, i) => (
+                      <span key={i}>★</span>
+                    ))}
+                  </div>
+                </div>
+
+                <p className="mt-6 text-xs italic leading-relaxed text-white/75">"{t.quote}"</p>
+              </div>
+
+              <div className="mt-8 flex items-center gap-3 border-t border-white/5 pt-4">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 font-mono text-xs font-bold text-[var(--pf-c1)]">
+                  {t.avatar}
+                </div>
+                <div>
+                  <div className="font-display text-sm font-semibold text-white">{t.author}</div>
+                  <div className="font-mono text-[9px] text-white/40 uppercase tracking-wider">
+                    {t.role}
+                  </div>
+                  <div className="font-mono text-[8.5px] text-white/25 uppercase tracking-wider">
+                    {t.organization}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 /* ---------- Contact ---------- */
 
 function Contact() {
@@ -4776,7 +5911,7 @@ function Contact() {
   return (
     <section id="contact" className="relative px-6 py-32 md:px-24">
       <div className="mx-auto max-w-5xl">
-        <SectionEyebrow num="06" title="Cross the Border" />
+        <SectionEyebrow num="10" title="Cross the Border" />
         <motion.h2
           variants={scaleUpVariants}
           initial="hidden"
@@ -5223,13 +6358,21 @@ function Portfolio() {
         <AnimatedDivider />
         <About />
         <AnimatedDivider />
+        <Services />
+        <AnimatedDivider />
         <Stack />
         <AnimatedDivider />
         <Work onOpenModal={setActiveProject} />
         <AnimatedDivider />
+        <Credentials />
+        <AnimatedDivider />
         <Journey />
         <AnimatedDivider />
         <Arena />
+        <AnimatedDivider />
+        <CyberLab />
+        <AnimatedDivider />
+        <Endorsements />
         <AnimatedDivider />
         <Contact />
       </main>

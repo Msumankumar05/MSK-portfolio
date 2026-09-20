@@ -15,6 +15,11 @@ import {
   Terminal,
   Zap,
   X,
+  Award,
+  Cpu,
+  Layers,
+  Activity,
+  Quote,
 } from "lucide-react";
 import {
   playModalSound,
@@ -92,10 +97,20 @@ export function CommandPalette({
       },
     },
     {
+      id: "nav-services",
+      category: "Navigation",
+      title: "Core Capabilities",
+      subtitle: "Chapter III · Full-Stack, Mobile, AI & Cloud",
+      icon: Layers,
+      action: () => {
+        window.location.hash = "#services";
+      },
+    },
+    {
       id: "nav-stack",
       category: "Navigation",
       title: "Stack & Toolkit",
-      subtitle: "Chapter III · Frontend, Backend, AI, Mobile",
+      subtitle: "Chapter IV · Frontend, Backend, AI, Mobile",
       icon: Code2,
       action: () => {
         window.location.hash = "#stack";
@@ -105,17 +120,27 @@ export function CommandPalette({
       id: "nav-work",
       category: "Navigation",
       title: "Selected Work",
-      subtitle: "Chapter IV · Featured Projects Showcase",
+      subtitle: "Chapter V · Featured Projects Showcase",
       icon: Sparkles,
       action: () => {
         window.location.hash = "#work";
       },
     },
     {
+      id: "nav-credentials",
+      category: "Navigation",
+      title: "Credentials & Badges",
+      subtitle: "Chapter VI · Meta, Google Cloud & HackerRank",
+      icon: Award,
+      action: () => {
+        window.location.hash = "#credentials";
+      },
+    },
+    {
       id: "nav-journey",
       category: "Navigation",
       title: "Journey & Timeline",
-      subtitle: "Chapter V · Education & Experience",
+      subtitle: "Chapter VII · Education & Experience",
       icon: ArrowRight,
       action: () => {
         window.location.hash = "#journey";
@@ -125,17 +150,37 @@ export function CommandPalette({
       id: "nav-arena",
       category: "Navigation",
       title: "The Arena",
-      subtitle: "Chapter VI · LeetCode, Codeforces & GitHub",
+      subtitle: "Chapter VIII · LeetCode, Codeforces & GitHub",
       icon: Zap,
       action: () => {
         window.location.hash = "#arena";
       },
     },
     {
+      id: "nav-lab",
+      category: "Navigation",
+      title: "Cyber Lab & Open Source",
+      subtitle: "Chapter IX · Algorithm Benchmarks & AI Prompts",
+      icon: Activity,
+      action: () => {
+        window.location.hash = "#lab";
+      },
+    },
+    {
+      id: "nav-endorsements",
+      category: "Navigation",
+      title: "Peer Endorsements",
+      subtitle: "Chapter X · Recommendations & Testimonials",
+      icon: Quote,
+      action: () => {
+        window.location.hash = "#endorsements";
+      },
+    },
+    {
       id: "nav-contact",
       category: "Navigation",
       title: "Contact",
-      subtitle: "Chapter VII · Cross the Border & Connect",
+      subtitle: "Chapter XI · Cross the Border & Connect",
       icon: ArrowRight,
       action: () => {
         window.location.hash = "#contact";
@@ -225,6 +270,28 @@ export function CommandPalette({
       badge: "AI",
       action: () => {
         onOpenProjectModal("SKY AI");
+      },
+    },
+    {
+      id: "proj-devpulse",
+      category: "Projects",
+      title: "DevPulse — Telemetry & CI/CD",
+      subtitle: "Next.js & WebSockets developer analytics",
+      icon: Sparkles,
+      badge: "Full-Stack",
+      action: () => {
+        onOpenProjectModal("DevPulse");
+      },
+    },
+    {
+      id: "proj-neuralvoice",
+      category: "Projects",
+      title: "NeuralVoice AI — Autonomous Agent",
+      subtitle: "Speech-to-action agent workflows",
+      icon: Sparkles,
+      badge: "AI Agent",
+      action: () => {
+        onOpenProjectModal("NeuralVoice AI");
       },
     },
     {
