@@ -2793,8 +2793,8 @@ function HeroCard() {
       }}
       className="relative w-full max-w-[540px] select-none pf-hero-card-wrap"
     >
-      {/* Interactive Perched Cyber Doll Companion */}
-      <div className="absolute -top-[78px] sm:-top-[88px] right-6 sm:right-10 z-30 pointer-events-auto">
+      {/* Interactive Perched Cyber Doll Companion — centered above card */}
+      <div className="absolute -top-[110px] left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
         <CyberDoll isTerminalActive={tab === "terminal"} />
       </div>
 
