@@ -58,6 +58,7 @@ import { MatrixRain } from "../components/MatrixRain";
 import { ProjectModal, type ProjectDetail } from "../components/ProjectModal";
 import { DecryptedText } from "../components/DecryptedText";
 import { TiltCard } from "../components/TiltCard";
+import { CyberDoll } from "../components/CyberDoll";
 
 /* ---------- Data ---------- */
 
@@ -1491,6 +1492,7 @@ const COMMANDS = {
   history: { desc: "Command history", icon: "🔄" },
   version: { desc: "Terminal version", icon: "🎯" },
   theme: { desc: "Current theme info", icon: "🎨" },
+  doll: { desc: "Interact with MSK Cyber Doll companion", icon: "🤖" },
 };
 
 const STORAGE_KEY_HISTORY = "msk_terminal_history";
@@ -2072,6 +2074,22 @@ function TerminalEmulator() {
         break;
       }
 
+      case "doll":
+      case "pet":
+      case "companion":
+      case "bot": {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("poke-cyber-doll"));
+        }
+        response = [
+          `▸ ${cmd}`,
+          "  🤖 MSK CYBER DOLL [AI COMPANION v2.4] STATUS: ONLINE",
+          "  Mood: Cheerful · Core: 100% Charged · Mode: Active Watcher ✦",
+          "  Location: Perched on terminal monitor · Click the doll to interact!",
+        ];
+        break;
+      }
+
       case "clear":
       case "cls":
         handleClear();
@@ -2375,6 +2393,24 @@ function TerminalEmulator() {
             title="Clear (Ctrl+L)"
           >
             <RotateCcw className="w-3 h-3" />
+          </button>
+
+          {/* Cyber Doll Companion trigger */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new CustomEvent("poke-cyber-doll"));
+              }
+            }}
+            className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] text-[var(--pf-c1)]/75 hover:text-white bg-[var(--pf-c1)]/10 hover:bg-[var(--pf-c1)]/20 border border-[var(--pf-c1)]/20 transition"
+            title="Interact with Cyber Doll (or type 'doll')"
+          >
+            <span>🤖</span>
+            <span className="hidden sm:inline font-mono text-[8px] uppercase tracking-wider">
+              doll
+            </span>
           </button>
         </div>
       </div>
@@ -2757,6 +2793,11 @@ function HeroCard() {
       }}
       className="relative w-full max-w-[540px] select-none pf-hero-card-wrap"
     >
+      {/* Interactive Perched Cyber Doll Companion */}
+      <div className="absolute -top-[78px] sm:-top-[88px] right-6 sm:right-10 z-30 pointer-events-auto">
+        <CyberDoll isTerminalActive={tab === "terminal"} />
+      </div>
+
       {/* Outer glow */}
       <motion.div
         className="pointer-events-none absolute -inset-8 rounded-lg"
