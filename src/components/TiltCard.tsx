@@ -72,7 +72,7 @@ export function TiltCard({
           background: useTransform(
             [glareX, glareY],
             ([gx, gy]) =>
-              `radial-gradient(circle 280px at ${gx}% ${gy}%, rgba(255,255,255,0.06), transparent 70%)`
+              `radial-gradient(circle 280px at ${gx}% ${gy}%, rgba(255,255,255,0.06), transparent 70%)`,
           ),
         }}
       />

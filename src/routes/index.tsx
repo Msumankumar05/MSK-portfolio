@@ -8,6 +8,7 @@ import {
   useTransform,
   AnimatePresence,
   type MotionValue,
+  type Variants,
 } from "framer-motion";
 import Lenis from "lenis";
 import {
@@ -382,7 +383,9 @@ function Magnetic({
 
 /* ---------- Pro Scroll Animation Variants ---------- */
 
-const scrollRevealVariants = {
+const PRO_EASE: [number, number, number, number] = [0.25, 0.4, 0.25, 1];
+
+const scrollRevealVariants: Variants = {
   hidden: { opacity: 0, y: 60, filter: "blur(8px)" },
   visible: (i: number = 0) => ({
     opacity: 1,
@@ -391,12 +394,12 @@ const scrollRevealVariants = {
     transition: {
       duration: 0.8,
       delay: i * 0.12,
-      ease: [0.25, 0.4, 0.25, 1],
+      ease: PRO_EASE,
     },
   }),
 };
 
-const slideFromLeftVariants = {
+const slideFromLeftVariants: Variants = {
   hidden: { opacity: 0, x: -80, filter: "blur(6px)" },
   visible: (i: number = 0) => ({
     opacity: 1,
@@ -405,12 +408,12 @@ const slideFromLeftVariants = {
     transition: {
       duration: 0.9,
       delay: i * 0.1,
-      ease: [0.25, 0.4, 0.25, 1],
+      ease: PRO_EASE,
     },
   }),
 };
 
-const slideFromRightVariants = {
+const slideFromRightVariants: Variants = {
   hidden: { opacity: 0, x: 80, filter: "blur(6px)" },
   visible: (i: number = 0) => ({
     opacity: 1,
@@ -419,12 +422,12 @@ const slideFromRightVariants = {
     transition: {
       duration: 0.9,
       delay: i * 0.1,
-      ease: [0.25, 0.4, 0.25, 1],
+      ease: PRO_EASE,
     },
   }),
 };
 
-const scaleUpVariants = {
+const scaleUpVariants: Variants = {
   hidden: { opacity: 0, scale: 0.85, filter: "blur(10px)" },
   visible: {
     opacity: 1,
@@ -432,12 +435,12 @@ const scaleUpVariants = {
     filter: "blur(0px)",
     transition: {
       duration: 0.9,
-      ease: [0.25, 0.4, 0.25, 1],
+      ease: PRO_EASE,
     },
   },
 };
 
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: {},
   visible: {
     transition: {
@@ -447,7 +450,7 @@ const staggerContainer = {
   },
 };
 
-const staggerItem = {
+const staggerItem: Variants = {
   hidden: { opacity: 0, y: 30, filter: "blur(4px)" },
   visible: {
     opacity: 1,
@@ -455,19 +458,31 @@ const staggerItem = {
     filter: "blur(0px)",
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.4, 0.25, 1],
+      ease: PRO_EASE,
     },
   },
 };
 
 /** Parallax wrapper — shifts content vertically based on scroll progress */
-function ParallaxSection({ children, offset = 60, className = "" }: { children: ReactNode; offset?: number; className?: string }) {
+function ParallaxSection({
+  children,
+  offset = 60,
+  className = "",
+}: {
+  children: ReactNode;
+  offset?: number;
+  className?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [offset, -offset]);
   const smoothY = useSpring(y, { stiffness: 100, damping: 30, mass: 0.5 });
   return (
-    <motion.div ref={ref} style={{ y: smoothY }} className={`transform-gpu will-change-transform ${className}`}>
+    <motion.div
+      ref={ref}
+      style={{ y: smoothY }}
+      className={`transform-gpu will-change-transform ${className}`}
+    >
       {children}
     </motion.div>
   );
@@ -525,7 +540,10 @@ function HeroAurora({ mx, my }: { mx: MotionValue<number>; my: MotionValue<numbe
   useEffect(() => {
     const unsubX = mx.on("change", (v) => (mouseRef.current.x = (v + 1) / 2));
     const unsubY = my.on("change", (v) => (mouseRef.current.y = (v + 1) / 2));
-    return () => { unsubX(); unsubY(); };
+    return () => {
+      unsubX();
+      unsubY();
+    };
   }, [mx, my]);
 
   useEffect(() => {
@@ -535,7 +553,8 @@ function HeroAurora({ mx, my }: { mx: MotionValue<number>; my: MotionValue<numbe
     if (!ctx) return;
 
     let animId: number;
-    let w = 0, h = 0;
+    let w = 0,
+      h = 0;
 
     // Read CSS variables for theme colors
     const getColors = () => {
@@ -568,7 +587,7 @@ function HeroAurora({ mx, my }: { mx: MotionValue<number>; my: MotionValue<numbe
           return {
             r: parseInt(match[1], 10),
             g: parseInt(match[2], 10),
-            b: parseInt(match[3], 10)
+            b: parseInt(match[3], 10),
           };
         }
       }
@@ -578,13 +597,13 @@ function HeroAurora({ mx, my }: { mx: MotionValue<number>; my: MotionValue<numbe
           return {
             r: parseInt(hex[0] + hex[0], 16),
             g: parseInt(hex[1] + hex[1], 16),
-            b: parseInt(hex[2] + hex[2], 16)
+            b: parseInt(hex[2] + hex[2], 16),
           };
         }
         return {
           r: parseInt(hex.slice(0, 2), 16) || 0,
           g: parseInt(hex.slice(2, 4), 16) || 0,
-          b: parseInt(hex.slice(4, 6), 16) || 0
+          b: parseInt(hex.slice(4, 6), 16) || 0,
         };
       }
       return { r: 255, g: 255, b: 255 };
@@ -642,7 +661,12 @@ function HeroAurora({ mx, my }: { mx: MotionValue<number>; my: MotionValue<numbe
 
         // Create gradient fill for the wave band
         const bandH = wave.width * h;
-        const gradient = ctx.createLinearGradient(0, wave.yBase * h - bandH, 0, wave.yBase * h + bandH);
+        const gradient = ctx.createLinearGradient(
+          0,
+          wave.yBase * h - bandH,
+          0,
+          wave.yBase * h + bandH,
+        );
         gradient.addColorStop(0, `rgba(${col.r},${col.g},${col.b},0)`);
         gradient.addColorStop(0.3, `rgba(${col.r},${col.g},${col.b},0.04)`);
         gradient.addColorStop(0.5, `rgba(${col.r},${col.g},${col.b},0.07)`);
@@ -675,7 +699,8 @@ function HeroAurora({ mx, my }: { mx: MotionValue<number>; my: MotionValue<numbe
         const seed = i * 137.508;
         const px = ((seed * 0.618) % 1) * w;
         const baseY = ((seed * 0.381) % 1) * h;
-        const py = baseY + Math.sin(t * 0.0008 + seed) * 30 + Math.cos(t * 0.0005 + seed * 0.7) * 20;
+        const py =
+          baseY + Math.sin(t * 0.0008 + seed) * 30 + Math.cos(t * 0.0005 + seed * 0.7) * 20;
         const col = colors[i % 3];
         const alpha = 0.15 + Math.sin(t * 0.001 + seed) * 0.1;
         const radius = 1 + Math.sin(t * 0.002 + seed * 0.5) * 0.8;
@@ -724,11 +749,7 @@ function NeuralConstellation() {
       if (str.startsWith("rgb")) {
         const match = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
         if (match) {
-          return [
-            parseInt(match[1], 10),
-            parseInt(match[2], 10),
-            parseInt(match[3], 10)
-          ] as const;
+          return [parseInt(match[1], 10), parseInt(match[2], 10), parseInt(match[3], 10)] as const;
         }
       }
       if (str.startsWith("#")) {
@@ -737,13 +758,13 @@ function NeuralConstellation() {
           return [
             parseInt(hex[0] + hex[0], 16),
             parseInt(hex[1] + hex[1], 16),
-            parseInt(hex[2] + hex[2], 16)
+            parseInt(hex[2] + hex[2], 16),
           ] as const;
         }
         return [
           parseInt(hex.slice(0, 2), 16) || 0,
           parseInt(hex.slice(2, 4), 16) || 0,
-          parseInt(hex.slice(4, 6), 16) || 0
+          parseInt(hex.slice(4, 6), 16) || 0,
         ] as const;
       }
       return [255, 255, 255] as const;
@@ -771,8 +792,13 @@ function NeuralConstellation() {
     window.addEventListener("resize", resize);
 
     const particles: Array<{
-      x: number; y: number; vx: number; vy: number;
-      r: number; colorIdx: number; pulseOffset: number;
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      r: number;
+      colorIdx: number;
+      pulseOffset: number;
     }> = [];
 
     const particleCount = 25;
@@ -791,15 +817,27 @@ function NeuralConstellation() {
     let mouseX = -1000;
     let mouseY = -1000;
 
-    const handleMouseMove = (e: MouseEvent) => { mouseX = e.clientX; mouseY = e.clientY; };
-    const handleMouseLeave = () => { mouseX = -1000; mouseY = -1000; };
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    };
+    const handleMouseLeave = () => {
+      mouseX = -1000;
+      mouseY = -1000;
+    };
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     document.addEventListener("mouseleave", handleMouseLeave);
 
     let t = 0;
     let lastColorCheck = 0;
-    let cachedRgbs: [readonly [number, number, number], readonly [number, number, number], readonly [number, number, number]] | null = null;
+    let cachedRgbs:
+      | [
+          readonly [number, number, number],
+          readonly [number, number, number],
+          readonly [number, number, number],
+        ]
+      | null = null;
 
     const draw = (ts: number) => {
       t = ts;
@@ -971,7 +1009,8 @@ function ScrollAurora() {
         style={{
           rotate,
           y: y1,
-          background: "radial-gradient(circle, rgb(from var(--pf-c1) r g b / 0.08) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, rgb(from var(--pf-c1) r g b / 0.08) 0%, transparent 70%)",
         }}
         className="pointer-events-none absolute left-[-15%] top-[10%] h-[75vmin] w-[75vmin] rounded-full transform-gpu will-change-transform"
       />
@@ -979,7 +1018,8 @@ function ScrollAurora() {
         style={{
           rotate: useTransform(rotate, (v) => -v),
           y: y2,
-          background: "radial-gradient(circle, rgb(from var(--pf-c2) r g b / 0.07) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, rgb(from var(--pf-c2) r g b / 0.07) 0%, transparent 70%)",
         }}
         className="pointer-events-none absolute right-[-15%] top-[40%] h-[75vmin] w-[75vmin] rounded-full transform-gpu will-change-transform"
       />
@@ -1085,9 +1125,9 @@ function HUDChrome({ active }: { active: string }) {
       {/* bottom-right: coordinates */}
       <div className="pointer-events-none fixed bottom-5 right-6 z-40 hidden text-right md:block">
         <div className="font-mono text-[9px] uppercase tracking-[0.25em] leading-relaxed text-white/40">
-          LAT 17.38° N
+          LAT 19.07° N
           <br />
-          LNG 78.48° E
+          LNG 83.76° E
         </div>
       </div>
     </>
@@ -1122,9 +1162,7 @@ function Navbar({
     <header className="fixed inset-x-0 top-6 z-50 flex justify-center px-4">
       <nav
         className={`flex items-center gap-1.5 rounded-full border border-white/10 bg-black/75 px-3 py-1.5 backdrop-blur-xl transition-shadow ${
-          scrolled
-            ? "shadow-[0_10px_40px_-15px_rgb(from var(--pf-c1) r g b / 0.35)]"
-            : ""
+          scrolled ? "shadow-[0_10px_40px_-15px_rgb(from var(--pf-c1) r g b / 0.35)]" : ""
         }`}
       >
         <a
@@ -1143,9 +1181,7 @@ function Navbar({
               <a
                 href={`#${item.id}`}
                 className={`relative rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors duration-200 ${
-                  active === item.id
-                    ? "text-white font-semibold"
-                    : "text-white/60 hover:text-white"
+                  active === item.id ? "text-white font-semibold" : "text-white/60 hover:text-white"
                 }`}
               >
                 {active === item.id && (
@@ -1172,7 +1208,6 @@ function Navbar({
           <Search className="h-3 w-3 text-[var(--pf-c1)]" />
           <span className="hidden lg:inline text-[8px] text-white/40 font-semibold">⌘K</span>
         </button>
-
 
         <a
           href="/Resume.pdf"
@@ -1276,24 +1311,26 @@ type ConversationMessage = { role: "user" | "assistant"; content: string };
 
 function sanitizeAiText(rawText: string): string {
   if (!rawText) return "";
-  return rawText
-    // Strip markdown code fences (```bash, ```sh, ```) and backticks
-    .replace(/^```[a-z]*\s*\n?/gim, "")
-    .replace(/\n?```$/gim, "")
-    .replace(/```/g, "")
-    // Strip artificial LLM terminal headers/banners
-    .replace(/MSK\s+PORTFOLIO\s+TERMINAL(\s+v[\d\.]+)?/gi, "")
-    .replace(/STATUS:\s*ONLINE/gi, "")
-    .replace(/USER:\s*UNKNOWN/gi, "")
-    .replace(/SYSTEM:\s*AI\s+ASSISTANT[^\n]*/gi, "")
-    .replace(/^[-=]{3,}\s*$/gm, "") // strip separator lines
-    .replace(/\n{3,}/g, "\n\n")     // collapse extra newlines
-    .trim();
+  return (
+    rawText
+      // Strip markdown code fences (```bash, ```sh, ```) and backticks
+      .replace(/^```[a-z]*\s*\n?/gim, "")
+      .replace(/\n?```$/gim, "")
+      .replace(/```/g, "")
+      // Strip artificial LLM terminal headers/banners
+      .replace(/MSK\s+PORTFOLIO\s+TERMINAL(\s+v[\d.]+)?/gi, "")
+      .replace(/STATUS:\s*ONLINE/gi, "")
+      .replace(/USER:\s*UNKNOWN/gi, "")
+      .replace(/SYSTEM:\s*AI\s+ASSISTANT[^\n]*/gi, "")
+      .replace(/^[-=]{3,}\s*$/gm, "") // strip separator lines
+      .replace(/\n{3,}/g, "\n\n") // collapse extra newlines
+      .trim()
+  );
 }
 
 async function fetchTerminalAiResponse(
   userPrompt: string,
-  conversationMessages: ConversationMessage[] = []
+  conversationMessages: ConversationMessage[] = [],
 ): Promise<string> {
   const apiKey = (import.meta.env.VITE_OPENROUTER_API_KEY as string | undefined)?.trim();
   const configuredModel = (import.meta.env.VITE_OPENROUTER_MODEL as string | undefined)?.trim();
@@ -1314,13 +1351,36 @@ async function fetchTerminalAiResponse(
     if (q.includes("project") || q.includes("work") || q.includes("build") || q.includes("app")) {
       return "🚀 Makoju Suman Kumar's Highlighted Projects:\n1. 🌾 Farmora — MERN Produce E-Commerce Platform\n2. 🎬 CineDB — TMDB Movie & TV Discovery Web App\n3. 🤖 SKY AI — Voice & Text Conversational AI Assistant\n4. 📱 Task Planner — Mobile App in Kotlin & Flutter";
     }
-    if (q.includes("skill") || q.includes("stack") || q.includes("tech") || q.includes("tool") || q.includes("react") || q.includes("flutter")) {
+    if (
+      q.includes("skill") ||
+      q.includes("stack") ||
+      q.includes("tech") ||
+      q.includes("tool") ||
+      q.includes("react") ||
+      q.includes("flutter")
+    ) {
       return "⚡ Core Technology Stack:\n• Frontend: React, TypeScript, JavaScript, Tailwind CSS, HTML/CSS\n• Backend: Node.js, Express.js, RESTful APIs, System Design\n• Mobile: Flutter, Kotlin, React Native\n• Database: MongoDB, MySQL, Firebase, Redis\n• AI/ML: OpenRouter LLM API, Prompt Engineering, Agentic Workflows";
     }
-    if (q.includes("contact") || q.includes("email") || q.includes("hire") || q.includes("reach") || q.includes("linkedin") || q.includes("github") || q.includes("instagram") || q.includes("social") || q.includes("connect")) {
+    if (
+      q.includes("contact") ||
+      q.includes("email") ||
+      q.includes("hire") ||
+      q.includes("reach") ||
+      q.includes("linkedin") ||
+      q.includes("github") ||
+      q.includes("instagram") ||
+      q.includes("social") ||
+      q.includes("connect")
+    ) {
       return "📫 Connect with Makoju Suman Kumar:\n• Email: ms.kumar.developer05@gmail.com\n• GitHub: github.com/Msumankumar05\n• LinkedIn: www.linkedin.com/in/itsmskdev\n• Instagram: instagram.com/suman_k_72\n• Location: Odisha, India (Open to Remote / Relocation)";
     }
-    if (q.includes("who") || q.includes("about") || q.includes("suman") || q.includes("education") || q.includes("mca")) {
+    if (
+      q.includes("who") ||
+      q.includes("about") ||
+      q.includes("suman") ||
+      q.includes("education") ||
+      q.includes("mca")
+    ) {
       return "👨‍💻 About Makoju Suman Kumar (MSK):\n• Role: Full-Stack Engineer, Mobile Developer & MCA Student\n• Degree: Master of Computer Applications (MCA) & B.Sc Computer Science\n• Focus: Web development, mobile apps, clean architecture & AI tools\n• Location: Odisha, India (Open to Remote & Relocation)";
     }
     if (q.includes("instagram") || q.includes("insta")) {
@@ -1336,27 +1396,28 @@ async function fetchTerminalAiResponse(
   // Active free model fallback chain
   const modelsToTry = configuredModel
     ? [
-      configuredModel,
-      "google/gemma-4-31b-it:free",
-      "inclusionai/ling-3.0-flash:free",
-      "google/gemma-4-26b-a4b-it:free",
-      "openai/gpt-oss-20b:free",
-      "openrouter/auto",
-    ]
+        configuredModel,
+        "google/gemma-4-31b-it:free",
+        "inclusionai/ling-3.0-flash:free",
+        "google/gemma-4-26b-a4b-it:free",
+        "openai/gpt-oss-20b:free",
+        "openrouter/auto",
+      ]
     : [
-      "google/gemma-4-31b-it:free",
-      "inclusionai/ling-3.0-flash:free",
-      "google/gemma-4-26b-a4b-it:free",
-      "openai/gpt-oss-20b:free",
-      "openrouter/auto",
-    ];
+        "google/gemma-4-31b-it:free",
+        "inclusionai/ling-3.0-flash:free",
+        "google/gemma-4-26b-a4b-it:free",
+        "openai/gpt-oss-20b:free",
+        "openrouter/auto",
+      ];
 
   for (const model of modelsToTry) {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 9000);
 
-      const originUrl = typeof window !== "undefined" ? window.location.origin : "https://itsmsk.vercel.app";
+      const originUrl =
+        typeof window !== "undefined" ? window.location.origin : "https://itsmsk.vercel.app";
 
       const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
@@ -1400,11 +1461,12 @@ async function fetchTerminalAiResponse(
       if (rawAnswer) {
         return sanitizeAiText(rawAnswer);
       }
-    } catch (err: any) {
-      if (err?.name === "AbortName" || err?.name === "AbortError") {
+    } catch (err: unknown) {
+      const error = err as { name?: string; message?: string };
+      if (error?.name === "AbortName" || error?.name === "AbortError") {
         console.warn(`[OpenRouter AI] Model ${model} timed out after 9s.`);
       } else {
-        console.warn(`[OpenRouter AI] Model ${model} failed:`, err?.message || err);
+        console.warn(`[OpenRouter AI] Model ${model} failed:`, error?.message || String(err));
       }
     }
   }
@@ -1436,21 +1498,58 @@ const STORAGE_KEY_CMD_HISTORY = "msk_terminal_cmd_history";
 const STORAGE_KEY_CONV = "msk_terminal_conv";
 const STORAGE_KEY_AUTOSPEAK = "msk_terminal_autospeak";
 
+interface SpeechRecognitionEvent {
+  resultIndex: number;
+  results: {
+    length: number;
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+      };
+    };
+  };
+}
+
+interface SpeechRecognitionErrorEvent {
+  error: string;
+}
+
+interface SpeechRecognitionInstance {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
+
+const getSpeechRecognition = (): (new () => SpeechRecognitionInstance) | null => {
+  if (typeof window === "undefined") return null;
+  const win = window as unknown as {
+    SpeechRecognition?: new () => SpeechRecognitionInstance;
+    webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+  };
+  return win.SpeechRecognition || win.webkitSpeechRecognition || null;
+};
+
 function loadFromSession<T>(key: string, fallback: T): T {
   try {
     const raw = sessionStorage.getItem(key);
     if (raw) return JSON.parse(raw) as T;
-  } catch { }
+  } catch {}
   return fallback;
 }
 
 function TerminalEmulator() {
   const [history, setHistory] = useState<string[]>(() =>
-    loadFromSession(STORAGE_KEY_HISTORY, ["__BANNER__", ""])
+    loadFromSession(STORAGE_KEY_HISTORY, ["__BANNER__", ""]),
   );
   const [input, setInput] = useState("");
   const [commandHistory, setCommandHistory] = useState<string[]>(() =>
-    loadFromSession(STORAGE_KEY_CMD_HISTORY, [])
+    loadFromSession(STORAGE_KEY_CMD_HISTORY, []),
   );
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -1461,20 +1560,22 @@ function TerminalEmulator() {
 
   // Multi-turn AI conversation memory
   const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>(() =>
-    loadFromSession(STORAGE_KEY_CONV, [])
+    loadFromSession(STORAGE_KEY_CONV, []),
   );
 
   // Voice Assistance States
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [autoSpeak, setAutoSpeak] = useState<boolean>(() =>
-    loadFromSession(STORAGE_KEY_AUTOSPEAK, false)
+    loadFromSession(STORAGE_KEY_AUTOSPEAK, false),
   );
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
   // Live Voice Mode Pro States
   const [isLiveMode, setIsLiveMode] = useState(false);
-  const [liveState, setLiveState] = useState<"listening" | "thinking" | "speaking" | "paused">("listening");
+  const [liveState, setLiveState] = useState<"listening" | "thinking" | "speaking" | "paused">(
+    "listening",
+  );
   const [liveTranscript, setLiveTranscript] = useState("");
   const [liveResponse, setLiveResponse] = useState("");
   const isLiveRef = useRef(false);
@@ -1490,29 +1591,39 @@ function TerminalEmulator() {
 
   // Persist terminal output to sessionStorage on every change
   useEffect(() => {
-    try { sessionStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history)); } catch { }
+    try {
+      sessionStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
+    } catch {}
   }, [history]);
 
   // Persist command history (up-arrow navigation) to sessionStorage
   useEffect(() => {
-    try { sessionStorage.setItem(STORAGE_KEY_CMD_HISTORY, JSON.stringify(commandHistory)); } catch { }
+    try {
+      sessionStorage.setItem(STORAGE_KEY_CMD_HISTORY, JSON.stringify(commandHistory));
+    } catch {}
   }, [commandHistory]);
 
   // Persist multi-turn conversation memory to sessionStorage
   useEffect(() => {
-    try { sessionStorage.setItem(STORAGE_KEY_CONV, JSON.stringify(conversationHistory)); } catch { }
+    try {
+      sessionStorage.setItem(STORAGE_KEY_CONV, JSON.stringify(conversationHistory));
+    } catch {}
   }, [conversationHistory]);
 
   // Persist auto-speak preference
   useEffect(() => {
-    try { sessionStorage.setItem(STORAGE_KEY_AUTOSPEAK, JSON.stringify(autoSpeak)); } catch { }
+    try {
+      sessionStorage.setItem(STORAGE_KEY_AUTOSPEAK, JSON.stringify(autoSpeak));
+    } catch {}
   }, [autoSpeak]);
 
   // Clean up voice synthesis & recognition on unmount
   useEffect(() => {
     return () => {
       if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch { }
+        try {
+          recognitionRef.current.stop();
+        } catch {}
       }
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
@@ -1562,7 +1673,10 @@ function TerminalEmulator() {
       .replace(/\*\*/g, "")
       .replace(/`/g, "")
       .replace(/•/g, "")
-      .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, "")
+      .replace(
+        /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,
+        "",
+      )
       .replace(/\n+/g, ". ")
       .trim();
 
@@ -1597,7 +1711,10 @@ function TerminalEmulator() {
       .replace(/\*\*/g, "")
       .replace(/`/g, "")
       .replace(/•/g, "")
-      .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, "")
+      .replace(
+        /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,
+        "",
+      )
       .replace(/\n+/g, ". ")
       .trim();
 
@@ -1625,8 +1742,7 @@ function TerminalEmulator() {
   // Continuous Live Voice Loop
   const startLiveListening = () => {
     if (typeof window === "undefined") return;
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition = getSpeechRecognition();
 
     if (!SpeechRecognition) {
       setHistory((prev) => [
@@ -1639,7 +1755,9 @@ function TerminalEmulator() {
     }
 
     if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch { }
+      try {
+        recognitionRef.current.stop();
+      } catch {}
     }
 
     try {
@@ -1653,7 +1771,7 @@ function TerminalEmulator() {
         setLiveState("listening");
       };
 
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
         let transcript = "";
         for (let i = event.resultIndex; i < event.results.length; i++) {
           transcript += event.results[i][0].transcript;
@@ -1664,7 +1782,7 @@ function TerminalEmulator() {
         }
       };
 
-      recognition.onerror = (event: any) => {
+      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
         console.warn("Live voice recognition error:", event.error);
         setIsListening(false);
       };
@@ -1733,7 +1851,9 @@ function TerminalEmulator() {
       setIsLiveMode(false);
       stopSpeaking();
       if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch { }
+        try {
+          recognitionRef.current.stop();
+        } catch {}
       }
       setIsListening(false);
     } else {
@@ -1748,8 +1868,7 @@ function TerminalEmulator() {
   const toggleVoiceInput = () => {
     if (typeof window === "undefined") return;
 
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition = getSpeechRecognition();
 
     if (!SpeechRecognition) {
       setHistory((prev) => [
@@ -1763,7 +1882,9 @@ function TerminalEmulator() {
 
     if (isListening) {
       if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch { }
+        try {
+          recognitionRef.current.stop();
+        } catch {}
       }
       setIsListening(false);
       return;
@@ -1779,7 +1900,7 @@ function TerminalEmulator() {
         setIsListening(true);
       };
 
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
         let transcript = "";
         for (let i = event.resultIndex; i < event.results.length; i++) {
           transcript += event.results[i][0].transcript;
@@ -1789,7 +1910,7 @@ function TerminalEmulator() {
         }
       };
 
-      recognition.onerror = (event: any) => {
+      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
         console.warn("Speech recognition error:", event.error);
         setIsListening(false);
       };
@@ -1811,7 +1932,9 @@ function TerminalEmulator() {
   const handleClear = () => {
     stopSpeaking();
     if (recognitionRef.current && isListening) {
-      try { recognitionRef.current.stop(); } catch { }
+      try {
+        recognitionRef.current.stop();
+      } catch {}
       setIsListening(false);
     }
     setHistory(["__BANNER__", ""]);
@@ -1823,7 +1946,7 @@ function TerminalEmulator() {
       sessionStorage.removeItem(STORAGE_KEY_HISTORY);
       sessionStorage.removeItem(STORAGE_KEY_CMD_HISTORY);
       sessionStorage.removeItem(STORAGE_KEY_CONV);
-    } catch { }
+    } catch {}
     setTimeout(() => inputRef.current?.focus(), 10);
   };
 
@@ -1833,7 +1956,9 @@ function TerminalEmulator() {
     if (!cmd) return;
 
     if (isListening && recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch { }
+      try {
+        recognitionRef.current.stop();
+      } catch {}
       setIsListening(false);
     }
 
@@ -1904,10 +2029,7 @@ function TerminalEmulator() {
 
       case "date": {
         const now = new Date();
-        response = [
-          `▸ ${cmd}`,
-          `  ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`,
-        ];
+        response = [`▸ ${cmd}`, `  ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`];
         break;
       }
 
@@ -1920,10 +2042,7 @@ function TerminalEmulator() {
         break;
 
       case "ls":
-        response = [
-          `▸ ${cmd}`,
-          "  about/  projects/  skills/  contact/  README.md",
-        ];
+        response = [`▸ ${cmd}`, "  about/  projects/  skills/  contact/  README.md"];
         break;
 
       case "neofetch":
@@ -1940,10 +2059,7 @@ function TerminalEmulator() {
         break;
 
       case "history":
-        response = [
-          `▸ ${cmd}`,
-          ...commandHistory.map((c, i) => `  ${i + 1}. ${c}`),
-        ];
+        response = [`▸ ${cmd}`, ...commandHistory.map((c, i) => `  ${i + 1}. ${c}`)];
         break;
 
       case "version":
@@ -1968,11 +2084,7 @@ function TerminalEmulator() {
         // Snapshot current conversation history for this request
         const currentConv = conversationHistory;
 
-        setHistory((prev) => [
-          ...prev,
-          `▸ ${cmd}`,
-          "🤖 Thinking...",
-        ]);
+        setHistory((prev) => [...prev, `▸ ${cmd}`, "🤖 Thinking..."]);
         setInput("");
         scrollToBottom();
 
@@ -2068,22 +2180,36 @@ function TerminalEmulator() {
 
     // Markdown-like formatting helpers
     const parseLine = (txt: string) => {
-      let clean = txt
-        .replace(/^`{1,3}\s*/, "")
-        .replace(/\s*`{1,3}$/, "");
+      const clean = txt.replace(/^`{1,3}\s*/, "").replace(/\s*`{1,3}$/, "");
 
       return clean
         .replace(/\*\*(.*?)\*\*/g, '<span class="font-semibold text-white">$1</span>')
-        .replace(/`(.*?)`/g, '<code class="bg-white/10 px-1 py-0.5 rounded text-[10px] text-[var(--pf-c1)] font-mono">$1</code>')
-        .replace(/^(\$[a-zA-Z0-9_ -]+)/i, '<span class="text-[var(--pf-c1)] font-semibold">$1</span>')
+        .replace(
+          /`(.*?)`/g,
+          '<code class="bg-white/10 px-1 py-0.5 rounded text-[10px] text-[var(--pf-c1)] font-mono">$1</code>',
+        )
+        .replace(
+          /^(\$[a-zA-Z0-9_ -]+)/i,
+          '<span class="text-[var(--pf-c1)] font-semibold">$1</span>',
+        )
         .replace(/^([A-Za-z0-9_ -]+:)/, '<span class="text-white/80 font-medium">$1</span>');
     };
 
     // Banner
     if (line === "__BANNER__") {
       return (
-        <div key={i} className="select-none" style={{ color: "rgba(255,255,255,0.28)", fontSize: 11, letterSpacing: "0.04em", marginBottom: 6 }}>
-          Type <span style={{ color: "var(--pf-c1)", opacity: 0.8 }}>help</span> to see commands · 🎙️ Voice input & 🔊 Voice output enabled · or ask me anything
+        <div
+          key={i}
+          className="select-none"
+          style={{
+            color: "rgba(255,255,255,0.28)",
+            fontSize: 11,
+            letterSpacing: "0.04em",
+            marginBottom: 6,
+          }}
+        >
+          Type <span style={{ color: "var(--pf-c1)", opacity: 0.8 }}>help</span> to see commands ·
+          🎙️ Voice input & 🔊 Voice output enabled · or ask me anything
         </div>
       );
     }
@@ -2093,7 +2219,9 @@ function TerminalEmulator() {
       const cmd = line.slice(1).trim();
       return (
         <div key={i} className="flex items-center gap-2" style={{ lineHeight: 1.85 }}>
-          <span className="shrink-0 select-none" style={{ color: "var(--pf-c1)" }}>❯</span>
+          <span className="shrink-0 select-none" style={{ color: "var(--pf-c1)" }}>
+            ❯
+          </span>
           <span style={{ color: "rgba(255,255,255,0.85)" }}>{cmd}</span>
         </div>
       );
@@ -2104,11 +2232,19 @@ function TerminalEmulator() {
       const label = line.replace("🤖 ", "");
       const isThinking = label === "Thinking...";
       return (
-        <div key={i} className="flex items-center justify-between gap-2" style={{ lineHeight: 1.85, color: "var(--pf-c1)", opacity: isThinking ? 0.6 : 1 }}>
+        <div
+          key={i}
+          className="flex items-center justify-between gap-2"
+          style={{ lineHeight: 1.85, color: "var(--pf-c1)", opacity: isThinking ? 0.6 : 1 }}
+        >
           <div className="flex items-center gap-2">
-            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", opacity: 0.5 }}>AI</span>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", opacity: 0.5 }}>
+              AI
+            </span>
             <span style={{ opacity: 0.3 }}>·</span>
-            <span style={{ fontSize: 11 }}>{isThinking ? "thinking…" : label === "AI:" ? "response" : label}</span>
+            <span style={{ fontSize: 11 }}>
+              {isThinking ? "thinking…" : label === "AI:" ? "response" : label}
+            </span>
           </div>
           {!isThinking && (
             <button
@@ -2118,7 +2254,12 @@ function TerminalEmulator() {
                 // Find complete AI response text starting after line i
                 const responseLines: string[] = [];
                 for (let j = i + 1; j < history.length; j++) {
-                  if (history[j].startsWith("▸") || history[j].startsWith("🤖") || history[j] === "") break;
+                  if (
+                    history[j].startsWith("▸") ||
+                    history[j].startsWith("🤖") ||
+                    history[j] === ""
+                  )
+                    break;
                   responseLines.push(history[j].trim());
                 }
                 const fullText = responseLines.join(" ");
@@ -2131,7 +2272,11 @@ function TerminalEmulator() {
               className="flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition"
               title={isSpeaking ? "Stop speech" : "Read AI response aloud"}
             >
-              {isSpeaking ? <VolumeX className="w-3 h-3 text-red-400" /> : <Volume1 className="w-3 h-3 text-[var(--pf-c1)]" />}
+              {isSpeaking ? (
+                <VolumeX className="w-3 h-3 text-red-400" />
+              ) : (
+                <Volume1 className="w-3 h-3 text-[var(--pf-c1)]" />
+              )}
               <span>{isSpeaking ? "Stop" : "Listen"}</span>
             </button>
           )}
@@ -2141,7 +2286,11 @@ function TerminalEmulator() {
 
     // Error
     if (line.includes("✗") || line.includes("⚠️")) {
-      return <div key={i} style={{ paddingLeft: 16, lineHeight: 1.8, color: "#f87171", fontSize: 11 }}>{line.trimStart()}</div>;
+      return (
+        <div key={i} style={{ paddingLeft: 16, lineHeight: 1.8, color: "#f87171", fontSize: 11 }}>
+          {line.trimStart()}
+        </div>
+      );
     }
 
     // Regular output lines with markdown parsing
@@ -2169,7 +2318,13 @@ function TerminalEmulator() {
         <div className="flex items-center gap-2">
           <span
             className="h-1.5 w-1.5 rounded-full"
-            style={{ background: isListening ? "#f87171" : isSpeaking ? "var(--pf-c1)" : "rgba(255,255,255,0.2)" }}
+            style={{
+              background: isListening
+                ? "#f87171"
+                : isSpeaking
+                  ? "var(--pf-c1)"
+                  : "rgba(255,255,255,0.2)",
+            }}
           />
           <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", letterSpacing: "0.08em" }}>
             {isListening ? "listening…" : isSpeaking ? "speaking…" : "ai shell"}
@@ -2180,11 +2335,13 @@ function TerminalEmulator() {
           {/* Live Voice button — compact */}
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); toggleLiveMode(); }}
-            className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] transition ${isLiveMode
-                ? "text-red-400 bg-red-500/10"
-                : "text-white/25 hover:text-white/60"
-              }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleLiveMode();
+            }}
+            className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] transition ${
+              isLiveMode ? "text-red-400 bg-red-500/10" : "text-white/25 hover:text-white/60"
+            }`}
             title="Live Voice Mode"
           >
             <Radio className="w-2.5 h-2.5" />
@@ -2194,9 +2351,14 @@ function TerminalEmulator() {
           {/* Auto speak toggle */}
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); if (isSpeaking) stopSpeaking(); setAutoSpeak(!autoSpeak); }}
-            className={`p-1 rounded transition ${autoSpeak ? "text-[var(--pf-c1)]" : "text-white/25 hover:text-white/50"
-              }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isSpeaking) stopSpeaking();
+              setAutoSpeak(!autoSpeak);
+            }}
+            className={`p-1 rounded transition ${
+              autoSpeak ? "text-[var(--pf-c1)]" : "text-white/25 hover:text-white/50"
+            }`}
             title={autoSpeak ? "Auto voice on" : "Auto voice off"}
           >
             {autoSpeak ? <Volume2 className="w-3 h-3" /> : <VolumeX className="w-3 h-3" />}
@@ -2205,7 +2367,10 @@ function TerminalEmulator() {
           {/* Clear */}
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); handleClear(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleClear();
+            }}
             className="p-1 rounded text-white/25 hover:text-white/50 transition"
             title="Clear (Ctrl+L)"
           >
@@ -2232,14 +2397,15 @@ function TerminalEmulator() {
                 else if (liveState === "paused") startLiveListening();
                 else if (liveTranscript) processLiveVoicePrompt(liveTranscript);
               }}
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${liveState === "listening"
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                liveState === "listening"
                   ? "bg-red-500/20 border border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.3)]"
                   : liveState === "thinking"
                     ? "bg-white/5 border border-white/20"
                     : liveState === "speaking"
                       ? "bg-[var(--pf-c1)]/10 border border-[var(--pf-c1)]/40 shadow-[0_0_20px_rgba(168,255,120,0.2)]"
                       : "bg-white/5 border border-white/10"
-                }`}
+              }`}
             >
               {liveState === "listening" ? (
                 <Mic className="w-5 h-5 text-red-400 animate-pulse" />
@@ -2255,10 +2421,19 @@ function TerminalEmulator() {
             {/* Status text */}
             <div className="text-center space-y-1">
               <p style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", letterSpacing: "0.06em" }}>
-                {liveState === "listening" ? "speak now" : liveState === "thinking" ? "thinking…" : liveState === "speaking" ? "speaking…" : "paused"}
+                {liveState === "listening"
+                  ? "speak now"
+                  : liveState === "thinking"
+                    ? "thinking…"
+                    : liveState === "speaking"
+                      ? "speaking…"
+                      : "paused"}
               </p>
               {liveTranscript && (
-                <p style={{ fontSize: 9.5, color: "rgba(255,255,255,0.35)", maxWidth: 200 }} className="truncate">
+                <p
+                  style={{ fontSize: 9.5, color: "rgba(255,255,255,0.35)", maxWidth: 200 }}
+                  className="truncate"
+                >
                   "{liveTranscript}"
                 </p>
               )}
@@ -2272,7 +2447,10 @@ function TerminalEmulator() {
                   if (liveState === "paused") startLiveListening();
                   else {
                     stopSpeaking();
-                    if (recognitionRef.current) try { recognitionRef.current.stop(); } catch { }
+                    if (recognitionRef.current)
+                      try {
+                        recognitionRef.current.stop();
+                      } catch {}
                     setLiveState("paused");
                   }
                 }}
@@ -2318,7 +2496,9 @@ function TerminalEmulator() {
         className="flex items-center shrink-0 gap-2"
         style={{ padding: "7px 12px 7px 18px", fontSize: 11.5, fontFamily: "inherit" }}
       >
-        <span className="shrink-0 select-none" style={{ color: "var(--pf-c1)", opacity: 0.7 }}>❯</span>
+        <span className="shrink-0 select-none" style={{ color: "var(--pf-c1)", opacity: 0.7 }}>
+          ❯
+        </span>
 
         <input
           ref={inputRef}
@@ -2363,9 +2543,13 @@ function TerminalEmulator() {
         {/* mic */}
         <button
           type="button"
-          onClick={(e) => { e.stopPropagation(); toggleVoiceInput(); }}
-          className={`shrink-0 p-1 rounded transition ${isListening ? "text-red-400 animate-pulse" : "text-white/25 hover:text-white/60"
-            }`}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleVoiceInput();
+          }}
+          className={`shrink-0 p-1 rounded transition ${
+            isListening ? "text-red-400 animate-pulse" : "text-white/25 hover:text-white/60"
+          }`}
           title={isListening ? "Stop" : "Voice input"}
         >
           {isListening ? <Mic className="w-3.5 h-3.5" /> : <MicOff className="w-3.5 h-3.5" />}
@@ -2449,12 +2633,54 @@ function HeroCard() {
   // ─── THEME PALETTE CONFIG ─────────────────────────────
   const themesList = [
     { id: "gold", label: "Gold", name: "Luxury Gold", c1: "#f5c14a", c2: "#ff7a2d", c3: "#ffd98a" },
-    { id: "cyber", label: "Cyber", name: "Neon Cyber", c1: "#00e5ff", c2: "#ff2d7d", c3: "#c084fc" },
-    { id: "emerald", label: "Emerald", name: "Bio Emerald", c1: "#00ff88", c2: "#00f0ff", c3: "#a6ff00" },
-    { id: "devialet", label: "Obsidian", name: "Obsidian Crimson", c1: "#e8352a", c2: "#ff8b6a", c3: "#c9a87c" },
-    { id: "midnight", label: "Midnight", name: "Midnight Violet", c1: "#a78bfa", c2: "#8b5cf6", c3: "#c4b5fd" },
-    { id: "sunset", label: "Sunset", name: "Warm Sunset", c1: "#ff6b6b", c2: "#ffa94d", c3: "#ffd93d" },
-    { id: "ocean", label: "Ocean", name: "Deep Ocean", c1: "#00d4ff", c2: "#0066ff", c3: "#7dd3fc" },
+    {
+      id: "cyber",
+      label: "Cyber",
+      name: "Neon Cyber",
+      c1: "#00e5ff",
+      c2: "#ff2d7d",
+      c3: "#c084fc",
+    },
+    {
+      id: "emerald",
+      label: "Emerald",
+      name: "Bio Emerald",
+      c1: "#00ff88",
+      c2: "#00f0ff",
+      c3: "#a6ff00",
+    },
+    {
+      id: "devialet",
+      label: "Obsidian",
+      name: "Obsidian Crimson",
+      c1: "#e8352a",
+      c2: "#ff8b6a",
+      c3: "#c9a87c",
+    },
+    {
+      id: "midnight",
+      label: "Midnight",
+      name: "Midnight Violet",
+      c1: "#a78bfa",
+      c2: "#8b5cf6",
+      c3: "#c4b5fd",
+    },
+    {
+      id: "sunset",
+      label: "Sunset",
+      name: "Warm Sunset",
+      c1: "#ff6b6b",
+      c2: "#ffa94d",
+      c3: "#ffd93d",
+    },
+    {
+      id: "ocean",
+      label: "Ocean",
+      name: "Deep Ocean",
+      c1: "#00d4ff",
+      c2: "#0066ff",
+      c3: "#7dd3fc",
+    },
   ];
 
   const [currentTheme, setCurrentTheme] = useState(() => {
@@ -2497,7 +2723,9 @@ function HeroCard() {
       setTimeout(() => {
         el.setAttribute("data-pf-theme", nextThemeId);
         setCurrentTheme(nextThemeId);
-        try { localStorage.setItem("pf-theme", nextThemeId); } catch (_) { }
+        try {
+          localStorage.setItem("pf-theme", nextThemeId);
+        } catch (_) {}
       }, 100);
 
       setTimeout(() => {
@@ -2506,7 +2734,9 @@ function HeroCard() {
     } else {
       el.setAttribute("data-pf-theme", nextThemeId);
       setCurrentTheme(nextThemeId);
-      try { localStorage.setItem("pf-theme", nextThemeId); } catch (_) { }
+      try {
+        localStorage.setItem("pf-theme", nextThemeId);
+      } catch (_) {}
     }
 
     setTimeout(() => {
@@ -2576,10 +2806,11 @@ function HeroCard() {
               <button
                 key={id}
                 onClick={() => setTab(id)}
-                className={`font-mono text-[9px] tracking-[0.15em] px-3 py-1 rounded-md transition-all duration-300 flex items-center gap-1.5 ${tab === id
-                  ? "bg-white/12 text-white font-semibold shadow-sm"
-                  : "text-white/40 hover:text-white/70"
-                  }`}
+                className={`font-mono text-[9px] tracking-[0.15em] px-3 py-1 rounded-md transition-all duration-300 flex items-center gap-1.5 ${
+                  tab === id
+                    ? "bg-white/12 text-white font-semibold shadow-sm"
+                    : "text-white/40 hover:text-white/70"
+                }`}
               >
                 {badge && (
                   <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-c1)] animate-pulse" />
@@ -2610,11 +2841,14 @@ function HeroCard() {
               {Object.entries(fileExplorer).map(([key, { icon, label, color }]) => (
                 <button
                   key={key}
-                  onClick={() => setSelectedFile(key as any)}
-                  className={`group flex w-full items-center gap-2 px-3 py-1.5 text-left transition-all duration-200 ${selectedFile === key
-                    ? "bg-white/8 text-white border-r-2 border-[var(--pf-c1)]"
-                    : "text-white/40 hover:text-white/70 hover:bg-white/5"
-                    }`}
+                  onClick={() =>
+                    setSelectedFile(key as "profile" | "skills" | "contact" | "package")
+                  }
+                  className={`group flex w-full items-center gap-2 px-3 py-1.5 text-left transition-all duration-200 ${
+                    selectedFile === key
+                      ? "bg-white/8 text-white border-r-2 border-[var(--pf-c1)]"
+                      : "text-white/40 hover:text-white/70 hover:bg-white/5"
+                  }`}
                 >
                   <span className={`text-[10px] ${selectedFile === key ? color : "text-white/30"}`}>
                     {icon}
@@ -2640,33 +2874,42 @@ function HeroCard() {
               `}</style>
               <div className="relative">
                 <div className="absolute left-0 top-0 text-white/10 text-right pr-3 select-none text-[9px] leading-relaxed">
-                  {Array.from({ length: 8 }, (_, i) => <div key={i}>{i + 1}</div>)}
+                  {Array.from({ length: 8 }, (_, i) => (
+                    <div key={i}>{i + 1}</div>
+                  ))}
                 </div>
                 <div className="pl-7">
                   {selectedFile === "profile" && (
                     <div className="space-y-0.5 text-[10px]">
-                      <div><span className="text-white/30">{"{"}</span></div>
+                      <div>
+                        <span className="text-white/30">{"{"}</span>
+                      </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"name"</span>
                         <span className="text-white/30">: </span>
-                        <span className="text-[#a8ff78]">"Makoju Suman Kumar"</span><span className="text-white/30">,</span>
+                        <span className="text-[#a8ff78]">"Makoju Suman Kumar"</span>
+                        <span className="text-white/30">,</span>
                       </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"role"</span>
                         <span className="text-white/30">: </span>
-                        <span className="text-[#a8ff78]">"Fullstack Engineer"</span><span className="text-white/30">,</span>
+                        <span className="text-[#a8ff78]">"Fullstack Engineer"</span>
+                        <span className="text-white/30">,</span>
                       </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"location"</span>
                         <span className="text-white/30">: </span>
-                        <span className="text-[#a8ff78]">"Odisha, IN"</span><span className="text-white/30">,</span>
+                        <span className="text-[#a8ff78]">"Odisha, IN"</span>
+                        <span className="text-white/30">,</span>
                       </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"status"</span>
                         <span className="text-white/30">: </span>
                         <span className="text-[#a8ff78]">"open_to_work"</span>
                       </div>
-                      <div><span className="text-white/30">{"}"}</span></div>
+                      <div>
+                        <span className="text-white/30">{"}"}</span>
+                      </div>
                     </div>
                   )}
                   {selectedFile === "skills" && (
@@ -2690,37 +2933,47 @@ function HeroCard() {
                   )}
                   {selectedFile === "contact" && (
                     <div className="space-y-0.5 text-[10px]">
-                      <div><span className="text-white/30">{"{"}</span></div>
+                      <div>
+                        <span className="text-white/30">{"{"}</span>
+                      </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"email"</span>
                         <span className="text-white/30">: </span>
-                        <span className="text-[#a8ff78]">"ms.kumar.developer05@gmail.com"</span><span className="text-white/30">,</span>
+                        <span className="text-[#a8ff78]">"ms.kumar.developer05@gmail.com"</span>
+                        <span className="text-white/30">,</span>
                       </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"github"</span>
                         <span className="text-white/30">: </span>
-                        <span className="text-[#a8ff78]">"github.com/Msumankumar05"</span><span className="text-white/30">,</span>
+                        <span className="text-[#a8ff78]">"github.com/Msumankumar05"</span>
+                        <span className="text-white/30">,</span>
                       </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"linkedin"</span>
                         <span className="text-white/30">: </span>
                         <span className="text-[#a8ff78]">"www.linkedin.com/in/itsmskdev"</span>
                       </div>
-                      <div><span className="text-white/30">{"}"}</span></div>
+                      <div>
+                        <span className="text-white/30">{"}"}</span>
+                      </div>
                     </div>
                   )}
                   {selectedFile === "package" && (
                     <div className="space-y-0.5 text-[9px] text-white/50">
-                      <div><span className="text-white/20">{"{"}</span></div>
+                      <div>
+                        <span className="text-white/20">{"{"}</span>
+                      </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"name"</span>
                         <span className="text-white/20">: </span>
-                        <span className="text-[#a8ff78]">"msk-portfolio"</span><span className="text-white/20">,</span>
+                        <span className="text-[#a8ff78]">"msk-portfolio"</span>
+                        <span className="text-white/20">,</span>
                       </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"version"</span>
                         <span className="text-white/20">: </span>
-                        <span className="text-[#a8ff78]">"2.0.0"</span><span className="text-white/20">,</span>
+                        <span className="text-[#a8ff78]">"2.0.0"</span>
+                        <span className="text-white/20">,</span>
                       </div>
                       <div className="pl-3">
                         <span className="text-[var(--pf-c1)]">"dependencies"</span>
@@ -2729,15 +2982,20 @@ function HeroCard() {
                       <div className="pl-6">
                         <span className="text-[var(--pf-c2)]">"react"</span>
                         <span className="text-white/20">: </span>
-                        <span className="text-[#a8ff78]">"^19.0.0"</span><span className="text-white/20">,</span>
+                        <span className="text-[#a8ff78]">"^19.0.0"</span>
+                        <span className="text-white/20">,</span>
                       </div>
                       <div className="pl-6">
                         <span className="text-[var(--pf-c2)]">"framer-motion"</span>
                         <span className="text-white/20">: </span>
                         <span className="text-[#a8ff78]">"^11.0.0"</span>
                       </div>
-                      <div className="pl-3"><span className="text-white/20">{"}"}</span></div>
-                      <div><span className="text-white/20">{"}"}</span></div>
+                      <div className="pl-3">
+                        <span className="text-white/20">{"}"}</span>
+                      </div>
+                      <div>
+                        <span className="text-white/20">{"}"}</span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -3025,7 +3283,9 @@ function Hero() {
               style={{ fontSize: "clamp(3.8rem, 9vw, 7.5rem)" }}
               aria-label="Makoju Suman Kumar (MSK) — Full-Stack Engineer & AI Developer"
             >
-              <span className="sr-only">Makoju Suman Kumar (MSK) — Full-Stack Engineer &amp; AI Developer — </span>
+              <span className="sr-only">
+                Makoju Suman Kumar (MSK) — Full-Stack Engineer &amp; AI Developer —{" "}
+              </span>
               MSK
               <span
                 style={{
@@ -3067,9 +3327,9 @@ function Hero() {
           >
             Building the full spectrum — from pixel-perfect user interfaces and scalable backend
             architectures to cross-platform mobile applications and{" "}
-            <span className="text-[var(--pf-c2)] font-mono font-medium">AI-powered</span> experiences. I focus
-            on creating fast, accessible, and production-ready digital products that combine elegant
-            design, clean architecture, and exceptional user experiences.
+            <span className="text-[var(--pf-c2)] font-mono font-medium">AI-powered</span>{" "}
+            experiences. I focus on creating fast, accessible, and production-ready digital products
+            that combine elegant design, clean architecture, and exceptional user experiences.
           </motion.p>
 
           {/* Telemetry HUD Dashboard Matrix */}
@@ -3253,20 +3513,21 @@ function About() {
         <div className="mt-16 grid gap-16 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              variants={slideFromLeftVariants}
+              initial="hidden"
+              whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1] }}
               className="font-display text-4xl leading-[1.05] text-white md:text-6xl lg:text-7xl"
             >
               A builder who likes the <span className="italic text-[var(--pf-c2)]">messy bit</span>{" "}
               between the database and the user.
             </motion.h2>
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              variants={slideFromLeftVariants}
+              initial="hidden"
+              whileInView="visible"
+              custom={1}
               viewport={{ once: true, margin: "-80px" }}
-              transition={{ delay: 0.15, duration: 0.7 }}
               className="mt-10 max-w-xl space-y-5 text-sm leading-relaxed text-white/60"
             >
               <p>
@@ -3280,23 +3541,30 @@ function About() {
                 the craft.
               </p>
             </motion.div>
-            <div className="mt-8 flex flex-wrap gap-2">
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-60px" }}
+              className="mt-8 flex flex-wrap gap-2"
+            >
               {["MCA Student", "Full-Stack", "Mobile", "AI Enthusiast", "Fast Learner"].map((t) => (
-                <span
+                <motion.span
                   key={t}
+                  variants={staggerItem}
                   className="border border-white/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white/60"
                 >
                   {t}
-                </span>
+                </motion.span>
               ))}
-            </div>
+            </motion.div>
           </div>
 
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            variants={slideFromRightVariants}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ delay: 0.2, duration: 0.8 }}
             className="lg:col-span-5"
           >
             <div className="relative border border-white/10 bg-white/[0.02] p-8">
@@ -3347,29 +3615,41 @@ function Stack() {
       <div className="mx-auto max-w-6xl">
         <SectionEyebrow num="02" title="The Toolkit" />
         <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          variants={scrollRevealVariants}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
           className="mt-8 font-display text-5xl leading-[1.05] text-white md:text-7xl"
         >
           The full <span className="italic text-[var(--pf-c1)]">constellation</span>.
         </motion.h2>
-        <p className="mt-6 max-w-xl text-sm leading-relaxed text-white/50">
+        <motion.p
+          variants={scrollRevealVariants}
+          initial="hidden"
+          whileInView="visible"
+          custom={1}
+          viewport={{ once: true, margin: "-80px" }}
+          className="mt-6 max-w-xl text-sm leading-relaxed text-white/50"
+        >
           From pixel-perfect UI to backend systems, mobile apps, and AI — the tools I reach for.
-        </p>
+        </motion.p>
 
-        <div className="mt-16 grid gap-px border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
+        <ScrollRevealLine className="mt-10" />
+
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          className="mt-8 grid gap-px border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3"
+        >
           {SKILL_GROUPS.map((group, i) => {
             const Icon = group.icon;
             return (
               <motion.div
                 key={group.title}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                variants={staggerItem}
                 whileHover={{ y: -3 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
                 className="group relative overflow-hidden bg-[var(--pf-bg)] p-8 transform-gpu transition-shadow duration-300 hover:shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)]"
               >
                 <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[var(--pf-c1)]/0 blur-3xl transition-all duration-500 group-hover:bg-[var(--pf-c1)]/10" />
@@ -3397,7 +3677,7 @@ function Stack() {
               </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -3422,129 +3702,136 @@ function WorkCard({
       glowColor={p.accent.startsWith("var") ? "var(--pf-c1)" : p.accent}
       onClick={() => !p.placeholder && onOpenModal?.(p)}
     >
-    <div
-      className="relative flex flex-col gap-8 border border-white/10 bg-white/[0.02] p-6 md:p-8 cursor-pointer"
-      style={{
-        background: `radial-gradient(ellipse at 50% 0%, ${p.accent}10, transparent 65%)`,
-      }}
-    >
-      {/* top accent bar */}
       <div
-        className="h-px w-full"
-        style={{ background: `linear-gradient(to right, ${p.accent}, transparent)` }}
-      />
-      <div
-        className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.3em]"
-        style={{ color: p.accent }}
+        className="relative flex flex-col gap-8 border border-white/10 bg-white/[0.02] p-6 md:p-8 cursor-pointer"
+        style={{
+          background: `radial-gradient(ellipse at 50% 0%, ${p.accent}10, transparent 65%)`,
+        }}
       >
-        <span className="flex items-center gap-2">
-          <span className="h-px w-4" style={{ backgroundColor: p.accent }} />
-          Frame {String(i + 1).padStart(2, "0")}
-        </span>
-        <span className="text-white/30">
-          {String(i + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-        </span>
-      </div>
-      <div>
-        <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.3em] text-white/50">
-          {p.category}
+        {/* top accent bar */}
+        <div
+          className="h-px w-full"
+          style={{ background: `linear-gradient(to right, ${p.accent}, transparent)` }}
+        />
+        <div
+          className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.3em]"
+          style={{ color: p.accent }}
+        >
+          <span className="flex items-center gap-2">
+            <span className="h-px w-4" style={{ backgroundColor: p.accent }} />
+            Frame {String(i + 1).padStart(2, "0")}
+          </span>
+          <span className="text-white/30">
+            {String(i + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+          </span>
         </div>
-        <h3 className="font-display text-4xl leading-[0.95] text-white sm:text-5xl">
-          {p.name.split(" ").map((w, wi) => (
-            <span key={wi} className={wi === 1 ? "italic" : ""}>
-              {w}
-              {wi < p.name.split(" ").length - 1 ? " " : ""}
+        <div>
+          <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.3em] text-white/50">
+            {p.category}
+          </div>
+          <h3 className="font-display text-4xl leading-[0.95] text-white sm:text-5xl">
+            {p.name.split(" ").map((w, wi) => (
+              <span key={wi} className={wi === 1 ? "italic" : ""}>
+                {w}
+                {wi < p.name.split(" ").length - 1 ? " " : ""}
+              </span>
+            ))}
+          </h3>
+          <p className="mt-4 text-sm leading-relaxed text-white/70">{p.longDesc}</p>
+        </div>
+        {/* metric */}
+        <div className="flex items-start gap-4">
+          <div className="font-display leading-none text-5xl" style={{ color: p.accent }}>
+            {p.metric.value}
+            <span className="text-[0.5em] align-top" style={{ color: p.accent }}>
+              {p.metric.unit}
+            </span>
+          </div>
+          <div className="mt-2 max-w-[16rem] font-mono text-[9px] uppercase leading-relaxed tracking-[0.22em] text-white/55">
+            {p.metric.label}
+          </div>
+        </div>
+        {/* stack */}
+        <div className="flex flex-wrap gap-1.5">
+          {p.stack.map((s) => (
+            <span
+              key={s}
+              className="border border-white/15 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-white/70"
+            >
+              {s}
             </span>
           ))}
-        </h3>
-        <p className="mt-4 text-sm leading-relaxed text-white/70">{p.longDesc}</p>
-      </div>
-      {/* metric */}
-      <div className="flex items-start gap-4">
-        <div className="font-display leading-none text-5xl" style={{ color: p.accent }}>
-          {p.metric.value}
-          <span className="text-[0.5em] align-top" style={{ color: p.accent }}>
-            {p.metric.unit}
-          </span>
         </div>
-        <div className="mt-2 max-w-[16rem] font-mono text-[9px] uppercase leading-relaxed tracking-[0.22em] text-white/55">
-          {p.metric.label}
+        {/* CTAs */}
+        <div className="flex flex-wrap items-center gap-3">
+          {p.liveUrl ? (
+            <a
+              href={p.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Visit ${p.name} live demo`}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
+                p.placeholder ? "pointer-events-none opacity-40" : ""
+              }`}
+              style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
+            >
+              Live Demo{" "}
+              <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </a>
+          ) : p.githubUrl ? (
+            <a
+              href={p.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`View ${p.name} source code on GitHub`}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
+                p.placeholder ? "pointer-events-none opacity-40" : ""
+              }`}
+              style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
+            >
+              Source Code{" "}
+              <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </a>
+          ) : (
+            <span className="inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] opacity-50 border border-white/15 text-white/60">
+              In Development
+            </span>
+          )}
+          {p.liveUrl && p.githubUrl && (
+            <a
+              href={p.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`View ${p.name} repository on GitHub`}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
+                p.placeholder ? "pointer-events-none opacity-40" : ""
+              }`}
+            >
+              <Github className="h-3 w-3" /> GitHub
+            </a>
+          )}
+          {!p.placeholder && onOpenModal && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenModal(p);
+              }}
+              className="inline-flex items-center gap-2 border border-white/15 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/60 hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] transition"
+            >
+              <ExternalLink className="h-3 w-3" /> Details
+            </button>
+          )}
         </div>
       </div>
-      {/* stack */}
-      <div className="flex flex-wrap gap-1.5">
-        {p.stack.map((s) => (
-          <span
-            key={s}
-            className="border border-white/15 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-white/70"
-          >
-            {s}
-          </span>
-        ))}
-      </div>
-      {/* CTAs */}
-      <div className="flex flex-wrap items-center gap-3">
-        {p.liveUrl ? (
-          <a
-            href={p.liveUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Visit ${p.name} live demo`}
-            onClick={(e) => { e.stopPropagation(); }}
-            className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
-              p.placeholder ? "pointer-events-none opacity-40" : ""
-            }`}
-            style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
-          >
-            Live Demo{" "}
-            <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-          </a>
-        ) : p.githubUrl ? (
-          <a
-            href={p.githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`View ${p.name} source code on GitHub`}
-            onClick={(e) => { e.stopPropagation(); }}
-            className={`group inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] transition ${
-              p.placeholder ? "pointer-events-none opacity-40" : ""
-            }`}
-            style={{ backgroundColor: p.accent, color: "var(--pf-bg)" }}
-          >
-            Source Code{" "}
-            <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-          </a>
-        ) : (
-          <span
-            className="inline-flex items-center gap-2 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] opacity-50 border border-white/15 text-white/60"
-          >
-            In Development
-          </span>
-        )}
-        {p.liveUrl && p.githubUrl && (
-          <a
-            href={p.githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`View ${p.name} repository on GitHub`}
-            onClick={(e) => { e.stopPropagation(); }}
-            className={`group inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] ${
-              p.placeholder ? "pointer-events-none opacity-40" : ""
-            }`}
-          >
-            <Github className="h-3 w-3" /> GitHub
-          </a>
-        )}
-        {!p.placeholder && onOpenModal && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onOpenModal(p); }}
-            className="inline-flex items-center gap-2 border border-white/15 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/60 hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)] transition"
-          >
-            <ExternalLink className="h-3 w-3" /> Details
-          </button>
-        )}
-      </div>
-    </div>
     </TiltCard>
   );
 }
@@ -3660,9 +3947,7 @@ function WorkFrame({
                 <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </a>
             ) : (
-              <span
-                className="inline-flex items-center gap-2 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] opacity-50 border border-white/15 text-white/60"
-              >
+              <span className="inline-flex items-center gap-2 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] opacity-50 border border-white/15 text-white/60">
                 In Development
               </span>
             )}
@@ -3682,7 +3967,9 @@ function WorkFrame({
             )}
             {!p.placeholder && onOpenModal && (
               <button
-                onClick={() => { onOpenModal(p); }}
+                onClick={() => {
+                  onOpenModal(p);
+                }}
                 className="group inline-flex items-center gap-2 border border-white/15 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/70 transition hover:border-[var(--pf-c1)] hover:text-[var(--pf-c1)]"
               >
                 <ExternalLink className="h-3 w-3" /> Details
@@ -4007,29 +4294,41 @@ function Journey() {
         <SectionEyebrow num="04" title="The Timeline" />
 
         <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          variants={scrollRevealVariants}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
           className="mt-8 font-display text-5xl leading-[1.05] text-white md:text-7xl"
         >
           Experience & <span className="italic text-[var(--pf-c1)]">learning</span>.
         </motion.h2>
-        <p className="mt-6 max-w-xl text-sm leading-relaxed text-white/50">
+        <motion.p
+          variants={scrollRevealVariants}
+          initial="hidden"
+          whileInView="visible"
+          custom={1}
+          viewport={{ once: true, margin: "-80px" }}
+          className="mt-6 max-w-xl text-sm leading-relaxed text-white/50"
+        >
           A quiet arc — from fundamentals to full-stack, mobile, and applied AI. The tools change,
           the craft stays.
-        </p>
+        </motion.p>
 
-        <div className="mt-16 grid gap-px border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
+        <ScrollRevealLine className="mt-10" />
+
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          className="mt-16 grid gap-px border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3"
+        >
           {JOURNEY.map((item, i) => {
             const Icon = item.icon;
             return (
               <motion.div
                 key={item.title + i}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.6, delay: i * 0.05 }}
+                variants={staggerItem}
                 className="group relative overflow-hidden bg-[var(--pf-bg)] p-8"
               >
                 <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[var(--pf-c1)]/0 blur-3xl transition-all duration-500 group-hover:bg-[var(--pf-c1)]/10" />
@@ -4058,7 +4357,7 @@ function Journey() {
               </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -4112,33 +4411,42 @@ function Arena() {
         {/* ── Coding Profiles Heading ── */}
         <div className="mt-10 flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            variants={scrollRevealVariants}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8 }}
             className="font-display text-4xl leading-[1.05] text-white md:text-6xl lg:max-w-xl"
           >
             Numbers from the <span className="italic text-[var(--pf-c1)]">late-night</span> arena.
           </motion.h2>
-          <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/40">
+          <motion.div
+            variants={scrollRevealVariants}
+            initial="hidden"
+            whileInView="visible"
+            custom={1}
+            viewport={{ once: true, margin: "-80px" }}
+            className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/40"
+          >
             <span className="text-white">——</span>&nbsp;&nbsp;1000+ Problems · 30+ Contests
-          </div>
+          </motion.div>
         </div>
 
         {/* ── Tab Switcher ── */}
         <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          variants={scrollRevealVariants}
+          initial="hidden"
+          whileInView="visible"
+          custom={2}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6, delay: 0.1 }}
           className="mt-10 flex flex-wrap items-center gap-2 border-b border-white/10 pb-0"
         >
           {TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`relative px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] transition-colors ${activeTab === tab.key ? "text-[var(--pf-c1)]" : "text-white/40 hover:text-white/80"
-                }`}
+              className={`relative px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] transition-colors ${
+                activeTab === tab.key ? "text-[var(--pf-c1)]" : "text-white/40 hover:text-white/80"
+              }`}
             >
               {activeTab === tab.key && (
                 <motion.span
@@ -4210,8 +4518,9 @@ function Arena() {
                 {profile.stats.map((s, i) => (
                   <div
                     key={s.label}
-                    className={`flex flex-col justify-center px-5 py-5 md:px-7 md:py-7 ${i % 2 === 0 ? "border-r border-white/10" : ""
-                      } ${i < 2 ? "border-b border-white/10" : ""}`}
+                    className={`flex flex-col justify-center px-5 py-5 md:px-7 md:py-7 ${
+                      i % 2 === 0 ? "border-r border-white/10" : ""
+                    } ${i < 2 ? "border-b border-white/10" : ""}`}
                   >
                     <div className="font-display text-2xl italic text-white md:text-4xl">
                       {s.value}
@@ -4248,8 +4557,9 @@ function Arena() {
                     initial={{ width: 0 }}
                     animate={{ width: `${b.pct}%` }}
                     transition={{ duration: 0.8, delay: i * 0.12, ease: [0.2, 0.7, 0.2, 1] }}
-                    className={`${b.color} flex items-center justify-start overflow-hidden px-3 ${i > 0 ? "border-l border-[var(--pf-bg)]/60" : ""
-                      }`}
+                    className={`${b.color} flex items-center justify-start overflow-hidden px-3 ${
+                      i > 0 ? "border-l border-[var(--pf-bg)]/60" : ""
+                    }`}
                   >
                     <span className="whitespace-nowrap font-mono text-[8px] font-bold uppercase tracking-[0.2em] text-[var(--pf-bg)]">
                       {b.count} {b.label}
@@ -4264,10 +4574,11 @@ function Arena() {
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`font-mono text-[9px] uppercase tracking-[0.3em] transition ${activeTab === tab.key
-                      ? "text-[var(--pf-c1)]"
-                      : "text-white/30 hover:text-white/60"
-                      }`}
+                    className={`font-mono text-[9px] uppercase tracking-[0.3em] transition ${
+                      activeTab === tab.key
+                        ? "text-[var(--pf-c1)]"
+                        : "text-white/30 hover:text-white/60"
+                    }`}
                   >
                     {tab.label} {activeTab === tab.key ? "↗" : "/"}
                   </button>
@@ -4278,15 +4589,15 @@ function Arena() {
         </AnimatePresence>
 
         {/* ── Divider ── */}
-        <div className="my-20 border-t border-white/5" />
+        <ScrollRevealLine className="my-20" />
 
         {/* ── GitHub Section ── */}
         <SectionEyebrow num="05b" title="Open Source" />
         <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          variants={scrollRevealVariants}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.8 }}
           className="mt-8 font-display text-5xl leading-[1.05] text-white md:text-6xl"
         >
           Building in <span className="italic text-[var(--pf-c2)]">public</span>.
@@ -4294,10 +4605,10 @@ function Arena() {
 
         <div className="mt-16 grid gap-6 lg:grid-cols-5">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            variants={slideFromLeftVariants}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.7 }}
             className="border border-white/10 bg-white/[0.02] p-8 lg:col-span-3"
           >
             <div className="mb-6 flex items-center justify-between">
@@ -4331,10 +4642,10 @@ function Arena() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            variants={slideFromRightVariants}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.7, delay: 0.1 }}
             className="border border-white/10 bg-white/[0.02] p-8 lg:col-span-2"
           >
             <div className="mb-6 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50">
@@ -4426,30 +4737,33 @@ function Contact() {
       <div className="mx-auto max-w-5xl">
         <SectionEyebrow num="06" title="Cross the Border" />
         <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          variants={scaleUpVariants}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.8 }}
           className="mt-8 font-display text-5xl leading-[1.05] text-white md:text-7xl"
         >
           Let's build something <span className="italic text-[var(--pf-c1)]">together</span>.
         </motion.h2>
         <motion.p
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          variants={scrollRevealVariants}
+          initial="hidden"
+          whileInView="visible"
+          custom={1}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7, delay: 0.1 }}
           className="mt-6 max-w-xl text-sm leading-relaxed text-white/55"
         >
           Freelance, internships, or a full-time full-stack seat — my inbox is open.
         </motion.p>
 
+        <ScrollRevealLine className="mt-10" />
+
         <div className="mt-16 grid gap-8 grid-cols-1 lg:grid-cols-2">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            variants={slideFromLeftVariants}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.7 }}
             className="space-y-5 border border-white/10 bg-white/[0.02] p-6 md:p-8"
           >
             {[
@@ -4472,10 +4786,10 @@ function Contact() {
           </motion.div>
 
           <motion.form
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            variants={slideFromRightVariants}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.7, delay: 0.1 }}
             onSubmit={handleSubmit}
             className="space-y-4 border border-white/10 bg-white/[0.02] p-8"
           >
@@ -4581,15 +4895,21 @@ function Footer() {
       />
 
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        variants={scrollRevealVariants}
+        initial="hidden"
+        whileInView="visible"
         viewport={{ once: true, margin: "-40px" }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
         className="relative z-10 mx-auto max-w-6xl"
       >
-        <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-40px" }}
+          className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8"
+        >
           {/* Column 1: Brand & Bio */}
-          <div className="lg:col-span-5">
+          <motion.div variants={staggerItem} className="lg:col-span-5">
             <div className="flex items-center gap-2">
               <span className="font-display text-2xl italic font-bold tracking-tight text-white">
                 MSK<span className="text-[var(--pf-c1)]">.</span>
@@ -4603,10 +4923,10 @@ function Footer() {
               Full-Stack Developer crafting high-fidelity web, mobile, and AI solutions. Currently
               based in Odisha, India, exploring the horizons of software architecture.
             </p>
-          </div>
+          </motion.div>
 
           {/* Column 2: Chapters Quick Links */}
-          <div className="lg:col-span-4">
+          <motion.div variants={staggerItem} className="lg:col-span-4">
             <div className="font-mono text-[9px] uppercase tracking-[0.3em] text-white/35">
               Index / Chapters
             </div>
@@ -4621,10 +4941,10 @@ function Footer() {
                 </a>
               ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Column 3: Contact Metadata & Socials */}
-          <div className="lg:col-span-3">
+          <motion.div variants={staggerItem} className="lg:col-span-3">
             <div className="font-mono text-[9px] uppercase tracking-[0.3em] text-white/35">
               Connection Terminals
             </div>
@@ -4639,7 +4959,7 @@ function Footer() {
                   icon: Linkedin,
                 },
                 { label: "Email", href: "mailto:ms.kumar.developer05@gmail.com", icon: Mail },
-              ].map(({ label, href, icon: Icon }) => (  
+              ].map(({ label, href, icon: Icon }) => (
                 <a
                   key={label}
                   href={href}
@@ -4664,8 +4984,8 @@ function Footer() {
                 <span>Terminal Status: Active</span>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Bottom border & sub footer */}
         <div className="mt-16 border-t border-white/5 pt-8 flex flex-wrap items-center justify-between gap-4 font-mono text-[9px] uppercase tracking-[0.25em] text-white/25">
@@ -4816,8 +5136,7 @@ function Portfolio() {
       const saved = localStorage.getItem("pf-theme");
       if (saved) document.documentElement.setAttribute("data-pf-theme", saved);
       else document.documentElement.setAttribute("data-pf-theme", "gold");
-      // eslint-disable-next-line no-empty
-    } catch (_) { }
+    } catch (_) {}
     setMounted(true);
   }, []);
 
@@ -4838,12 +5157,14 @@ function Portfolio() {
 
   const handleSelectTheme = (themeId: string) => {
     document.documentElement.setAttribute("data-pf-theme", themeId);
-    try { localStorage.setItem("pf-theme", themeId); } catch (_) { }
+    try {
+      localStorage.setItem("pf-theme", themeId);
+    } catch (_) {}
   };
 
   const handleOpenProjectModal = (projectName: string) => {
     const proj = PROJECTS.find(
-      (p) => p.name === projectName || p.name.toLowerCase() === projectName.toLowerCase()
+      (p) => p.name === projectName || p.name.toLowerCase() === projectName.toLowerCase(),
     );
     if (proj) setActiveProject(proj);
   };
@@ -4854,18 +5175,21 @@ function Portfolio() {
       <CinematicLoader />
       <Starfield />
       <ScrollProgress />
-      <Navbar
-        active={active}
-        onOpenCommandPalette={() => setCommandPaletteOpen(true)}
-      />
+      <Navbar active={active} onOpenCommandPalette={() => setCommandPaletteOpen(true)} />
       <HUDChrome active={active} />
       <main>
         <Hero />
+        <AnimatedDivider />
         <About />
+        <AnimatedDivider />
         <Stack />
+        <AnimatedDivider />
         <Work onOpenModal={setActiveProject} />
+        <AnimatedDivider />
         <Journey />
+        <AnimatedDivider />
         <Arena />
+        <AnimatedDivider />
         <Contact />
       </main>
       <Footer />
@@ -4890,10 +5214,7 @@ function Portfolio() {
         {matrixMode && <MatrixRain onClose={() => setMatrixMode(false)} />}
       </AnimatePresence>
 
-      <ProjectModal
-        project={activeProject}
-        onClose={() => setActiveProject(null)}
-      />
+      <ProjectModal project={activeProject} onClose={() => setActiveProject(null)} />
 
       <Toaster
         position="bottom-right"
@@ -4947,8 +5268,6 @@ export const Route = createFileRoute("/")({
       },
       { name: "twitter:image", content: "https://itsmsk.vercel.app/og-image.png" },
     ],
-    links: [
-      { rel: "canonical", href: "https://itsmsk.vercel.app/" },
-    ],
+    links: [{ rel: "canonical", href: "https://itsmsk.vercel.app/" }],
   }),
 });

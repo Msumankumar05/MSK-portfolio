@@ -46,7 +46,7 @@ export function CustomCursor() {
 
       // Check interactive element
       const interactiveEl = target.closest(
-        'a, button, [role="button"], input, textarea, select, [data-cursor-hover], .clickable'
+        'a, button, [role="button"], input, textarea, select, [data-cursor-hover], .clickable',
       );
       const isInteractive = Boolean(interactiveEl);
       setIsPointer(isInteractive);

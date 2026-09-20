@@ -360,7 +360,9 @@ export function CommandPalette({
       playHoverSound();
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev - 1 + filteredItems.length) % Math.max(1, filteredItems.length));
+      setSelectedIndex(
+        (prev) => (prev - 1 + filteredItems.length) % Math.max(1, filteredItems.length),
+      );
       playHoverSound();
     } else if (e.key === "Enter") {
       e.preventDefault();
@@ -413,10 +415,7 @@ export function CommandPalette({
                 className="w-full bg-transparent font-mono text-sm text-white placeholder-white/40 outline-none"
               />
               {query && (
-                <button
-                  onClick={() => setQuery("")}
-                  className="text-white/40 hover:text-white"
-                >
+                <button onClick={() => setQuery("")} className="text-white/40 hover:text-white">
                   <X className="h-3.5 w-3.5" />
                 </button>
               )}
@@ -493,9 +492,7 @@ export function CommandPalette({
                           )}
                           <ArrowRight
                             className={`h-3.5 w-3.5 transition-transform ${
-                              isSelected
-                                ? "text-[var(--pf-c1)] translate-x-0.5"
-                                : "text-white/20"
+                              isSelected ? "text-[var(--pf-c1)] translate-x-0.5" : "text-white/20"
                             }`}
                           />
                         </div>
@@ -511,7 +508,8 @@ export function CommandPalette({
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1">
                   <kbd className="rounded border border-white/15 px-1 bg-white/5">↑</kbd>
-                  <kbd className="rounded border border-white/15 px-1 bg-white/5">↓</kbd> to navigate
+                  <kbd className="rounded border border-white/15 px-1 bg-white/5">↓</kbd> to
+                  navigate
                 </span>
                 <span className="flex items-center gap-1">
                   <kbd className="rounded border border-white/15 px-1 bg-white/5">↵</kbd> to select

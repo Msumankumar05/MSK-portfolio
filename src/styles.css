@@ -151,7 +151,6 @@
   will-change: transform;
 }
 
-
 /* ============================================================
    🌈  Portfolio Theme System — 6 Aesthetic Palettes
    ============================================================ */
@@ -261,9 +260,8 @@
   --pf-glow: 0 0 40px rgba(232, 53, 42, 0.15);
 }
 
-
 /* ── Obsidian: ambient background ── */
-:root[data-pf-theme="devialet"] .pointer-events-none.fixed.inset-0.-z-10>div:nth-child(1) {
+:root[data-pf-theme="devialet"] .pointer-events-none.fixed.inset-0.-z-10 > div:nth-child(1) {
   background-image:
     radial-gradient(ellipse 70% 50% at 15% 25%, rgba(232, 53, 42, 0.08), transparent 60%),
     radial-gradient(ellipse 60% 40% at 85% 75%, rgba(201, 168, 124, 0.06), transparent 55%),
@@ -347,7 +345,6 @@
 }
 
 @keyframes pf-aurora {
-
   0%,
   100% {
     transform: translate3d(-50%, 0, 0) scale(1);
@@ -365,7 +362,6 @@
 }
 
 @keyframes pf-float-slow {
-
   0%,
   100% {
     transform: translateY(0);
@@ -381,7 +377,6 @@
 }
 
 @keyframes pf-pulse {
-
   0%,
   100% {
     transform: scale(1);
@@ -409,10 +404,12 @@
 }
 
 .shimmer {
-  background: linear-gradient(90deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.1) 50%,
-      rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
   background-size: 200% 100%;
   animation: pf-shimmer 3s linear infinite;
 }
@@ -460,7 +457,6 @@ body.pf-theme-morph *::after {
     stroke 0.7s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-
 /* ============================================================
    🌀  Pro Background Atmosphere & Theme Transition
    ============================================================ */
@@ -471,10 +467,12 @@ body.pf-theme-morph *::after {
   inset: 0;
   z-index: 99999;
   pointer-events: none;
-  background: radial-gradient(circle at var(--px) var(--py),
-      rgb(from var(--c1) r g b / 0.25) 0%,
-      rgb(from var(--c2) r g b / 0.12) 40%,
-      transparent 75%);
+  background: radial-gradient(
+    circle at var(--px) var(--py),
+    rgb(from var(--c1) r g b / 0.25) 0%,
+    rgb(from var(--c2) r g b / 0.12) 40%,
+    transparent 75%
+  );
   backdrop-filter: blur(12px) saturate(1.3);
   -webkit-backdrop-filter: blur(12px) saturate(1.3);
   opacity: 0;
@@ -490,10 +488,12 @@ body.pf-theme-morph *::after {
   transform: translate(-50%, -50%) scale(0);
   pointer-events: none;
   z-index: 9999;
-  background: radial-gradient(circle,
-      rgb(from var(--pf-c1) r g b / 0.45) 0%,
-      rgb(from var(--pf-c2) r g b / 0.25) 35%,
-      transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgb(from var(--pf-c1) r g b / 0.45) 0%,
+    rgb(from var(--pf-c2) r g b / 0.25) 35%,
+    transparent 70%
+  );
   box-shadow: 0 0 60px var(--pf-c1);
   animation: pf-ripple-expand 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -556,12 +556,14 @@ body.pf-theme-morph *::after {
   position: absolute;
   inset: -60% -60%;
   pointer-events: none;
-  background: linear-gradient(115deg,
-      transparent 35%,
-      rgb(from var(--c1) r g b / 0.18) 46%,
-      rgb(from var(--c2) r g b / 0.30) 50%,
-      rgb(from var(--c3) r g b / 0.18) 54%,
-      transparent 65%);
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgb(from var(--c1) r g b / 0.18) 46%,
+    rgb(from var(--c2) r g b / 0.3) 50%,
+    rgb(from var(--c3) r g b / 0.18) 54%,
+    transparent 65%
+  );
   transform: translateX(-100%) rotate(12deg);
   animation: pf-flare-anim 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -584,7 +586,6 @@ body.pf-theme-morph *::after {
 
 /* ── Floating Aurora Ambient Orbs ── */
 @keyframes pf-aurora-float-1 {
-
   0%,
   100% {
     transform: translate(0, 0) scale(1);
@@ -600,7 +601,6 @@ body.pf-theme-morph *::after {
 }
 
 @keyframes pf-aurora-float-2 {
-
   0%,
   100% {
     transform: translate(0, 0) scale(1);
@@ -632,7 +632,10 @@ body.pf-theme-morph *::after {
     radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0),
     linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-  background-size: 32px 32px, 64px 64px, 64px 64px;
+  background-size:
+    32px 32px,
+    64px 64px,
+    64px 64px;
   mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, #000 20%, transparent 85%);
   -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, #000 20%, transparent 85%);
   animation: pf-grid-drift 25s ease-in-out infinite alternate;
@@ -650,7 +653,6 @@ body.pf-theme-morph *::after {
 
 /* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
-
   .pf-pro-light-surge,
   .pf-flare-sweep,
   .animate-aurora-orb-1,
@@ -683,10 +685,12 @@ body.pf-theme-morph *::after {
   position: relative;
   padding: 1px;
   border-radius: 999px;
-  background: linear-gradient(135deg,
-      rgb(from var(--pf-c1) r g b / 0.5),
-      rgb(from var(--pf-c2) r g b / 0.3),
-      rgb(from var(--pf-c3) r g b / 0.5));
+  background: linear-gradient(
+    135deg,
+    rgb(from var(--pf-c1) r g b / 0.5),
+    rgb(from var(--pf-c2) r g b / 0.3),
+    rgb(from var(--pf-c3) r g b / 0.5)
+  );
   transition: background 0.7s ease;
 }
 
@@ -695,10 +699,12 @@ body.pf-theme-morph *::after {
   position: absolute;
   inset: -2px;
   border-radius: 999px;
-  background: linear-gradient(135deg,
-      rgb(from var(--pf-c1) r g b / 0.4),
-      rgb(from var(--pf-c2) r g b / 0.25),
-      rgb(from var(--pf-c3) r g b / 0.4));
+  background: linear-gradient(
+    135deg,
+    rgb(from var(--pf-c1) r g b / 0.4),
+    rgb(from var(--pf-c2) r g b / 0.25),
+    rgb(from var(--pf-c3) r g b / 0.4)
+  );
   filter: blur(12px);
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -748,12 +754,14 @@ body.pf-theme-morph *::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(105deg,
-      transparent 20%,
-      rgba(255, 255, 255, 0.08) 45%,
-      rgba(255, 255, 255, 0.16) 50%,
-      rgba(255, 255, 255, 0.08) 55%,
-      transparent 80%);
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.08) 45%,
+    rgba(255, 255, 255, 0.16) 50%,
+    rgba(255, 255, 255, 0.08) 55%,
+    transparent 80%
+  );
   background-size: 250% 100%;
   background-position: 200% 0;
   pointer-events: none;
@@ -770,7 +778,9 @@ body.pf-theme-morph *::after {
   height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+  transition:
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.4s ease;
 }
 
 .pf-pro-swap-btn:hover .pf-pro-dot:nth-child(1) {
@@ -796,7 +806,9 @@ body.pf-theme-morph *::after {
   font-size: 13px;
   line-height: 1;
   color: var(--pf-c1);
-  transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
+  transition:
+    transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
+    color 0.3s ease;
 }
 
 .pf-pro-swap-btn:hover .pf-pro-spin {
@@ -865,7 +877,8 @@ body.pf-theme-morph *::after {
    ============================================================ */
 
 @keyframes pf-audio-wave {
-  0%, 100% {
+  0%,
+  100% {
     height: 3px;
   }
   50% {

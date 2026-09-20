@@ -2,7 +2,9 @@
 
 export const isSoundEnabled = (): boolean => false;
 export const toggleSound = (): boolean => false;
-export const subscribeSound = (_callback: (enabled: boolean) => void): (() => void) => () => {};
+export const subscribeSound =
+  (_callback: (enabled: boolean) => void): (() => void) =>
+  () => {};
 export const initAudio = (): void => {};
 export const playHoverSound = (): void => {};
 export const playClickSound = (): void => {};

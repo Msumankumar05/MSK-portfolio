@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { playEagleSound, playHoverSound } from "../lib/sound-fx";
 
@@ -29,7 +29,7 @@ export function EagleAnimation({
     return () => clearInterval(timer);
   }, []);
 
-  const handleLaunch = () => {
+  const handleLaunch = useCallback(() => {
     if (isLaunching) return;
     setIsLaunching(true);
     setShowHud(true);
@@ -41,13 +41,13 @@ export function EagleAnimation({
       setIsLaunching(false);
       setTimeout(() => setShowHud(false), 2400);
     }, 3600);
-  };
+  }, [isLaunching, onScreech]);
 
   useEffect(() => {
     const onTrigger = () => handleLaunch();
     window.addEventListener("launch-eagle-flight", onTrigger);
     return () => window.removeEventListener("launch-eagle-flight", onTrigger);
-  }, [isLaunching]);
+  }, [handleLaunch]);
 
   return (
     <div
@@ -73,8 +73,8 @@ export function EagleAnimation({
               {isLaunching
                 ? "FALCO · SKYLINE SPREE DIVE // MACH 3.4"
                 : isTerminalActive
-                ? `FALCO [HELLFIRE] · AIR SPD ${speed} KM/H`
-                : `FALCO [APEX RAPTOR] · AIR SPD ${speed} KM/H`}
+                  ? `FALCO [HELLFIRE] · AIR SPD ${speed} KM/H`
+                  : `FALCO [APEX RAPTOR] · AIR SPD ${speed} KM/H`}
             </span>
             <span className="text-[10px] text-amber-400">🔥</span>
           </motion.div>
@@ -96,18 +96,18 @@ export function EagleAnimation({
                 opacity: [1, 1, 0.5, 0, 0.95, 1],
               }
             : isHovered
-            ? {
-                // Aggressive predator lock-on hover
-                y: [0, -8, -4, -10, 0],
-                rotate: [-1, 1.5, -0.5, 1, -1],
-                scale: 1.05,
-              }
-            : {
-                // Gentle soaring perch breathing cycle
-                y: [0, -6, -10, -5, 0],
-                rotate: [-0.8, 0.8, -0.5, 1, -0.8],
-                scale: [1, 1.02, 1.03, 1.01, 1],
-              }
+              ? {
+                  // Aggressive predator lock-on hover
+                  y: [0, -8, -4, -10, 0],
+                  rotate: [-1, 1.5, -0.5, 1, -1],
+                  scale: 1.05,
+                }
+              : {
+                  // Gentle soaring perch breathing cycle
+                  y: [0, -6, -10, -5, 0],
+                  rotate: [-0.8, 0.8, -0.5, 1, -0.8],
+                  scale: [1, 1.02, 1.03, 1.01, 1],
+                }
         }
         transition={
           isLaunching

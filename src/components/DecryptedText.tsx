@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 
 interface DecryptedTextProps {
   text: string;
@@ -20,11 +20,11 @@ export function DecryptedText({
   animateOnView = true,
 }: DecryptedTextProps) {
   const [displayText, setDisplayText] = useState(text);
-  const [isHovered, setIsHovered] = useState(false);
+  const [, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLSpanElement>(null);
   const hasAnimatedRef = useRef(false);
 
-  const runAnimation = () => {
+  const runAnimation = useCallback(() => {
     let iteration = 0;
     const totalLength = text.length;
 
@@ -50,7 +50,7 @@ export function DecryptedText({
     }, speed);
 
     return () => clearInterval(interval);
-  };
+  }, [text, speed, maxIterations, characters]);
 
   useEffect(() => {
     if (!animateOnView) return;
@@ -66,12 +66,12 @@ export function DecryptedText({
           }
         });
       },
-      { threshold: 0.2 }
+      { threshold: 0.2 },
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [text, animateOnView]);
+  }, [animateOnView, runAnimation]);
 
   const handleMouseEnter = () => {
     setIsHovered(true);

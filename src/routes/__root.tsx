@@ -229,13 +229,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         name: "robots",
-        content:
-          "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        content: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
       },
       {
         name: "googlebot",
-        content:
-          "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        content: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
       },
       { name: "google-site-verification", content: "googlecb459a5d07a81983" },
       { name: "theme-color", content: "#0a0c12" },
@@ -349,35 +347,35 @@ function RootComponent() {
               Makoju Suman Kumar (MSK) — Full-Stack Engineer &amp; AI Developer
             </h1>
             <p style={{ fontSize: "1.1rem", color: "#94a3b8" }}>
-              Master of Computer Applications (MCA) student &amp; Full-Stack Software Engineer
-              based in Odisha, India. Specializing in high-performance web applications,
-              mobile engineering, and applied AI systems.
+              Master of Computer Applications (MCA) student &amp; Full-Stack Software Engineer based
+              in Odisha, India. Specializing in high-performance web applications, mobile
+              engineering, and applied AI systems.
             </p>
             <h2 style={{ fontSize: "1.3rem", color: "#38bdf8", marginTop: "24px" }}>
               Core Technology Stack
             </h2>
             <p>
-              React, TypeScript, JavaScript, Node.js, Express.js, Flutter, Kotlin, MongoDB,
-              MySQL, Tailwind CSS, OpenRouter AI, Agentic Workflows.
+              React, TypeScript, JavaScript, Node.js, Express.js, Flutter, Kotlin, MongoDB, MySQL,
+              Tailwind CSS, OpenRouter AI, Agentic Workflows.
             </p>
             <h2 style={{ fontSize: "1.3rem", color: "#38bdf8", marginTop: "24px" }}>
               Highlighted Projects
             </h2>
             <ul>
               <li>
-                <strong>Farmora</strong>: MERN agricultural marketplace with real-time catalog
-                and authentication.
+                <strong>Farmora</strong>: MERN agricultural marketplace with real-time catalog and
+                authentication.
               </li>
               <li>
                 <strong>CineDB</strong>: Movie and TV exploration engine consuming TMDB API.
               </li>
               <li>
-                <strong>SKY AI</strong>: Conversational voice and text assistant powered by
-                speech synthesis and LLMs.
+                <strong>SKY AI</strong>: Conversational voice and text assistant powered by speech
+                synthesis and LLMs.
               </li>
               <li>
-                <strong>Mobile Task Planner</strong>: Cross-platform task manager built with
-                Flutter &amp; Kotlin.
+                <strong>Mobile Task Planner</strong>: Cross-platform task manager built with Flutter
+                &amp; Kotlin.
               </li>
             </ul>
             <h2 style={{ fontSize: "1.3rem", color: "#38bdf8", marginTop: "24px" }}>

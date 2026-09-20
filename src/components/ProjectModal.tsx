@@ -1,6 +1,16 @@
 import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ExternalLink, Github, Sparkles, Layers, Cpu, Database, Server, Copy } from "lucide-react";
+import {
+  X,
+  ExternalLink,
+  Github,
+  Sparkles,
+  Layers,
+  Cpu,
+  Database,
+  Server,
+  Copy,
+} from "lucide-react";
 import { playModalSound, playClickSound } from "../lib/sound-fx";
 import { toast } from "sonner";
 
@@ -101,9 +111,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                     {project.category}
                   </span>
                 </div>
-                <h3 className="font-display text-2xl text-white mt-1">
-                  {project.name}
-                </h3>
+                <h3 className="font-display text-2xl text-white mt-1">{project.name}</h3>
               </div>
             </div>
 
@@ -126,9 +134,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
               <h4 className="font-mono text-[9px] uppercase tracking-[0.25em] text-[var(--pf-c1)] mb-2">
                 System Overview
               </h4>
-              <p className="text-sm leading-relaxed text-white/80 font-light">
-                {project.longDesc}
-              </p>
+              <p className="text-sm leading-relaxed text-white/80 font-light">{project.longDesc}</p>
             </div>
 
             {/* Performance & Metric Highlight */}
